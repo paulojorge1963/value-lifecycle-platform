@@ -1,0 +1,44 @@
+{
+  "name": "value-consultancy-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Value Lifecycle Platform — end-to-end workspace for Value Engineers (VE) and Value Realization Managers (VRM).",
+  "scripts": {
+    "dev": "next dev -p 3200",
+    "build": "prisma generate && next build",
+    "start": "next start -p 3200",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force && tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
+    "@prisma/client": "^6.2.1",
+    "bcryptjs": "^3.0.3",
+    "docx": "^9.1.0",
+    "exceljs": "^4.4.0",
+    "next": "^15.5.23",
+    "next-auth": "^5.0.0-beta.32",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "prisma": "^6.2.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

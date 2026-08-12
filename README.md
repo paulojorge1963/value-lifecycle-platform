@@ -1,0 +1,74 @@
+# Value Lifecycle Platform
+
+An end-to-end web app for two complementary roles across the full value lifecycle:
+
+- **Value Engineer (VE)** — runs structured value studies (8-phase VE Job Plan), analyses functions/cost/performance, generates alternatives, and builds a quantified business case.
+- **Value Realization Manager (VRM)** — implements approved recommendations (7-phase realization lifecycle), drives adoption, measures outcomes, and proves realized value against the business case.
+
+The **VE → VR handover is first-class**: every realization track links back to its source study, business case, baselines, KPIs and success criteria.
+
+Supports three configurable industry profiles out of the box — **Construction & Infrastructure**, **Manufacturing & Product Development**, and **Enterprise Software / SaaS** — with industry as *configuration, not code*.
+
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full design, data model and user flows.
+
+## Stack
+
+Next.js 15 (App Router) · TypeScript · Prisma · PostgreSQL · Tailwind CSS · docx / exceljs exports.
+
+## Prerequisites
+
+- Node 18+ and PostgreSQL running locally.
+
+## Setup
+
+```bash
+# 1. Install
+npm install
+
+# 2. Configure the database URL
+cp .env.example .env
+#   edit .env → DATABASE_URL="postgresql://<user>@localhost:5432/value_consultancy?schema=public"
+
+# 3. Create the database
+createdb value_consultancy
+
+# 4. Create the schema + generate the client
+npx prisma db push
+
+# 5. Seed config (industries, phases, KPIs, templates) + demo data
+npm run db:seed
+
+# 6. Run
+npm run dev   # http://localhost:3200
+```
+
+## What's seeded
+
+- **Config**: 3 industry profiles, 8 VE + 7 VR phase-guidance templates, ~20 KPI definitions with formulas, VE/VR content templates.
+- **Demo org** *Meridian Value Advisory* with 5 users (one per role).
+- **Study VE-2026-014** (construction) — fully handed over to a live realization track **VR-2026-014** with work packages, benefits, KPI actuals and a QBR.
+- **Study VE-2026-021** (SaaS) — in review, with a business case, ready to hand over.
+
+**Sign in** at `/login` (unauthenticated requests are redirected there by middleware). Use the demo quick-login buttons to sign in as Value Engineer, Value Realization Manager, Reviewer or Stakeholder — navigation and permissions adapt. Demo password: `demo1234`.
+
+## Key scripts
+
+| Script | Action |
+|---|---|
+| `npm run dev` | Dev server on :3200 |
+| `npm run db:seed` | Seed config + demo data (idempotent for config; resets demo studies/tracks) |
+| `npm run db:reset` | Drop, re-migrate and re-seed |
+| `npx prisma studio` | Browse the database |
+
+## API (selected)
+
+- `GET/POST /api/studies` · `GET /api/studies/:id`
+- `GET/POST /api/tracks` — POST creates a track by handing over a study (the VE→VR bridge)
+- `GET /api/kpis`
+- `GET /api/export/business-case/:studyId` → Word · `GET /api/export/vrp/:trackId` → Word · `GET /api/export/kpis` → Excel
+
+## Production notes
+
+- **Auth**: Auth.js (NextAuth v5) with a Credentials provider (JWT sessions). Config is split for the edge: `src/lib/auth.config.ts` (edge-safe, used by `src/middleware.ts` for route protection) and `src/lib/auth.ts` (adds the Credentials provider using Prisma + bcrypt). `getCurrentUser()`/`can()` in `src/lib/session.ts` resolve role and enforce RBAC. Requires `AUTH_SECRET` in `.env` (generate with `openssl rand -base64 32`). To add OAuth/email providers, extend the `providers` array in `src/lib/auth.ts`.
+- **AI starter-text**: recommendation drafting and creative-alternative brainstorming call Claude (`@anthropic-ai/sdk`, model `claude-opus-5`, structured outputs) via `src/lib/ai.ts`. It's gated on `ANTHROPIC_API_KEY` — set it in `.env` to enable AI drafting; when unset, the buttons fall back to template starter text seeded from the industry profile, so the feature works with no external dependency. Buttons label themselves "…with AI" vs "…(template)" accordingly.
+- **Migrations**: `prisma db push` is used for the first pass; switch to `prisma migrate` for versioned migrations before production.

@@ -1,0 +1,832 @@
+// =============================================================================
+//  Value Lifecycle Platform — data model
+//  Covers the full value lifecycle: Value Engineering (VE) → Value Realization (VR)
+//
+//  Layers (kept deliberately separate, per architecture requirement #6):
+//   1. Config      — IndustryProfile, PhaseTemplate, ContentTemplate, KpiDefinition
+//   2. Core domain — Study/VE + RealizationTrack/VR and everything they own
+//   3. Identity    — Organization, Team, User, Membership (RBAC)
+//   4. Governance  — Comment, AuditEvent, DocumentVersion
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+//  ENUMS
+// -----------------------------------------------------------------------------
+
+/// The lifecycle a phase belongs to. Drives which workspace renders it.
+enum Discipline {
+  VE // Value Engineering
+  VR // Value Realization
+}
+
+/// System roles. A user's effective role is resolved per-Organization via Membership.
+enum Role {
+  VALUE_ENGINEER
+  VALUE_REALIZATION_MANAGER
+  REVIEWER // reviewer / manager — read + approve
+  VIEWER // stakeholder / viewer — read only
+  ADMIN
+}
+
+/// The 8-phase VE Job Plan.
+enum VePhaseKey {
+  ORIENTATION // 1. Orientation / Pre-Study
+  INFORMATION // 2. Information
+  FUNCTION_ANALYSIS // 3. Function Analysis
+  CREATIVE // 4. Creative / Speculation
+  EVALUATION // 5. Evaluation
+  DEVELOPMENT // 6. Development
+  PRESENTATION // 7. Presentation
+  HANDOVER // 8. Handover to Implementation & Follow-up
+}
+
+/// The 7-phase Value Realization lifecycle.
+enum VrPhaseKey {
+  INTAKE // 1. Intake & Alignment
+  BASELINE // 2. Baseline & Measurement Design
+  IMPLEMENTATION_PLANNING // 3. Implementation Planning
+  ADOPTION // 4. Adoption & Change Management
+  EXECUTION // 5. Execution & Monitoring
+  VALUE_TRACKING // 6. Value Tracking & Reporting
+  CLOSEOUT // 7. Close-Out & Lessons Learned
+}
+
+enum PhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  COMPLETE
+}
+
+enum StudyStatus {
+  DRAFT
+  ACTIVE
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  HANDED_OVER
+  ARCHIVED
+}
+
+enum TrackStatus {
+  PLANNING
+  IN_FLIGHT
+  ON_HOLD
+  REALIZED
+  CLOSED
+  CANCELLED
+}
+
+/// RAG health used on the VR dashboards.
+enum Health {
+  GREEN
+  AMBER
+  RED
+}
+
+enum FunctionKind {
+  BASIC // primary reason the item/process exists
+  SECONDARY // supporting functions
+}
+
+enum RecommendationStatus {
+  PROPOSED
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+  DEFERRED
+}
+
+enum WorkPackageStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum RiskStatus {
+  OPEN
+  MITIGATING
+  CLOSED
+  ACCEPTED
+}
+
+/// Category of value a benefit / KPI represents.
+enum BenefitCategory {
+  COST_SAVING
+  REVENUE_UPLIFT
+  RISK_REDUCTION
+  TIME_SAVING
+  QUALITY
+  SCHEDULE
+  RELIABILITY
+  OTHER
+}
+
+/// Whether a higher KPI actual is good or bad.
+enum KpiDirection {
+  HIGHER_IS_BETTER
+  LOWER_IS_BETTER
+}
+
+enum ReportKind {
+  MONTHLY
+  QUARTERLY_QBR
+  EXECUTIVE_EBR
+  ADHOC
+  CLOSEOUT
+}
+
+// -----------------------------------------------------------------------------
+//  IDENTITY & RBAC
+// -----------------------------------------------------------------------------
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  teams       Team[]
+  memberships Membership[]
+  users       User[]
+  studies     Study[]
+  tracks      RealizationTrack[]
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  name           String // e.g. business unit
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  studies Study[]
+  tracks  RealizationTrack[]
+
+  @@index([organizationId])
+}
+
+model User {
+  id             String  @id @default(cuid())
+  email          String  @unique
+  name           String
+  title          String?
+  passwordHash   String? // bcrypt hash for Credentials sign-in
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  memberships       Membership[]
+  ownedStudies      Study[]            @relation("StudyOwner")
+  ownedTracks       RealizationTrack[] @relation("TrackOwner")
+  assignedTasks     PhaseTask[]        @relation("TaskAssignee")
+  assignedWork      WorkPackage[]      @relation("WorkOwner")
+  comments          Comment[]
+  auditEvents       AuditEvent[]
+  documentVersions  DocumentVersion[]
+
+  @@index([organizationId])
+}
+
+/// Resolves a user's Role within an Organization (and optionally a Team).
+model Membership {
+  id             String @id @default(cuid())
+  userId         String
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+}
+
+// -----------------------------------------------------------------------------
+//  CONFIG LAYER  (seeded from src/lib/domain/* — extensible without code changes)
+// -----------------------------------------------------------------------------
+
+/// An industry profile tailors study types, cost drivers, value levers, language
+/// and the default KPI set. `config` holds the flexible, extensible fields.
+model IndustryProfile {
+  id          String  @id @default(cuid())
+  key         String  @unique // e.g. "construction", "manufacturing", "saas"
+  name        String
+  description String
+  /// { studyTypes:[], costDrivers:[], valueLevers:[], glossary:{}, exampleDeliverables:[] }
+  config      Json
+  isSystem    Boolean @default(true) // system profiles ship with the app; false = org-defined
+  version     Int     @default(1)
+  createdAt   DateTime @default(now())
+
+  studies        Study[]
+  tracks         RealizationTrack[]
+  kpiDefinitions KpiDefinition[]
+
+  @@index([key])
+}
+
+/// Guidance for a single phase (purpose, key questions, tasks, artifacts, exit
+/// criteria). Keyed by discipline+phase; optionally specialised per industry.
+model PhaseTemplate {
+  id            String      @id @default(cuid())
+  discipline    Discipline
+  vePhase       VePhaseKey?
+  vrPhase       VrPhaseKey?
+  industryKey   String? // null = applies to all industries
+  order         Int
+  title         String
+  purpose       String
+  /// string[]
+  keyQuestions  Json
+  /// { requiredInputs:string[], tasks:string[], artifacts:string[], exitCriteria:string[] }
+  content       Json
+  version       Int         @default(1)
+
+  @@index([discipline, industryKey])
+}
+
+/// Reusable content template (starter text, formulas, deck outlines) shown in
+/// the Template Library and offered as "starter text" inside deliverables.
+model ContentTemplate {
+  id          String      @id @default(cuid())
+  discipline  Discipline
+  kind        String // "problem_statement" | "function_model" | "business_case" | "vrp" | "qbr" | ...
+  title       String
+  industryKey String?
+  body        String // markdown starter text with {{placeholders}}
+  metadata    Json? // e.g. example formulas, section list
+  isSystem    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+
+  @@index([discipline, kind, industryKey])
+}
+
+/// Catalogue of KPI definitions (formula, unit, direction). Instances of these
+/// become KpiTarget/KpiActual on a study or track.
+model KpiDefinition {
+  id            String       @id @default(cuid())
+  key           String       @unique // e.g. "cost_savings", "adoption_rate", "payback_period"
+  name          String
+  description   String
+  discipline    Discipline // VE-side planned KPI vs VR-side realized KPI
+  category      BenefitCategory
+  unit          String // "USD", "%", "months", "count", "days"
+  direction     KpiDirection @default(HIGHER_IS_BETTER)
+  formula       String? // human-readable formula, e.g. "(baseline - actual) / baseline"
+  scope         String       @default("study") // "study" | "track" | "portfolio"
+  industryKey   String? // null = generic
+  industry      IndustryProfile? @relation(fields: [industryKey], references: [key])
+  isSystem      Boolean      @default(true)
+
+  targets KpiTarget[]
+
+  @@index([discipline, industryKey])
+}
+
+// -----------------------------------------------------------------------------
+//  CORE DOMAIN — VALUE ENGINEERING
+// -----------------------------------------------------------------------------
+
+model Study {
+  id             String      @id @default(cuid())
+  code           String      @unique // human-friendly, e.g. "VE-2026-014"
+  title          String
+  summary        String?
+  status         StudyStatus @default(DRAFT)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teamId         String?
+  team           Team?        @relation(fields: [teamId], references: [id])
+  industryKey    String
+  industry       IndustryProfile @relation(fields: [industryKey], references: [key])
+
+  ownerId String
+  owner   User   @relation("StudyOwner", fields: [ownerId], references: [id])
+
+  studyType      String? // from industry profile's studyTypes
+  scope          String? // problem statement / scope document (markdown)
+  problemStatement String?
+
+  /// Evaluation-phase criteria & weights: [{ key, label, weight }]
+  evaluationCriteria Json?
+
+  estimatedValue Float?  // planned value impact (headline number)
+  currency       String  @default("ZAR")
+
+  startedAt   DateTime?
+  targetDate  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  phases          StudyPhase[]
+  infoItems       InfoItem[]
+  functions       FunctionItem[]
+  alternatives    Alternative[]
+  recommendations Recommendation[]
+  businessCase    BusinessCase?
+  handover        HandoverArtifact[]
+  risks           RiskItem[]
+  tracks          RealizationTrack[]
+  kpiTargets      KpiTarget[]
+  comments        Comment[]
+  auditEvents     AuditEvent[]
+  documents       DocumentVersion[]
+
+  @@index([organizationId, status])
+  @@index([industryKey])
+}
+
+/// A concrete instance of a VE Job Plan phase within a study.
+model StudyPhase {
+  id         String      @id @default(cuid())
+  studyId    String
+  study      Study       @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  phase      VePhaseKey
+  order      Int
+  status     PhaseStatus @default(NOT_STARTED)
+  notes      String?
+  startedAt  DateTime?
+  completedAt DateTime?
+  /// Snapshot of exit-criteria completeness, e.g. { "baseline_defined": true }
+  checklist  Json?
+
+  tasks PhaseTask[]
+
+  @@unique([studyId, phase])
+  @@index([studyId])
+}
+
+model PhaseTask {
+  id           String      @id @default(cuid())
+  studyPhaseId String
+  studyPhase   StudyPhase  @relation(fields: [studyPhaseId], references: [id], onDelete: Cascade)
+  label        String
+  done         Boolean     @default(false)
+  assigneeId   String?
+  assignee     User?       @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  dueDate      DateTime?
+  order        Int         @default(0)
+
+  @@index([studyPhaseId])
+}
+
+/// Information-phase data point (cost data, drawing ref, stakeholder input …).
+model InfoItem {
+  id        String @id @default(cuid())
+  studyId   String
+  study     Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  label     String
+  category  String? // "cost" | "performance" | "constraint" | "stakeholder" | "document"
+  value     String?
+  source    String?
+  createdAt DateTime @default(now())
+
+  @@index([studyId])
+}
+
+/// A function in the function model (verb-noun), classified basic vs secondary.
+/// Cost vs worth drives the value index used to prioritise creative effort.
+model FunctionItem {
+  id         String       @id @default(cuid())
+  studyId    String
+  study      Study        @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  verb       String
+  noun       String
+  kind       FunctionKind @default(SECONDARY)
+  cost       Float?       // current cost to deliver this function
+  worth      Float?       // lowest cost to reliably deliver the function
+  /// For FAST diagram notes: which function this one supports (how/why chain).
+  parentId   String?
+  parent     FunctionItem?  @relation("FastChain", fields: [parentId], references: [id])
+  children   FunctionItem[] @relation("FastChain")
+  order      Int          @default(0)
+
+  alternatives Alternative[]
+
+  @@index([studyId])
+}
+
+/// A creative alternative, optionally tied to a function it improves.
+model Alternative {
+  id          String @id @default(cuid())
+  studyId     String
+  study       Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  functionId  String?
+  function    FunctionItem? @relation(fields: [functionId], references: [id])
+  idea        String
+  description String?
+  // Evaluation-phase scoring:
+  /// { criteriaKey: score } weighted against EvaluationCriteria stored on BusinessCase/Study config
+  scores      Json?
+  weightedScore Float?
+  shortlisted Boolean @default(false)
+  createdAt   DateTime @default(now())
+
+  recommendation Recommendation? @relation(fields: [recommendationId], references: [id])
+  recommendationId String?
+
+  @@index([studyId])
+}
+
+/// A developed recommendation with technical + commercial detail.
+model Recommendation {
+  id             String               @id @default(cuid())
+  studyId        String
+  study          Study                @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  title          String
+  summary        String?
+  technicalDetail String?
+  commercialDetail String?
+  status         RecommendationStatus @default(PROPOSED)
+  estimatedValue Float?
+  estimatedCost  Float?
+  order          Int                  @default(0)
+  createdAt      DateTime             @default(now())
+
+  alternatives Alternative[]
+  workPackages WorkPackage[] // VR side implements accepted recommendations
+  handover     HandoverArtifact[]
+
+  @@index([studyId, status])
+}
+
+/// The quantified business case for a study. Scenarios + costs are children.
+model BusinessCase {
+  id          String @id @default(cuid())
+  studyId     String @unique
+  study       Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  executiveSummary String?
+  currency         String @default("ZAR")
+
+  // Headline financials (computed & stored for fast portfolio rollups).
+  roiPct         Float?
+  paybackMonths  Float?
+  npv            Float?
+  irrPct         Float?
+  discountRatePct Float? @default(10)
+  horizonYears   Int?   @default(5)
+
+  /// Life-cycle cost analysis notes / assumptions (markdown).
+  lccaNotes      String?
+  riskNarrative  String?
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  scenarios Scenario[]
+  costItems CostItem[]
+
+  @@index([studyId])
+}
+
+/// Baseline vs proposed scenario within a business case.
+model Scenario {
+  id             String  @id @default(cuid())
+  businessCaseId String
+  businessCase   BusinessCase @relation(fields: [businessCaseId], references: [id], onDelete: Cascade)
+  name           String // "Baseline" | "Proposed A" | ...
+  isBaseline     Boolean @default(false)
+  description    String?
+  order          Int     @default(0)
+
+  costItems CostItem[]
+
+  @@index([businessCaseId])
+}
+
+/// A cost or benefit line item. capex/opex, one-off/recurring, per scenario.
+model CostItem {
+  id             String  @id @default(cuid())
+  businessCaseId String
+  businessCase   BusinessCase @relation(fields: [businessCaseId], references: [id], onDelete: Cascade)
+  scenarioId     String?
+  scenario       Scenario?    @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  label          String
+  kind           String // "CAPEX" | "OPEX" | "ONE_OFF" | "RECURRING" | "BENEFIT"
+  category       BenefitCategory?
+  amount         Float
+  /// year offset (0 = now) → used for NPV/LCCA. null = flat annual.
+  year           Int?
+  recurring      Boolean @default(false)
+
+  @@index([businessCaseId])
+}
+
+model RiskItem {
+  id          String     @id @default(cuid())
+  studyId     String?
+  study       Study?     @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  trackId     String?
+  track       RealizationTrack? @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  likelihood  Int?       // 1..5
+  impact      Int?       // 1..5
+  mitigation  String?
+  owner       String?
+  status      RiskStatus @default(OPEN)
+  createdAt   DateTime   @default(now())
+
+  @@index([studyId])
+  @@index([trackId])
+}
+
+/// The explicit VE→VR bridge. One row per handover element (benefit, KPI,
+/// baseline, measurement plan, success criterion, risk). Copied into the track.
+model HandoverArtifact {
+  id           String  @id @default(cuid())
+  studyId      String
+  study        Study   @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  recommendationId String?
+  recommendation   Recommendation? @relation(fields: [recommendationId], references: [id])
+  type         String // "EXPECTED_BENEFIT" | "KPI" | "BASELINE" | "MEASUREMENT_PLAN" | "SUCCESS_CRITERION" | "RISK"
+  title        String
+  detail       String?
+  /// structured payload, e.g. { kpiKey, baselineValue, targetValue, unit, frequency, dataSource, owner }
+  data         Json?
+  order        Int     @default(0)
+
+  // When a track is created, artifacts are linked to it so both sides stay connected.
+  trackId String?
+  track   RealizationTrack? @relation(fields: [trackId], references: [id])
+
+  @@index([studyId, type])
+}
+
+// -----------------------------------------------------------------------------
+//  CORE DOMAIN — VALUE REALIZATION
+// -----------------------------------------------------------------------------
+
+/// A realization track — always sourced from a VE study + (optionally) its
+/// business case. This FK is what makes the VE→VR link first-class.
+model RealizationTrack {
+  id             String      @id @default(cuid())
+  code           String      @unique // e.g. "VR-2026-014"
+  title          String
+  status         TrackStatus @default(PLANNING)
+  health         Health      @default(GREEN)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teamId         String?
+  team           Team?        @relation(fields: [teamId], references: [id])
+  industryKey    String
+  industry       IndustryProfile @relation(fields: [industryKey], references: [key])
+
+  // The first-class VE → VR bridge:
+  studyId String
+  study   Study  @relation(fields: [studyId], references: [id])
+
+  ownerId String
+  owner   User   @relation("TrackOwner", fields: [ownerId], references: [id])
+
+  objectives      String?
+  successCriteria String?
+
+  plannedValue  Float? // carried from the business case
+  realizedValue Float? // rolled up from Benefit actuals
+  currency      String @default("ZAR")
+
+  startedAt  DateTime?
+  targetDate DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  phases        VrPhaseInstance[]
+  workPackages  WorkPackage[]
+  adoptionPlan  AdoptionPlan?
+  benefits      Benefit[]
+  kpiTargets    KpiTarget[]
+  reports       ValueReport[]
+  lessons       LessonLearned[]
+  risks         RiskItem[]
+  handovers     HandoverArtifact[]
+  comments      Comment[]
+  auditEvents   AuditEvent[]
+  documents     DocumentVersion[]
+
+  @@index([organizationId, status])
+  @@index([studyId])
+}
+
+model VrPhaseInstance {
+  id          String      @id @default(cuid())
+  trackId     String
+  track       RealizationTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  phase       VrPhaseKey
+  order       Int
+  status      PhaseStatus @default(NOT_STARTED)
+  notes       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  checklist   Json?
+
+  @@unique([trackId, phase])
+  @@index([trackId])
+}
+
+/// Implementation work breakdown: work packages, milestones, dependencies.
+model WorkPackage {
+  id            String            @id @default(cuid())
+  trackId       String
+  track         RealizationTrack  @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  recommendationId String?
+  recommendation   Recommendation? @relation(fields: [recommendationId], references: [id])
+  name          String
+  description   String?
+  status        WorkPackageStatus @default(NOT_STARTED)
+  ownerId       String?
+  owner         User?             @relation("WorkOwner", fields: [ownerId], references: [id])
+  startDate     DateTime?
+  dueDate       DateTime?
+  isMilestone   Boolean           @default(false)
+  order         Int               @default(0)
+
+  // Self-referential dependency graph.
+  dependsOn WorkPackage[] @relation("WpDeps")
+  blocks    WorkPackage[] @relation("WpDeps")
+
+  @@index([trackId, status])
+}
+
+/// Adoption & change-management plan for a track.
+model AdoptionPlan {
+  id           String @id @default(cuid())
+  trackId      String @unique
+  track        RealizationTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  changeImpact String?
+  trainingPlan String?
+  commsPlan    String?
+  championNetwork String?
+  updatedAt    DateTime @updatedAt
+
+  activities AdoptionActivity[]
+}
+
+model AdoptionActivity {
+  id             String @id @default(cuid())
+  adoptionPlanId String
+  adoptionPlan   AdoptionPlan @relation(fields: [adoptionPlanId], references: [id], onDelete: Cascade)
+  label          String
+  audience       String?
+  status         WorkPackageStatus @default(NOT_STARTED)
+  dueDate        DateTime?
+  order          Int    @default(0)
+
+  @@index([adoptionPlanId])
+}
+
+/// A realized benefit tracked against the business case (planned vs actual).
+model Benefit {
+  id            String          @id @default(cuid())
+  trackId       String
+  track         RealizationTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  label         String
+  category      BenefitCategory
+  plannedValue  Float
+  realizedValue Float           @default(0)
+  currency      String          @default("ZAR")
+  /// when the benefit was first measurable (drives time-to-value)
+  firstMeasuredAt DateTime?
+  notes         String?
+
+  @@index([trackId])
+}
+
+model ValueReport {
+  id        String     @id @default(cuid())
+  trackId   String
+  track     RealizationTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  kind      ReportKind
+  title     String
+  periodStart DateTime?
+  periodEnd   DateTime?
+  /// { executiveStory, progress, realizedToDate, nextBestActions, expansion }
+  content   Json?
+  createdAt DateTime   @default(now())
+
+  @@index([trackId, kind])
+}
+
+model LessonLearned {
+  id        String @id @default(cuid())
+  trackId   String
+  track     RealizationTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  category  String? // "what_worked" | "what_to_change" | "recommendation_for_ve"
+  detail    String
+  /// If set, feeds back into a VE phase/content template for reuse.
+  feedsBackTo String?
+  createdAt DateTime @default(now())
+
+  @@index([trackId])
+}
+
+// -----------------------------------------------------------------------------
+//  KPI INSTANCES  (targets on a study/track; actuals over time)
+// -----------------------------------------------------------------------------
+
+/// A KPI instantiated on a study (VE planned) or track (VR realized), with a
+/// baseline and target. Time-series actuals hang off it.
+model KpiTarget {
+  id              String   @id @default(cuid())
+  kpiKey          String
+  definition      KpiDefinition @relation(fields: [kpiKey], references: [key])
+  studyId         String?
+  study           Study?   @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  trackId         String?
+  track           RealizationTrack? @relation(fields: [trackId], references: [id], onDelete: Cascade)
+
+  baselineValue   Float?
+  targetValue     Float?
+  unit            String
+  frequency       String?  // "monthly" | "quarterly" | ...
+  dataSource      String?
+  ownerName       String?
+
+  actuals KpiActual[]
+
+  @@index([studyId])
+  @@index([trackId])
+}
+
+model KpiActual {
+  id          String   @id @default(cuid())
+  kpiTargetId String
+  kpiTarget   KpiTarget @relation(fields: [kpiTargetId], references: [id], onDelete: Cascade)
+  periodLabel String   // "2026-Q1", "2026-03", ...
+  periodDate  DateTime
+  value       Float
+  note        String?
+  createdAt   DateTime @default(now())
+
+  @@unique([kpiTargetId, periodLabel])
+  @@index([kpiTargetId])
+}
+
+// -----------------------------------------------------------------------------
+//  GOVERNANCE  (comments, audit, version history) — polymorphic by entity ref
+// -----------------------------------------------------------------------------
+
+model Comment {
+  id         String   @id @default(cuid())
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  body       String
+  entityType String   // "Study" | "Recommendation" | "RealizationTrack" | ...
+  entityId   String
+  studyId    String?
+  study      Study?   @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  trackId    String?
+  track      RealizationTrack? @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id])
+  action     String   // "study.created" | "phase.completed" | "recommendation.accepted" | "handover.created"
+  entityType String
+  entityId   String
+  studyId    String?
+  study      Study?   @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  trackId    String?
+  track      RealizationTrack? @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([studyId])
+  @@index([trackId])
+}
+
+/// Lightweight version history for key documents (business case, VRP, etc.).
+model DocumentVersion {
+  id         String   @id @default(cuid())
+  entityType String   // "BusinessCase" | "ValueRealizationPlan" | ...
+  entityId   String
+  version    Int
+  authorId   String?
+  author     User?    @relation(fields: [authorId], references: [id])
+  snapshot   Json     // full serialized content at this version
+  studyId    String?
+  study      Study?   @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  trackId    String?
+  track      RealizationTrack? @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+}
