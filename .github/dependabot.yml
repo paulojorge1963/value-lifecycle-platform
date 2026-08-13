@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Application dependencies (package.json)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # Batch low-risk minor/patch bumps into a single PR to cut noise.
+      # Major bumps still open their own PR so they can be reviewed individually.
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # ESLint is intentionally pinned to v8: `next lint` (Next 15) uses the
+      # legacy .eslintrc format, and ESLint v9 defaults to flat config.
+      # Revisit when migrating to the ESLint CLI (Next 16).
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions used in workflows (actions/checkout, actions/setup-node, …)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "ci(deps)"
