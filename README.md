@@ -7,6 +7,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-4169E1?logo=postgresql&logoColor=white)
 ![Auth.js](https://img.shields.io/badge/Auth.js-v5-000000?logo=auth0&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)
 
 An end-to-end web app for two complementary roles across the full value lifecycle:
 
@@ -82,3 +83,7 @@ npm run dev   # http://localhost:3200
 - **Auth**: Auth.js (NextAuth v5) with a Credentials provider (JWT sessions). Config is split for the edge: `src/lib/auth.config.ts` (edge-safe, used by `src/middleware.ts` for route protection) and `src/lib/auth.ts` (adds the Credentials provider using Prisma + bcrypt). `getCurrentUser()`/`can()` in `src/lib/session.ts` resolve role and enforce RBAC. Requires `AUTH_SECRET` in `.env` (generate with `openssl rand -base64 32`). To add OAuth/email providers, extend the `providers` array in `src/lib/auth.ts`.
 - **AI starter-text**: recommendation drafting and creative-alternative brainstorming call Claude (`@anthropic-ai/sdk`, model `claude-opus-5`, structured outputs) via `src/lib/ai.ts`. It's gated on `ANTHROPIC_API_KEY` — set it in `.env` to enable AI drafting; when unset, the buttons fall back to template starter text seeded from the industry profile, so the feature works with no external dependency. Buttons label themselves "…with AI" vs "…(template)" accordingly.
 - **Migrations**: `prisma db push` is used for the first pass; switch to `prisma migrate` for versioned migrations before production.
+
+## License
+
+[MIT](LICENSE) © 2026 Paulo Jorge
