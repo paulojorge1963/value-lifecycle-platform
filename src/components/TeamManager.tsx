@@ -11,6 +11,16 @@ interface Member {
   title: string | null;
   role: string;
   self: boolean;
+  owned: { studies: number; tracks: number; comments: number; total: number };
+}
+
+function ownedSummary(o: Member["owned"]): string {
+  const parts: string[] = [];
+  if (o.studies) parts.push(`${o.studies} ${o.studies === 1 ? "study" : "studies"}`);
+  if (o.tracks) parts.push(`${o.tracks} ${o.tracks === 1 ? "track" : "tracks"}`);
+  if (o.comments) parts.push(`${o.comments} ${o.comments === 1 ? "comment" : "comments"}`);
+  if (parts.length <= 1) return parts.join("");
+  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
 
 const ROLE_OPTIONS: { value: string; label: string }[] = [
@@ -27,6 +37,7 @@ export function TeamManager({ members }: { members: Member[] }) {
   const [pending, start] = useTransition();
   const [rowErr, setRowErr] = useState<{ id: string; msg: string } | null>(null);
   const [pwFor, setPwFor] = useState<string | null>(null);
+  const [reassignFor, setReassignFor] = useState<string | null>(null);
 
   function setRole(userId: string, role: string) {
     start(async () => {
@@ -39,17 +50,28 @@ export function TeamManager({ members }: { members: Member[] }) {
       }
     });
   }
-  function remove(userId: string) {
-    if (!confirm("Remove this member from the workspace? They will lose access.")) return;
+  function doRemove(userId: string, reassignToId?: string) {
     start(async () => {
       setRowErr(null);
       try {
-        await removeTeamMember(userId);
+        await removeTeamMember(userId, reassignToId);
+        setReassignFor(null);
         router.refresh();
       } catch (e) {
         setRowErr({ id: userId, msg: e instanceof Error ? e.message : "Failed" });
       }
     });
+  }
+  function remove(m: Member) {
+    setPwFor(null);
+    // If they own work, open the reassignment panel instead of deleting outright.
+    if (m.owned.total > 0) {
+      setRowErr(null);
+      setReassignFor(reassignFor === m.id ? null : m.id);
+      return;
+    }
+    if (!confirm("Remove this member from the workspace? They will lose access.")) return;
+    doRemove(m.id);
   }
 
   return (
@@ -127,12 +149,21 @@ export function TeamManager({ members }: { members: Member[] }) {
                         Set password
                       </button>
                       {!m.self && (
-                        <button className="btn px-2 py-1 text-xs text-red-500 hover:bg-red-50" disabled={pending} onClick={() => remove(m.id)}>
+                        <button className="btn px-2 py-1 text-xs text-red-500 hover:bg-red-50" disabled={pending} onClick={() => remove(m)}>
                           Remove
                         </button>
                       )}
                     </div>
                     {pwFor === m.id && <ResetPassword userId={m.id} onDone={() => { setPwFor(null); router.refresh(); }} />}
+                    {reassignFor === m.id && (
+                      <ReassignAndRemove
+                        member={m}
+                        others={members.filter((x) => x.id !== m.id)}
+                        pending={pending}
+                        onConfirm={(reassignToId) => doRemove(m.id, reassignToId)}
+                        onCancel={() => setReassignFor(null)}
+                      />
+                    )}
                     {rowErr?.id === m.id && <p className="max-w-xs text-right text-xs text-red-600">{rowErr.msg}</p>}
                   </div>
                 </td>
@@ -141,6 +172,57 @@ export function TeamManager({ members }: { members: Member[] }) {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function ReassignAndRemove({
+  member,
+  others,
+  pending,
+  onConfirm,
+  onCancel,
+}: {
+  member: Member;
+  others: Member[];
+  pending: boolean;
+  onConfirm: (reassignToId: string) => void;
+  onCancel: () => void;
+}) {
+  const [reassignToId, setReassignToId] = useState(others[0]?.id ?? "");
+  return (
+    <div className="mt-1 w-72 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left">
+      <p className="text-xs text-ink-700">
+        <span className="font-medium">{member.name}</span> owns {ownedSummary(member.owned)}. Reassign that work before removing them.
+      </p>
+      {others.length === 0 ? (
+        <p className="mt-2 text-xs text-red-600">There&apos;s no one else to reassign to — add another member first.</p>
+      ) : (
+        <>
+          <label className="label mt-2 block">Reassign to</label>
+          <select
+            value={reassignToId}
+            onChange={(e) => setReassignToId(e.target.value)}
+            className="input mt-1 text-sm"
+          >
+            {others.map((o) => (
+              <option key={o.id} value={o.id}>{o.name}</option>
+            ))}
+          </select>
+          <div className="mt-2 flex justify-end gap-1.5">
+            <button className="btn border border-ink-200 px-2.5 py-1 text-xs text-ink-600 hover:bg-ink-100" onClick={onCancel} disabled={pending}>
+              Cancel
+            </button>
+            <button
+              className="btn bg-red-600 px-2.5 py-1 text-xs text-white hover:bg-red-700"
+              disabled={pending || !reassignToId}
+              onClick={() => onConfirm(reassignToId)}
+            >
+              {pending ? "Removing…" : "Reassign & remove"}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

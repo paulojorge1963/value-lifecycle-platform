@@ -19,17 +19,25 @@ export default async function TeamPage() {
   });
   if (!org) redirect("/portfolio");
 
-  const members = org.users.map((u) => {
-    const m = u.memberships.find((x) => x.organizationId === org.id) ?? u.memberships[0];
-    return {
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      title: u.title,
-      role: (m?.role as string) ?? "VIEWER",
-      self: u.id === user.id,
-    };
-  });
+  const members = await Promise.all(
+    org.users.map(async (u) => {
+      const m = u.memberships.find((x) => x.organizationId === org.id) ?? u.memberships[0];
+      const [studies, tracks, comments] = await Promise.all([
+        prisma.study.count({ where: { ownerId: u.id } }),
+        prisma.realizationTrack.count({ where: { ownerId: u.id } }),
+        prisma.comment.count({ where: { authorId: u.id } }),
+      ]);
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        title: u.title,
+        role: (m?.role as string) ?? "VIEWER",
+        self: u.id === user.id,
+        owned: { studies, tracks, comments, total: studies + tracks + comments },
+      };
+    })
+  );
 
   return (
     <div className="space-y-6">

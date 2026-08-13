@@ -82,10 +82,11 @@ export async function resetMemberPassword(_prev: string | undefined, formData: F
 }
 
 /**
- * Remove a member from the workspace. Blocked if they're you, the last admin,
- * or still own studies/tracks/comments (reassign or delete those first).
+ * Remove a member from the workspace. Guards: not you, not the last admin.
+ * If the member owns studies/tracks or authored comments, `reassignToId` (another
+ * member of the workspace) must be given — that work is reassigned before removal.
  */
-export async function removeTeamMember(userId: string) {
+export async function removeTeamMember(userId: string, reassignToId?: string | null) {
   const admin = await requireAdmin();
   if (userId === admin.id) throw new Error("You can't remove yourself.");
   const membership = await prisma.membership.findFirst({ where: { userId, organizationId: admin.organizationId } });
@@ -93,17 +94,38 @@ export async function removeTeamMember(userId: string) {
   if (membership.role === "ADMIN" && (await adminCount(admin.organizationId)) <= 1) {
     throw new Error("That's the last administrator — promote someone else first.");
   }
+
   const [studies, tracks, comments] = await Promise.all([
     prisma.study.count({ where: { ownerId: userId } }),
     prisma.realizationTrack.count({ where: { ownerId: userId } }),
     prisma.comment.count({ where: { authorId: userId } }),
   ]);
-  if (studies || tracks || comments) {
-    throw new Error(`Can't remove — this person owns ${studies} studies, ${tracks} tracks and ${comments} comments. Reassign or delete those first.`);
+  const ownsWork = studies || tracks || comments;
+
+  if (ownsWork) {
+    if (!reassignToId) {
+      throw new Error(`This person owns ${studies} studies, ${tracks} tracks and ${comments} comments — choose a member to reassign that work to.`);
+    }
+    if (reassignToId === userId) throw new Error("Reassign the work to a different member.");
+    const target = await prisma.membership.findFirst({ where: { userId: reassignToId, organizationId: admin.organizationId } });
+    if (!target) throw new Error("Reassignment target must be a member of this workspace.");
+
+    await prisma.$transaction([
+      prisma.study.updateMany({ where: { ownerId: userId, organizationId: admin.organizationId }, data: { ownerId: reassignToId } }),
+      prisma.realizationTrack.updateMany({ where: { ownerId: userId, organizationId: admin.organizationId }, data: { ownerId: reassignToId } }),
+      prisma.comment.updateMany({ where: { authorId: userId }, data: { authorId: reassignToId } }),
+    ]);
   }
-  await prisma.user.delete({ where: { id: userId } }); // memberships cascade
+
+  await prisma.user.delete({ where: { id: userId } }); // memberships cascade; optional refs set null
   await prisma.auditEvent.create({
-    data: { actorId: admin.id, action: "team.member_removed", entityType: "User", entityId: userId },
+    data: {
+      actorId: admin.id,
+      action: "team.member_removed",
+      entityType: "User",
+      entityId: userId,
+      metadata: ownsWork ? { reassignedTo: reassignToId, studies, tracks, comments } : undefined,
+    },
   });
   revalidatePath("/settings/team");
 }
