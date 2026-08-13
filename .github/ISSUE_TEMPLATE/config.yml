@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📘 User Guide
+    url: https://github.com/paulojorge1963/value-lifecycle-platform/blob/main/USER_GUIDE.md
+    about: How to run a value study end-to-end — read this before filing a usage question.
+  - name: 🏗️ Architecture & data model
+    url: https://github.com/paulojorge1963/value-lifecycle-platform/blob/main/ARCHITECTURE.md
+    about: How the platform is built — components, data model, and user flows.

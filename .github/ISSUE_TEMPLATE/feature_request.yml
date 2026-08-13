@@ -1,0 +1,65 @@
+name: Feature request
+description: Suggest an improvement or new capability
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! Describe the problem first — it helps us find the best solution, not just the one you had in mind.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and this hasn't been requested yet.
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem or need?
+      description: The value-engineering / realization job this would help with.
+      placeholder: As a Value Realization Manager, I can't see planned-vs-actual KPI trend lines over time, so…
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What you'd like to see. Rough is fine.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the lifecycle?
+      options:
+        - Value Engineering (study / job plan)
+        - Function analysis / FAST diagram
+        - Creative alternatives / evaluation matrix
+        - Business case / financials
+        - Handover (VE → VR)
+        - Value Realization (track / lifecycle)
+        - KPIs / benefits / reporting
+        - Portfolio dashboards
+        - Templates / industry profiles
+        - AI drafting
+        - Auth / roles / permissions
+        - Exports
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, workarounds, or why existing features don't cover it.
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mockups, examples from other tools, or anything else.
+    validations:
+      required: false

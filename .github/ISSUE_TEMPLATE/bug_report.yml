@@ -1,0 +1,87 @@
+name: Bug report
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in as much as you can so it's reproducible.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I searched existing issues and this hasn't been reported yet.
+          required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, and what you expected instead.
+      placeholder: When I clicked "Create Value Realization Track" nothing happened and…
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The exact clicks/actions that trigger it.
+      placeholder: |
+        1. Sign in as ve@demo.app
+        2. Open study VE-2026-014
+        3. Go to the Evaluation phase
+        4. …
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Which role were you signed in as?
+      options:
+        - Value Engineer
+        - Value Realization Manager
+        - Reviewer
+        - Viewer / Stakeholder
+        - Admin
+        - Not signed in
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      options:
+        - VE study — phases / function model / FAST diagram
+        - VE study — alternatives / evaluation matrix
+        - VE study — recommendations / business case
+        - Handover (VE → VR)
+        - VR track — work packages / adoption / KPIs / benefits
+        - Portfolio / KPI dashboards
+        - Templates library
+        - Comments / discussion
+        - Exports (Word / Excel)
+        - Sign in / permissions
+        - AI drafting / brainstorm
+        - Other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser + version, OS, and Node version (`node -v`) if running locally.
+      placeholder: |
+        Browser: Chrome 130 · macOS 15
+        Node: v20.x
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or console/server logs
+      description: Paste any browser-console errors or terminal output. Screenshots help too.
+      render: shell
+    validations:
+      required: false
