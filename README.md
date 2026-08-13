@@ -17,6 +17,8 @@ The **VE → VR handover is first-class**: every realization track links back to
 
 Supports three configurable industry profiles out of the box — **Construction & Infrastructure**, **Manufacturing & Product Development**, and **Enterprise Software / SaaS** — with industry as *configuration, not code*.
 
+📘 **New here?** Read the [**User Guide**](USER_GUIDE.md) — how to run a value study end-to-end, from a fresh problem through the handover to proven realized value.
+
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full design, data model and user flows.
 
 ## Stack
