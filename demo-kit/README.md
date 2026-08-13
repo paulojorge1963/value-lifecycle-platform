@@ -39,18 +39,21 @@ demo-kit/
 
 ## Regenerating (optional)
 
-Run these with `node` from the **project root** (they use the project's `docx` / `sharp` / `pptxgenjs`):
+Run these with `node` from the **project root** (they use the project's `docx` / `sharp`):
 
 ```bash
 node demo-kit/make-diagrams.js        # rebuild diagrams/*.svg + *.png
 node demo-kit/md2docx.js              # rebuild Demo-Script.docx + User-Guide.docx from the .md
 node demo-kit/build-design-docx.js    # rebuild Design-Document.docx (embeds the PNGs)
+
+npm i -D pptxgenjs                     # deck only: install the generator ad-hoc, then:
 node demo-kit/build-deck.js           # rebuild Solution-Overview.pptx
+npm uninstall pptxgenjs                # and remove it again when done
 ```
 
 PDFs were produced by printing the styled Markdown to PDF with headless Chrome (the three documents) and by exporting the `.pptx` to PDF (the deck). Regenerate a document PDF after editing its `.md`; regenerate the deck PDF after editing `build-deck.js` and rebuilding the `.pptx`.
 
-> `pptxgenjs` is installed as a **devDependency** for `build-deck.js`. The runtime app doesn't need it.
+> `pptxgenjs` is **not** a committed dependency — it pulls a vulnerable transitive `image-size` (a dev-only image-parsing DoS, irrelevant to generating a deck). Install it ad-hoc only when regenerating the deck, as shown above, so it stays out of the shipped dependency tree.
 
 ## Notes
 
