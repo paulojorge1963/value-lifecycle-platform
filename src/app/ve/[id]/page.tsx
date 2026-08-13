@@ -91,6 +91,7 @@ export default async function StudyPage({
           <div className="text-2xl font-semibold text-ink-900"><Money value={study.estimatedValue} currency={study.currency} /></div>
           <div className="mt-2 flex gap-2">
             <Link href={`/ve/${study.id}/business-case`} className="btn-ghost">Business case</Link>
+            <Link href={`/ve/${study.id}/report`} className="btn-ghost">Status report</Link>
             <a href={`/api/export/business-case/${study.id}`} className="btn-ghost">Export ↓</a>
           </div>
         </div>

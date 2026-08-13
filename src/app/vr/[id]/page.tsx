@@ -85,7 +85,10 @@ export default async function TrackPage({
             </span>
           </div>
         </div>
-        <a href={`/api/export/vrp/${track.id}`} className="btn-vr">Export VRP / QBR ↓</a>
+        <div className="flex gap-2">
+          <Link href={`/ve/${track.studyId}/report`} className="btn-ghost">Status report</Link>
+          <a href={`/api/export/vrp/${track.id}`} className="btn-vr">Export VRP / QBR ↓</a>
+        </div>
       </div>
 
       {/* Value KPIs */}

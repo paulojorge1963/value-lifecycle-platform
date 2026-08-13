@@ -48,3 +48,39 @@ body {
     @apply px-3 py-2 text-sm text-ink-700;
   }
 }
+
+/* ---- Print / PDF (used by the management status report) ------------------ */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  /* Hide the app chrome (top nav) and any screen-only controls */
+  header,
+  .no-print {
+    display: none !important;
+  }
+  /* Let the report use the full page width */
+  main {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Flatten cards for print — borders read better than shadows on paper */
+  .card {
+    box-shadow: none !important;
+    border-color: #e2e8f0 !important;
+  }
+  /* Keep report blocks from splitting awkwardly across pages */
+  .report-block {
+    break-inside: avoid;
+  }
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
