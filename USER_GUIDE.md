@@ -36,6 +36,12 @@ Open the app and you land on the sign-in page. Enter your email and password, or
 
 > **Demo logins.** Password for every demo account is `demo1234`. Try `ve@demo.app` (Value Engineer), `vrm@demo.app` (Realization Manager), `reviewer@demo.app` (approver) and `viewer@demo.app` (read-only stakeholder).
 
+### Creating your own workspace
+
+For real use, click **"Create a workspace"** on the sign-in page. You provide a workspace name, your name, email and password — this creates a **new, isolated organization** and makes you its **Administrator**. Your studies and tracks are private to your workspace.
+
+As an admin, a **Team** link appears in the top nav. From there you **add teammates** (name, email, role, and an initial password to share), **change roles**, **reset passwords**, and **remove access**. Assign each person a role — Value Engineer, Value Realization Manager, Reviewer, or Viewer — and they get exactly the permissions in the table below.
+
 Permissions are role-based — the platform enforces a real separation between the person who *builds* a case, the person who *approves* it, and the person who *realizes* it.
 
 | Capability | Value Engineer | Realization Mgr | Reviewer | Viewer |

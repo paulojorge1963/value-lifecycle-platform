@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { authenticate } from "@/app/login/actions";
 
@@ -51,6 +52,10 @@ export function LoginForm() {
       </div>
 
       <p className="text-center text-xs text-ink-400">Demo password: <code className="rounded bg-ink-100 px-1">{DEMO_PASSWORD}</code></p>
+
+      <div className="border-t border-ink-100 pt-4 text-center text-sm text-ink-500">
+        New to the platform? <Link href="/register" className="font-medium text-ve-700 hover:underline">Create a workspace</Link>
+      </div>
     </div>
   );
 }

@@ -10,8 +10,9 @@ export const authConfig: NextAuthConfig = {
     // Route protection for middleware: everything requires auth except /login.
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isLogin = nextUrl.pathname.startsWith("/login");
-      if (isLogin) return true;
+      const p = nextUrl.pathname;
+      // Public routes: sign in and workspace sign up.
+      if (p.startsWith("/login") || p.startsWith("/register")) return true;
       return isLoggedIn;
     },
     // Carry id / role / org through the JWT into the session.

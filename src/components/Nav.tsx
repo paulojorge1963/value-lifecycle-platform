@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, can } from "@/lib/session";
+import { prisma } from "@/lib/db";
 import { signOut } from "@/lib/auth";
 
 const LINKS = [
@@ -20,13 +21,18 @@ const ROLE_LABEL: Record<string, string> = {
 
 export async function Nav() {
   const user = await getCurrentUser();
+  const isAdmin = !!user && can(user.role, "team.manage");
+  const org = user ? await prisma.organization.findUnique({ where: { id: user.organizationId }, select: { name: true } }) : null;
 
   return (
     <header className="sticky top-0 z-20 border-b border-ink-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3">
         <Link href={user ? "/portfolio" : "/login"} className="flex items-center gap-2 font-semibold">
           <span className="grid h-7 w-7 place-items-center rounded-md bg-ink-900 text-xs font-bold text-white">V</span>
-          <span className="hidden sm:inline">Value Lifecycle</span>
+          <span className="hidden leading-tight sm:block">
+            <span className="block">Value Lifecycle</span>
+            {org && <span className="block text-[11px] font-normal text-ink-400">{org.name}</span>}
+          </span>
         </Link>
 
         {user && (
@@ -42,6 +48,11 @@ export async function Nav() {
                 {l.label}
               </Link>
             ))}
+            {isAdmin && (
+              <Link href="/settings/team" className="rounded-lg px-3 py-1.5 font-medium text-ink-600 hover:bg-ink-100">
+                Team
+              </Link>
+            )}
           </nav>
         )}
 
