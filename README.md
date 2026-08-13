@@ -1,5 +1,6 @@
 # Value Lifecycle Platform
 
+[![CI](https://github.com/paulojorge1963/value-lifecycle-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/paulojorge1963/value-lifecycle-platform/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-20232a?logo=react&logoColor=61dafb)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
