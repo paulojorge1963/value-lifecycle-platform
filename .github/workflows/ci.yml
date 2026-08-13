@@ -41,3 +41,29 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+  build:
+    name: Smoke build
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      # Dummy values — `next build` doesn't query the DB (all data pages are
+      # force-dynamic), and Auth.js only needs a secret to be present at build.
+      DATABASE_URL: postgresql://user:pass@localhost:5432/db?schema=public
+      AUTH_SECRET: ci-placeholder-not-used
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (smoke test)
+        run: npm run build
