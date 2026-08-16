@@ -46,6 +46,8 @@ The **handover** between them is the point of the whole model. Most value leaks 
 
 Read the lifecycle left to right. A piece of work starts as a **VE study**, moves through the 8-phase Job Plan to a quantified, reviewer-approved business case, crosses the **handover** gate, and continues as a **Value Realization track** through the 7-phase lifecycle to proven value and renewal.
 
+> **Two ways in.** Most tracks begin as a VE study and cross the handover gate. But when the software is *already in place* — there's no new business case to build, you simply need to protect and prove the value of what the customer already owns — you can start a **standalone Value Realization track** directly, with no study behind it. It runs the same 7-phase lifecycle; you set the baselines from the existing deployment instead of inheriting them from a study. See §5.1.
+
 Three ideas hold it together:
 
 1. **One source of truth.** Function analysis, the business case, baselines and KPIs are entered once and drive every register, document and report on both sides. Nothing is re-keyed at the handover.
@@ -175,19 +177,27 @@ The study is marked **handed over**, and an audit event is written. Nothing is r
 
 > **The differentiator.** *Don't just implement — prove.* Anyone can install the same product; the handover is what lets you stand behind the outcome.
 
+## 5.1 · When there's no study — standalone realization
+
+Sometimes there is nothing to hand over. The customer already runs the software and the job is purely to **realize value from what they own** — renewal assurance, an adoption rescue, or a value health-check on an installed product. For this, start a **standalone VR track**: it skips VE and the handover entirely and opens straight into the 7-phase lifecycle.
+
+The trade-off is that nothing is pre-seeded. A handover track arrives with work packages, benefits and KPI targets already populated from the study; a standalone track starts blank, so **you establish the baselines and KPI targets yourself in Phase 2** from the live deployment. Everything downstream — adoption, execution, value tracking, QBRs, close-out — is identical, and the track is clearly marked as *standalone* wherever it appears.
+
+> **When to use which.** New opportunity with a case to make → run VE and hand over. Existing, installed software you need to prove value from → start a standalone track. Same lifecycle, same proof; only the starting point differs.
+
 ---
 
 # Part B — The Value Realization process
 
 ![The Value Realization process — 7 phases](guide-diagrams/d4-vrm-flow.png)
 
-The realization lifecycle takes the handover to proven, renewed value in seven phases. The pattern is *align → baseline → plan → adopt → execute → prove → close & feed back*.
+The realization lifecycle takes a track — whether **handed over from a VE study** or **started standalone** for software already in place (see §5.1) — to proven, renewed value in seven phases. The pattern is *align → baseline → plan → adopt → execute → prove → close & feed back*.
 
 ## 6.1 · Phase 1 — Intake & alignment
 
 *Purpose.* Take ownership of the value plan and align everyone on what "success" means.
 
-- **Key activities:** confirm the objectives and success criteria carried from handover; introduce the VRM to the customer's operational owners and sponsor; agree the cadence (check-ins, QBRs).
+- **Key activities:** confirm the objectives and success criteria carried from handover (or, for a **standalone track**, define them here from the customer's goals for the existing deployment); introduce the VRM to the customer's operational owners and sponsor; agree the cadence (check-ins, QBRs).
 - **Exit criteria:** objectives and success criteria confirmed; owners and cadence agreed.
 - **Tip:** re-confirm the success criteria out loud with the customer — assumptions drift between sale and go-live.
 
@@ -195,8 +205,8 @@ The realization lifecycle takes the handover to proven, renewed value in seven p
 
 *Purpose.* Validate the baselines and stand up the measurement so value can be tracked honestly.
 
-- **Key activities:** validate the baselines from the business case against reality; confirm each KPI's data source, frequency and owner; set the measurement up (dashboards, telemetry).
-- **Exit criteria:** baselines validated; every KPI has a source, a frequency and an owner.
+- **Key activities:** validate the baselines from the business case against reality (a **standalone track** has none inherited — capture them from the live deployment now); confirm each KPI's data source, frequency and owner; set the measurement up (dashboards, telemetry).
+- **Exit criteria:** baselines validated (or established, for a standalone track); every KPI has a source, a frequency and an owner.
 - **Tip:** if a baseline can't be measured the same way it was estimated, fix it now — not at the QBR.
 
 ## 6.3 · Phase 3 — Implementation planning
@@ -323,6 +333,7 @@ The realization lifecycle takes the handover to proven, renewed value in seven p
 - **VE Job Plan** — the 8-phase value-engineering method (Orientation → Handover).
 - **VR lifecycle** — the 7-phase value-realization method (Intake → Close-out).
 - **Handover** — the guarded, first-class link that seeds a VR track from an accepted VE study.
+- **Standalone realization track** — a VR track started without a VE study, for software already in place; runs the same 7-phase lifecycle, with baselines set from the live deployment rather than inherited from a study.
 - **Baseline** — the validated current-state measurement value is judged against.
 - **Success criteria** — the agreed definition of a realised outcome.
 - **QBR** — Quarterly Business / value Review; a reconciliation of realised vs planned value.
@@ -347,8 +358,8 @@ The realization lifecycle takes the handover to proven, renewed value in seven p
 
 **Value Realization — advance a phase only when:**
 
-1. **Intake & alignment** — objectives, success criteria, owners and cadence confirmed.
-2. **Baseline & measurement** — baselines validated; every KPI has a source, frequency and owner.
+1. **Intake & alignment** — objectives, success criteria (from handover, or set directly for a standalone track), owners and cadence confirmed.
+2. **Baseline & measurement** — baselines validated or established; every KPI has a source, frequency and owner.
 3. **Implementation planning** — a work plan with owners and dates the customer accepts.
 4. **Adoption & change** — adoption plan in flight with early usage evidence.
 5. **Execution & monitoring** — work packages progressing; risks visible and owned.
