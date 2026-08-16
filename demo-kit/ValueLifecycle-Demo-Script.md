@@ -129,6 +129,20 @@ Switch to the hero track **`VR-2026-014`** (already realized) as **`vrm@demo.app
 
 ---
 
+## 6b · The other way in — standalone realization *(1–2 min · optional)*
+
+Not every realization starts with a study. When the customer **already runs the software** — an existing deployment you simply need to protect and prove value from — you start a realization track **directly**, with no VE study behind it.
+
+1. Go to the **Value Realization** workspace and click **+ New realization track**.
+2. Give it a **title**, pick the **solution profile**, and (optionally) add **objectives, success criteria and a planned value**. Click **Create track**.
+3. You land on a fresh track marked **"standalone (existing software)"** — no source study, and *nothing pre-seeded*. It runs the **same 7-phase lifecycle**; you set the **baselines in Phase 2** from the live deployment instead of inheriting them from a study.
+
+> "Same proof, different starting point. When there's no case to engineer — the customer already owns it — you skip VE and the handover and go straight to realizing value. This is the motion for **renewal assurance and adoption rescues on the installed base**: run the lifecycle, set honest baselines from what's live today, and prove the value against them."
+
+Contrast it with the handover track from section 5: one was *born from a study*, the other *started standalone* — and the workspace labels each so you always know which is which.
+
+---
+
 ## 7 · Multi-tenant & roles (1–2 min · optional)
 
 If your audience cares about running this as a product or across teams:
@@ -156,6 +170,7 @@ Leave the **Portfolio** on screen for the discussion.
 | If they say… | Respond with… |
 |---|---|
 | "We already have a PM / PPM tool." | "Those track *tasks and schedules.* This tracks *value* — the function analysis, the business case, and the realized-vs-planned reconciliation a PM tool doesn't model. It complements delivery tooling; it doesn't replace it." |
+| "The customer already owns the software — there's no new deal to engineer." | "Then start a **standalone realization track**: skip VE and the handover, and run the same 7-phase lifecycle to protect and prove value on what they already run — ideal for **renewals and adoption rescues** (section 6b)." |
 | "Do we have to use the AI?" | "No. Every AI touch is a starter-text convenience with a template fallback — the whole platform works with AI switched off, and AI never saves anything on its own." |
 | "Our industry isn't one of the three." | "Industry is configuration. A new profile — study types, cost drivers, value levers, default KPIs — is a data file plus a re-seed. The engine doesn't change." |
 | "How do we know the realized numbers are honest?" | "They're measured against the baselines captured at handover, and every change is versioned and audit-logged. Soft baselines flatter the numbers — so the tool makes the baseline explicit and traceable." |
@@ -174,7 +189,8 @@ Leave the **Portfolio** on screen for the discussion.
 | 4 · Governance gate | 2 | 13 |
 | 5 · Handover | 3 | 16 |
 | 6 · Proving the value | 3 | 19 |
+| 6b · Standalone realization *(optional)* | +1–2 | — |
 | 7 · Multi-tenant & roles | 2 | 21 |
 | 8 · Close | 1 | 22 |
 
-Runs ~22 minutes with room for questions. To cut to **12 minutes**: do sections 2 → 3 (function analysis + business case only) → 5 → 6 → 8.
+Runs ~22 minutes with room for questions; the standalone-realization aside (6b) is optional and additive. To cut to **12 minutes**: do sections 2 → 3 (function analysis + business case only) → 5 → 6 → 8.
