@@ -14,7 +14,7 @@ export function NewStudyForm({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [industryKey, setIndustryKey] = useState(industries[0]?.key ?? "construction");
+  const [industryKey, setIndustryKey] = useState(industries[0]?.key ?? "automation");
   const [pending, start] = useTransition();
   const types = studyTypesByIndustry[industryKey] ?? [];
 
@@ -48,7 +48,7 @@ export function NewStudyForm({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label">Industry profile</label>
+            <label className="label">Solution profile</label>
             <select name="industryKey" className="input mt-1" value={industryKey} onChange={(e) => setIndustryKey(e.target.value)}>
               {industries.map((i) => (
                 <option key={i.key} value={i.key}>{i.name}</option>

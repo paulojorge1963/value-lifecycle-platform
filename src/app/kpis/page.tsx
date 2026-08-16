@@ -43,7 +43,7 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
       {/* Filters */}
       <div className="flex flex-wrap gap-4">
         <FilterGroup label="Role" param="role" current={role} base={{ industry }} options={[["all", "All"], ["ve", "Value Engineer"], ["vr", "Value Realization"]]} />
-        <FilterGroup label="Industry" param="industry" current={industry} base={{ role }} options={[["all", "All"], ...industries.map((i) => [i.key, i.name] as [string, string])]} />
+        <FilterGroup label="Solution" param="industry" current={industry} base={{ role }} options={[["all", "All"], ...industries.map((i) => [i.key, i.name] as [string, string])]} />
       </div>
 
       {roleFilter("VE") && (

@@ -1,6 +1,9 @@
 // =============================================================================
-//  Industry profiles — configurable, not hard-coded. Adding an industry means
-//  adding an entry here (and re-seeding); the engine never changes.
+//  Solution profiles — configurable, not hard-coded. For Blue Turtle these are
+//  the BMC portfolio lines (plus a general reseller/OEM catch-all). Adding one
+//  means adding an entry here (and re-seeding); the engine never changes.
+//  NB: kept the type/const names (IndustryProfile / industryKey) so the data
+//  model and API are untouched — only the content and UI labels change.
 // =============================================================================
 
 export interface IndustryProfileDef {
@@ -12,158 +15,210 @@ export interface IndustryProfileDef {
     costDrivers: string[];
     valueLevers: string[];
     exampleDeliverables: string[];
-    /// KPI keys (from kpis.ts) most relevant to this industry.
+    /// KPI keys (from kpis.ts) most relevant to this profile.
     defaultKpiKeys: string[];
-    /// Industry-specific vocabulary shown in guidance / labels.
+    /// Profile-specific vocabulary shown in guidance / labels.
     glossary: Record<string, string>;
   };
 }
 
 export const INDUSTRY_PROFILES: IndustryProfileDef[] = [
   {
-    key: "construction",
-    name: "Construction & Infrastructure",
+    key: "automation",
+    name: "Workload Automation (DBA · Control-M)",
     description:
-      "Capital projects and infrastructure where design alternatives, constructability and life-cycle cost drive value.",
+      "Orchestrating business-critical workflows and data pipelines with BMC Control-M — where job reliability, SLAs and scheduler consolidation drive value.",
     config: {
       studyTypes: [
-        "Design VE study",
-        "Constructability review",
-        "Value planning workshop",
-        "Life-cycle cost optimisation",
+        "Automation value study",
+        "Scheduler consolidation case",
+        "SLA reliability review",
+        "Data-pipeline orchestration case",
       ],
       costDrivers: [
-        "Materials & quantities",
-        "Labour & plant",
-        "Design complexity",
-        "Site conditions & logistics",
-        "Programme / schedule duration",
-        "Operation & maintenance (whole-life)",
+        "Legacy scheduler licences & maintenance",
+        "Failed-job / rerun cost",
+        "Manual scheduling & firefighting effort",
+        "SLA penalty / business risk",
+        "Deployment lead time",
       ],
       valueLevers: [
-        "Design simplification / standardisation",
-        "Material substitution",
-        "Constructability improvements",
-        "Off-site / modular construction",
-        "Schedule compression",
-        "Whole-life cost reduction",
+        "Scheduler consolidation (licence takeout)",
+        "Jobs-as-code / faster delivery",
+        "SLA management & failure reduction",
+        "Hybrid-cloud & data-pipeline orchestration",
+        "Reduced manual intervention",
       ],
       exampleDeliverables: [
-        "Design alternatives register",
-        "Constructability recommendations",
-        "Life-cycle cost analysis (LCCA)",
-        "VE workshop report",
+        "Automation business case",
+        "Scheduler consolidation plan",
+        "SLA improvement plan",
+        "Orchestration target architecture",
       ],
       defaultKpiKeys: [
+        "job_success_rate",
+        "sla_attainment",
         "cost_savings",
-        "schedule_impact_days",
-        "lcc_reduction",
-        "recommendations_accepted",
+        "roi_pct",
+        "payback_period",
+        "on_time_implementation",
+        "realized_value",
+      ],
+      glossary: {
+        SLA: "Service-Level Agreement",
+        MFT: "Managed File Transfer",
+        "Jobs-as-code": "Defining scheduled jobs as version-controlled code",
+        DBA: "Digital Business Automation (BMC line of business)",
+      },
+    },
+  },
+  {
+    key: "mainframe",
+    name: "Mainframe Optimization (IZOT · BMC AMI)",
+    description:
+      "Optimising, modernising and managing the IBM Z mainframe with the BMC AMI portfolio — where software cost, availability and DevOps agility drive value.",
+    config: {
+      studyTypes: [
+        "Mainframe cost-optimization study",
+        "MLC / MSU reduction review",
+        "Availability & resilience review",
+        "Mainframe DevOps / modernization case",
+      ],
+      costDrivers: [
+        "MLC / MSU software cost",
+        "MIPS / capacity",
+        "Incident & outage cost",
+        "Manual operations effort",
+        "Scarce Z skills / contractors",
+        "Batch-window pressure",
+      ],
+      valueLevers: [
+        "R4HA peak reduction & workload tuning",
+        "Capacity-upgrade deferral",
+        "Automation & AIOps for Z",
+        "DevX modernization (jobs-as-code, agile)",
+        "Availability & resilience improvement",
+      ],
+      exampleDeliverables: [
+        "Mainframe cost-optimization business case",
+        "MLC reduction plan",
+        "Availability improvement plan",
+        "Modernization roadmap",
+      ],
+      defaultKpiKeys: [
+        "mainframe_cost",
         "reliability_uptime",
+        "mttr",
+        "cost_savings",
+        "roi_pct",
+        "payback_period",
+        "realized_value",
       ],
       glossary: {
-        BOQ: "Bill of Quantities",
-        LCCA: "Life-Cycle Cost Analysis",
-        Constructability: "Ease and efficiency with which a design can be built",
+        MLC: "Monthly Licence Charge",
+        MSU: "Million Service Units",
+        R4HA: "Rolling 4-Hour Average (the mainframe sub-capacity billing basis)",
+        AMI: "Automated Mainframe Intelligence (BMC portfolio)",
+        IZOT: "Intelligent Z Optimization & Transformation (BMC line of business)",
       },
     },
   },
   {
-    key: "manufacturing",
-    name: "Manufacturing & Product Development",
+    key: "serviceops",
+    name: "Service & Operations (BMC Helix · DSOM)",
     description:
-      "Products and production processes where BOM cost, process efficiency and quality drive value.",
+      "Cloud service and operations management with BMC Helix — ITSM, AIOps, Discovery and the Digital Workplace — where MTTR, deflection and tool consolidation drive value.",
     config: {
       studyTypes: [
-        "Product cost teardown / VE study",
-        "BOM optimisation",
-        "Process / DFMA review",
-        "Supplier value analysis",
+        "ITSM value / TCO study",
+        "ServiceNow displacement case",
+        "AIOps / observability case",
+        "Self-service deflection study",
       ],
       costDrivers: [
-        "Bill of materials (BOM) cost",
-        "Direct labour & cycle time",
-        "Tooling & setup",
-        "Scrap / rework / yield",
-        "Overhead & logistics",
-        "Warranty & field failure",
+        "Cost per ticket",
+        "Incident & outage cost",
+        "Tool-sprawl licences",
+        "Manual operations effort",
+        "Low self-service adoption",
+        "Change-failure rework",
       ],
       valueLevers: [
-        "BOM re-design / part consolidation",
-        "Material substitution",
-        "Design for manufacture & assembly (DFMA)",
-        "Process improvement / automation",
-        "Supplier negotiation / re-sourcing",
-        "Quality / yield improvement",
+        "AIOps MTTR reduction",
+        "Self-service & virtual-agent deflection",
+        "Tool consolidation (licence takeout)",
+        "Workflow automation",
+        "CMDB / Discovery accuracy",
       ],
       exampleDeliverables: [
-        "BOM & process alternatives",
-        "Cost teardown model",
-        "DFMA recommendations",
-        "Should-cost analysis",
+        "ITSM value business case",
+        "Deflection & automation plan",
+        "AIOps value case",
+        "Tool-consolidation TCO analysis",
       ],
       defaultKpiKeys: [
+        "mttr",
+        "ticket_deflection",
+        "first_contact_resolution",
         "cost_savings",
-        "unit_cost_reduction",
-        "first_pass_yield",
-        "recommendations_accepted",
-        "time_to_value",
+        "roi_pct",
+        "payback_period",
+        "adoption_rate",
+        "realized_value",
       ],
       glossary: {
-        BOM: "Bill of Materials",
-        DFMA: "Design for Manufacture and Assembly",
-        FPY: "First Pass Yield",
-        "Should-cost": "Bottom-up estimate of what a part ought to cost",
+        MTTR: "Mean Time To Resolve",
+        MTTD: "Mean Time To Detect",
+        CMDB: "Configuration Management Database",
+        FCR: "First-Contact Resolution",
+        DSOM: "Digital Service & Operations Management (BMC Helix)",
       },
     },
   },
   {
-    key: "saas",
-    name: "Enterprise Software / SaaS Sales & Customer Success",
+    key: "reseller",
+    name: "Software Reseller / OEM — General",
     description:
-      "Software solutions where ROI/TCO business cases, adoption and customer outcomes drive value.",
+      "A general software-value profile for OEM products Blue Turtle resells and implements outside the core BMC lines — subscription TCO, adoption and outcome value.",
     config: {
       studyTypes: [
-        "ROI / TCO business case",
-        "Value assessment / discovery",
-        "Solution value engineering",
-        "Customer success value plan",
+        "Software ROI / TCO business case",
+        "Vendor / tool consolidation case",
+        "Adoption & value-realization study",
+        "Renewal & expansion case",
       ],
       costDrivers: [
         "Licence / subscription cost",
         "Implementation & integration",
-        "Change management & training",
-        "Support & success management",
-        "Manual process / labour displaced",
-        "Legacy system TCO",
+        "Run & support cost",
+        "Manual effort / inefficiency",
+        "Tool overlap / redundancy",
       ],
       valueLevers: [
-        "Process automation / efficiency",
-        "Revenue uplift / conversion",
-        "Churn / risk reduction",
-        "Consolidation of tooling",
+        "Process automation & productivity",
+        "Tool / licence consolidation",
+        "Risk & compliance improvement",
+        "Availability & performance",
         "Faster time-to-value",
-        "Adoption & expansion",
       ],
       exampleDeliverables: [
-        "ROI / payback / TCO business case",
-        "Value assessment deck",
-        "Adoption & success plan",
-        "QBR / EBR value pack",
+        "Software business case (ROI / TCO)",
+        "Consolidation analysis",
+        "Adoption / value plan",
+        "Renewal & expansion case",
       ],
       defaultKpiKeys: [
+        "cost_savings",
         "roi_pct",
         "payback_period",
         "adoption_rate",
-        "revenue_uplift",
         "time_to_value",
-        "net_variance",
+        "realized_value",
       ],
       glossary: {
         TCO: "Total Cost of Ownership",
-        QBR: "Quarterly Business Review",
-        EBR: "Executive Business Review",
-        "Time-to-value": "Time from go-live to first measurable benefit",
+        OEM: "Original Equipment Manufacturer (the software vendor)",
+        ARR: "Annual Recurring Revenue",
       },
     },
   },

@@ -60,7 +60,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         children: [
           new Paragraph({ text: "Value Engineering — Business Case", heading: HeadingLevel.TITLE }),
           new Paragraph({ children: [new TextRun({ text: `${study.code} · ${study.title}`, bold: true })] }),
-          p(`Industry: ${study.industry.name}  |  Owner: ${study.owner.name}  |  Status: ${study.status}`),
+          p(`Solution: ${study.industry.name}  |  Owner: ${study.owner.name}  |  Status: ${study.status}`),
 
           h("Executive summary"),
           p(bc?.executiveSummary ?? "—"),

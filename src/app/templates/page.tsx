@@ -15,11 +15,11 @@ export default async function TemplatesPage() {
 
   return (
     <div className="space-y-8">
-      <SectionHeader title="Template & content library" desc="Reusable starter text, phase guidance and industry profiles — the reuse layer that feeds guided workflows." />
+      <SectionHeader title="Template & content library" desc="Reusable starter text, phase guidance and solution profiles — the reuse layer that feeds guided workflows." />
 
-      {/* Industry profiles */}
+      {/* Solution profiles */}
       <div>
-        <h3 className="mb-3 font-semibold text-ink-900">Industry profiles</h3>
+        <h3 className="mb-3 font-semibold text-ink-900">Solution profiles</h3>
         <div className="grid gap-4 md:grid-cols-3">
           {industries.map((i) => {
             const c = i.config as { studyTypes: string[]; costDrivers: string[]; valueLevers: string[] };

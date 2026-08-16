@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 const DEMO_PASSWORD = "demo1234";
 
 async function seedConfig() {
-  console.log("→ Seeding industry profiles…");
+  console.log("→ Seeding solution profiles…");
   for (const p of INDUSTRY_PROFILES) {
     await prisma.industryProfile.upsert({
       where: { key: p.key },
@@ -81,15 +81,15 @@ async function seedDemo() {
     update: {},
   });
 
-  const capital = await prisma.team.upsert({
+  const automationTeam = await prisma.team.upsert({
     where: { id: "team_capital" },
-    create: { id: "team_capital", name: "Capital Projects", organizationId: org.id },
-    update: {},
+    create: { id: "team_capital", name: "Automation & Mainframe", organizationId: org.id },
+    update: { name: "Automation & Mainframe" },
   });
-  const digital = await prisma.team.upsert({
+  const serviceTeam = await prisma.team.upsert({
     where: { id: "team_digital" },
-    create: { id: "team_digital", name: "Digital & SaaS", organizationId: org.id },
-    update: {},
+    create: { id: "team_digital", name: "Service & Operations", organizationId: org.id },
+    update: { name: "Service & Operations" },
   });
 
   const users = [
@@ -119,21 +119,24 @@ async function seedDemo() {
   await prisma.realizationTrack.deleteMany({ where: { organizationId: org.id } });
   await prisma.study.deleteMany({ where: { organizationId: org.id } });
 
-  // --- Demo study 1: Construction (fully handed over → has a live VR track) ---
-  console.log("→ Building demo study 1 (construction)…");
+  // Remove the old generic industry profiles (now that no studies reference them).
+  await prisma.industryProfile.deleteMany({ where: { key: { in: ["construction", "manufacturing", "saas"] } } });
+
+  // --- Demo study 1: Control-M automation (fully handed over → live VR track) ---
+  console.log("→ Building demo study 1 (Control-M automation)…");
   const s1 = await prisma.study.create({
     data: {
       code: "VE-2026-014",
-      title: "Wastewater Plant — Clarifier Structure VE",
-      summary: "Design VE study on the secondary clarifier structures to reduce cost and whole-life cost without compromising treatment performance.",
+      title: "Retail Bank — Control-M Batch Automation VE",
+      summary: "Automation value study consolidating legacy schedulers onto BMC Control-M to cut failures and protect overnight batch SLAs.",
       status: "HANDED_OVER",
       organizationId: org.id,
-      teamId: capital.id,
-      industryKey: "construction",
+      teamId: automationTeam.id,
+      industryKey: "automation",
       ownerId: "u_ve",
-      studyType: "Design VE study",
-      problemStatement: "Clarifier structures represent 18% of civil cost with a conservative reference design. Opportunity to simplify without affecting hydraulic performance.",
-      scope: "In: clarifier civil structures, mechanisms. Out: electrical, controls.",
+      studyType: "Automation value study",
+      problemStatement: "Three legacy schedulers drive ~120 failed / rerun jobs a month and missed overnight SLAs that delay morning reporting.",
+      scope: "In: batch orchestration, failure recovery, scheduler consolidation. Out: application code changes.",
       estimatedValue: 1_250_000,
       currency: "ZAR",
       evaluationCriteria: DEFAULT_CRITERIA as object,
@@ -149,21 +152,21 @@ async function seedDemo() {
       },
       functions: {
         create: [
-          { verb: "Separate", noun: "solids", kind: "BASIC", cost: 420000, worth: 300000, order: 1 },
-          { verb: "Contain", noun: "flow", kind: "BASIC", cost: 260000, worth: 220000, order: 2 },
-          { verb: "Resist", noun: "uplift", kind: "SECONDARY", cost: 180000, worth: 90000, order: 3 },
-          { verb: "Support", noun: "mechanism", kind: "SECONDARY", cost: 140000, worth: 110000, order: 4 },
+          { verb: "Orchestrate", noun: "workloads", kind: "BASIC", cost: 420000, worth: 300000, order: 1 },
+          { verb: "Recover", noun: "failures", kind: "BASIC", cost: 260000, worth: 220000, order: 2 },
+          { verb: "Meet", noun: "SLAs", kind: "SECONDARY", cost: 180000, worth: 90000, order: 3 },
+          { verb: "Consolidate", noun: "schedulers", kind: "SECONDARY", cost: 140000, worth: 110000, order: 4 },
         ],
       },
       recommendations: {
         create: [
-          { title: "Standardise wall thickness & simplify formwork", summary: "Adopt a single wall thickness with re-usable formwork.", technicalDetail: "Move from 3 wall sections to 1; re-usable modular formwork.", commercialDetail: "Cuts formwork labour and material waste.", status: "ACCEPTED", estimatedValue: 780000, estimatedCost: 60000, order: 1 },
-          { title: "Ground-anchor uplift solution", summary: "Replace mass concrete with ground anchors to resist uplift.", technicalDetail: "Post-tensioned ground anchors vs mass concrete base.", commercialDetail: "Reduces concrete volume and excavation.", status: "ACCEPTED", estimatedValue: 470000, estimatedCost: 90000, order: 2 },
+          { title: "Consolidate legacy schedulers onto Control-M", summary: "Retire the three legacy schedulers and orchestrate all batch on Control-M.", technicalDetail: "Migrate AutoSys + cron + a legacy tool to a single Control-M estate with SLA management.", commercialDetail: "Removes scheduler licences + maintenance and cuts rerun/firefighting effort.", status: "ACCEPTED", estimatedValue: 780000, estimatedCost: 60000, order: 1 },
+          { title: "Automate failure recovery with jobs-as-code", summary: "Self-healing job flows with auto-rerun, alerting and version-controlled definitions.", technicalDetail: "Jobs-as-code with automated recovery runbooks and proactive alerting.", commercialDetail: "Cuts failed-job impact and manual intervention hours.", status: "ACCEPTED", estimatedValue: 470000, estimatedCost: 90000, order: 2 },
         ],
       },
       risks: {
         create: [
-          { title: "Anchor performance in variable ground", likelihood: 3, impact: 4, mitigation: "Trial anchors + pull tests before rollout.", status: "MITIGATING" },
+          { title: "Cutover risk during scheduler migration", likelihood: 3, impact: 4, mitigation: "Phased cutover with parallel run and rollback.", status: "MITIGATING" },
         ],
       },
     },
@@ -173,12 +176,12 @@ async function seedDemo() {
   // Creative alternatives + evaluation scores for study 1 (populates the matrix).
   const fnBy = (verb: string) => s1.functions.find((f) => f.verb === verb)?.id ?? null;
 
-  // FAST how/why chain: Separate solids → Contain flow → (Resist uplift, Support mechanism)
+  // FAST how/why chain: Orchestrate workloads → (Recover failures, Meet SLAs) → Consolidate schedulers
   const fastLinks: [string, string | null][] = [
-    ["Separate", null],
-    ["Contain", fnBy("Separate")],
-    ["Resist", fnBy("Contain")],
-    ["Support", fnBy("Contain")],
+    ["Orchestrate", null],
+    ["Recover", fnBy("Orchestrate")],
+    ["Meet", fnBy("Orchestrate")],
+    ["Consolidate", fnBy("Meet")],
   ];
   for (const [verb, parentId] of fastLinks) {
     const id = fnBy(verb);
@@ -186,10 +189,10 @@ async function seedDemo() {
   }
 
   const seededAlts = [
-    { idea: "Standardised single wall thickness + modular formwork", functionId: fnBy("Separate"), scores: { cost: 5, performance: 4, risk: 3, feasibility: 4, schedule: 4 }, shortlisted: true },
-    { idea: "Post-tensioned ground anchors for uplift", functionId: fnBy("Resist"), scores: { cost: 4, performance: 4, risk: 2, feasibility: 3, schedule: 3 }, shortlisted: true },
-    { idea: "Precast clarifier base panels", functionId: fnBy("Contain"), scores: { cost: 3, performance: 4, risk: 3, feasibility: 3, schedule: 5 }, shortlisted: false },
-    { idea: "Thicken mass-concrete base (do-minimum)", functionId: fnBy("Resist"), scores: { cost: 2, performance: 5, risk: 4, feasibility: 5, schedule: 2 }, shortlisted: false },
+    { idea: "Consolidate AutoSys + cron onto a single Control-M estate", functionId: fnBy("Consolidate"), scores: { cost: 5, performance: 4, risk: 3, feasibility: 4, schedule: 4 }, shortlisted: true },
+    { idea: "Self-healing job flows (auto-rerun + alerting)", functionId: fnBy("Recover"), scores: { cost: 4, performance: 4, risk: 2, feasibility: 3, schedule: 3 }, shortlisted: true },
+    { idea: "Control-M for Data pipeline orchestration", functionId: fnBy("Orchestrate"), scores: { cost: 3, performance: 4, risk: 3, feasibility: 3, schedule: 5 }, shortlisted: false },
+    { idea: "Keep legacy schedulers + more scripting (do-minimum)", functionId: fnBy("Recover"), scores: { cost: 2, performance: 5, risk: 4, feasibility: 5, schedule: 2 }, shortlisted: false },
   ];
   for (const a of seededAlts) {
     await prisma.alternative.create({
@@ -208,28 +211,28 @@ async function seedDemo() {
   const bc1 = await prisma.businessCase.create({
     data: {
       studyId: s1.id,
-      executiveSummary: "Two accepted recommendations deliver ~R1.25M capital saving with a 4-month payback and strong whole-life benefit.",
+      executiveSummary: "Two accepted recommendations deliver ~R1.25M annual value — scheduler licence takeout plus failure reduction — with a 4-month payback.",
       currency: "ZAR",
       roiPct: 733,
       paybackMonths: 4,
       npv: 1_050_000,
       irrPct: 210,
       discountRatePct: 8,
-      horizonYears: 20,
-      lccaNotes: "Reduced concrete volume lowers maintenance and carbon over 20-year horizon.",
-      riskNarrative: "Primary risk is anchor performance; mitigated with a trial-anchor programme.",
+      horizonYears: 5,
+      lccaNotes: "Retiring two schedulers removes licence + maintenance and cuts rerun/firefighting effort across the horizon.",
+      riskNarrative: "Primary risk is migration cutover; mitigated with a parallel-run and rollback plan.",
       scenarios: {
         create: [
-          { name: "Baseline (reference design)", isBaseline: true, order: 0, description: "Conservative reference clarifier design." },
-          { name: "Proposed (VE optimised)", isBaseline: false, order: 1, description: "Standardised walls + ground-anchor uplift." },
+          { name: "Baseline (three legacy schedulers)", isBaseline: true, order: 0, description: "AutoSys + cron + a legacy tool, with frequent reruns." },
+          { name: "Proposed (consolidated on Control-M)", isBaseline: false, order: 1, description: "Single Control-M estate with self-healing job flows." },
         ],
       },
       costItems: {
         create: [
-          { label: "VE design rework", kind: "ONE_OFF", amount: 150000, year: 0 },
-          { label: "Trial anchor programme", kind: "ONE_OFF", amount: 40000, year: 0 },
-          { label: "Capital saving (formwork + concrete)", kind: "BENEFIT", category: "COST_SAVING", amount: 1_250_000, year: 0 },
-          { label: "Annual maintenance saving", kind: "BENEFIT", category: "COST_SAVING", amount: 45000, recurring: true },
+          { label: "Control-M migration & setup", kind: "ONE_OFF", amount: 150000, year: 0 },
+          { label: "Runbook automation build", kind: "ONE_OFF", amount: 40000, year: 0 },
+          { label: "Scheduler licence & rerun saving", kind: "BENEFIT", category: "COST_SAVING", amount: 1_250_000, year: 0 },
+          { label: "Annual ops-effort saving", kind: "BENEFIT", category: "COST_SAVING", amount: 45000, recurring: true },
         ],
       },
     },
@@ -237,12 +240,12 @@ async function seedDemo() {
 
   // Handover artifacts for study 1
   const handoverData = [
-    { type: "EXPECTED_BENEFIT", title: "Capital cost saving", detail: "R1.25M reduction in clarifier civil cost", data: { plannedValue: 1250000, category: "COST_SAVING" }, order: 0 },
-    { type: "KPI", title: "Life-cycle cost reduction", detail: "Whole-life cost vs baseline", data: { kpiKey: "lcc_reduction", baselineValue: 0, targetValue: 900000, unit: "ZAR", frequency: "quarterly", dataSource: "Cost model", owner: "Marco Ruiz" }, order: 1 },
-    { type: "KPI", title: "Reliability / uptime", detail: "Plant availability maintained", data: { kpiKey: "reliability_uptime", baselineValue: 98.5, targetValue: 98.5, unit: "%", frequency: "monthly", dataSource: "SCADA", owner: "Ops" }, order: 2 },
-    { type: "BASELINE", title: "Baseline civil cost", detail: "R6.9M reference design civil cost", data: { value: 6900000 }, order: 3 },
-    { type: "SUCCESS_CRITERION", title: "No performance compromise", detail: "Hydraulic & treatment performance ≥ baseline", order: 4 },
-    { type: "RISK", title: "Anchor performance", detail: "Variable ground conditions", order: 5 },
+    { type: "EXPECTED_BENEFIT", title: "Automation & consolidation saving", detail: "R1.25M annual saving from licence takeout + failure reduction", data: { plannedValue: 1250000, category: "COST_SAVING" }, order: 0 },
+    { type: "KPI", title: "SLA attainment", detail: "Overnight batch SLA attainment", data: { kpiKey: "sla_attainment", baselineValue: 82, targetValue: 98, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Marco Ruiz" }, order: 1 },
+    { type: "KPI", title: "Job success rate", detail: "First-time job completion rate", data: { kpiKey: "job_success_rate", baselineValue: 94, targetValue: 99.5, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Ops" }, order: 2 },
+    { type: "BASELINE", title: "Baseline annual scheduling cost", detail: "R3.2M legacy scheduler + rerun cost", data: { value: 3200000 }, order: 3 },
+    { type: "SUCCESS_CRITERION", title: "No missed regulatory SLAs", detail: "Zero missed regulatory-reporting SLAs post-cutover", order: 4 },
+    { type: "RISK", title: "Migration cutover", detail: "Risk during scheduler consolidation", order: 5 },
   ];
   for (const h of handoverData) {
     await prisma.handoverArtifact.create({
@@ -252,12 +255,12 @@ async function seedDemo() {
 
   // KPI targets on the study (VE planned)
   await prisma.kpiTarget.create({
-    data: { kpiKey: "cost_savings", studyId: s1.id, baselineValue: 6900000, targetValue: 1250000, unit: "ZAR", frequency: "once", dataSource: "Cost model", ownerName: "Dana Okafor" },
+    data: { kpiKey: "cost_savings", studyId: s1.id, baselineValue: 3200000, targetValue: 1250000, unit: "ZAR", frequency: "once", dataSource: "Cost model", ownerName: "Dana Okafor" },
   });
 
   // Discussion on study 1
-  await prisma.comment.create({ data: { authorId: "u_rev", body: "Strong case. Please confirm the trial-anchor pull-test results feed the risk log before we approve.", entityType: "Study", entityId: s1.id, studyId: s1.id } });
-  await prisma.comment.create({ data: { authorId: "u_ve", body: "Trial anchors are scheduled — I'll attach the pull-test data in the Development phase and update the risk register.", entityType: "Study", entityId: s1.id, studyId: s1.id } });
+  await prisma.comment.create({ data: { authorId: "u_rev", body: "Strong case. Please confirm the parallel-run plan and rollback criteria before we approve the cutover.", entityType: "Study", entityId: s1.id, studyId: s1.id } });
+  await prisma.comment.create({ data: { authorId: "u_ve", body: "Parallel run is scheduled for two batch cycles — I'll attach the rollback criteria and update the risk register.", entityType: "Study", entityId: s1.id, studyId: s1.id } });
 
   // Business-case version snapshot (v1)
   const bc1full = await prisma.businessCase.findUnique({ where: { id: bc1.id }, include: { scenarios: { orderBy: { order: "asc" } }, costItems: true } });
@@ -282,16 +285,16 @@ async function seedDemo() {
   const t1 = await prisma.realizationTrack.create({
     data: {
       code: "VR-2026-014",
-      title: "Clarifier VE — Realization",
+      title: "Control-M Automation — Realization",
       status: "IN_FLIGHT",
       health: "GREEN",
       organizationId: org.id,
-      teamId: capital.id,
-      industryKey: "construction",
+      teamId: automationTeam.id,
+      industryKey: "automation",
       studyId: s1.id,
       ownerId: "u_vrm",
-      objectives: "Implement the two accepted recommendations and prove the R1.25M capital saving and whole-life benefit.",
-      successCriteria: "≥R1.1M realized capital saving with no performance compromise.",
+      objectives: "Consolidate schedulers onto Control-M and prove the R1.25M annual saving and SLA improvement.",
+      successCriteria: "≥R1.1M realized annual saving and ≥98% overnight-batch SLA attainment.",
       plannedValue: 1_250_000,
       realizedValue: 690_000,
       currency: "ZAR",
@@ -306,31 +309,31 @@ async function seedDemo() {
       },
       workPackages: {
         create: [
-          { name: "Re-issue clarifier design package", status: "DONE", ownerId: "u_vrm", isMilestone: true, order: 1, startDate: new Date("2026-06-25"), dueDate: new Date("2026-07-30"), recommendationId: s1.recommendations[0]?.id },
-          { name: "Trial anchor programme", status: "DONE", ownerId: "u_vrm", order: 2, dueDate: new Date("2026-08-20"), recommendationId: s1.recommendations[1]?.id },
-          { name: "Procure modular formwork", status: "IN_PROGRESS", ownerId: "u_vrm", order: 3, dueDate: new Date("2026-09-30") },
-          { name: "Construct optimised clarifiers", status: "NOT_STARTED", order: 4, isMilestone: true, dueDate: new Date("2026-12-01") },
+          { name: "Design Control-M target & migrate schedules", status: "DONE", ownerId: "u_vrm", isMilestone: true, order: 1, startDate: new Date("2026-06-25"), dueDate: new Date("2026-07-30"), recommendationId: s1.recommendations[0]?.id },
+          { name: "Build self-healing runbooks (jobs-as-code)", status: "DONE", ownerId: "u_vrm", order: 2, dueDate: new Date("2026-08-20"), recommendationId: s1.recommendations[1]?.id },
+          { name: "Decommission legacy schedulers", status: "IN_PROGRESS", ownerId: "u_vrm", order: 3, dueDate: new Date("2026-09-30") },
+          { name: "Cut over remaining workloads", status: "NOT_STARTED", order: 4, isMilestone: true, dueDate: new Date("2026-12-01") },
         ],
       },
       benefits: {
         create: [
-          { label: "Formwork & concrete capital saving", category: "COST_SAVING", plannedValue: 780000, realizedValue: 520000, firstMeasuredAt: new Date("2026-08-10") },
-          { label: "Ground-anchor uplift saving", category: "COST_SAVING", plannedValue: 470000, realizedValue: 170000, firstMeasuredAt: new Date("2026-09-05") },
+          { label: "Scheduler licence & maintenance saving", category: "COST_SAVING", plannedValue: 780000, realizedValue: 520000, firstMeasuredAt: new Date("2026-08-10") },
+          { label: "Failure-recovery ops saving", category: "COST_SAVING", plannedValue: 470000, realizedValue: 170000, firstMeasuredAt: new Date("2026-09-05") },
         ],
       },
       risks: {
-        create: [{ title: "Ground variability at north basin", likelihood: 2, impact: 3, mitigation: "Additional pull tests scheduled.", status: "OPEN" }],
+        create: [{ title: "Residual jobs on a legacy tool", likelihood: 2, impact: 3, mitigation: "Track and migrate the remaining jobs before decommission.", status: "OPEN" }],
       },
       adoptionPlan: {
         create: {
-          changeImpact: "Site team adopts modular formwork method; QA updates inspection checklists.",
-          trainingPlan: "Formwork method toolbox talks; anchor QA training.",
-          commsPlan: "Weekly site briefing; monthly steering update.",
-          championNetwork: "Site engineer + QA lead as method champions.",
+          changeImpact: "Ops team adopts jobs-as-code and Control-M self-service; run-books replace manual firefighting.",
+          trainingPlan: "Control-M authoring & jobs-as-code training; on-call runbook walkthroughs.",
+          commsPlan: "Weekly ops standup; monthly steering update.",
+          championNetwork: "Batch lead + SRE as automation champions.",
           activities: {
             create: [
-              { label: "Formwork method toolbox talk", audience: "Site crew", status: "DONE", order: 1 },
-              { label: "Anchor QA training", audience: "QA team", status: "IN_PROGRESS", order: 2 },
+              { label: "Control-M authoring training", audience: "Ops team", status: "DONE", order: 1 },
+              { label: "Runbook / on-call walkthrough", audience: "SRE / on-call", status: "IN_PROGRESS", order: 2 },
             ],
           },
         },
@@ -343,18 +346,20 @@ async function seedDemo() {
   await prisma.handoverArtifact.updateMany({ where: { studyId: s1.id }, data: { trackId: t1.id } });
 
   // Discussion on the realization track
-  await prisma.comment.create({ data: { authorId: "u_vrm", body: "Formwork procurement is the critical path this month — chasing the supplier for a firm date.", entityType: "RealizationTrack", entityId: t1.id, trackId: t1.id } });
+  await prisma.comment.create({ data: { authorId: "u_vrm", body: "Decommissioning the last legacy scheduler is the critical path this month — a handful of jobs still to migrate.", entityType: "RealizationTrack", entityId: t1.id, trackId: t1.id } });
 
   // KPI targets + actuals on the track (VR realized)
-  const lccTarget = await prisma.kpiTarget.create({
-    data: { kpiKey: "lcc_reduction", trackId: t1.id, baselineValue: 0, targetValue: 900000, unit: "ZAR", frequency: "quarterly", dataSource: "Cost model", ownerName: "Marco Ruiz",
+  await prisma.kpiTarget.create({
+    data: { kpiKey: "sla_attainment", trackId: t1.id, baselineValue: 82, targetValue: 98, unit: "%", frequency: "monthly", dataSource: "Control-M", ownerName: "Marco Ruiz",
       actuals: { create: [
-        { periodLabel: "2026-Q3", periodDate: new Date("2026-09-30"), value: 690000, note: "Formwork + partial anchor savings realized." },
+        { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 90 },
+        { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 94 },
+        { periodLabel: "2026-09", periodDate: new Date("2026-09-30"), value: 96, note: "Approaching target as legacy jobs migrate." },
       ] },
     },
   });
   await prisma.kpiTarget.create({
-    data: { kpiKey: "on_time_implementation", trackId: t1.id, baselineValue: 0, targetValue: 90, unit: "%", frequency: "monthly", dataSource: "Schedule", ownerName: "Marco Ruiz",
+    data: { kpiKey: "on_time_implementation", trackId: t1.id, baselineValue: 0, targetValue: 90, unit: "%", frequency: "monthly", dataSource: "Plan", ownerName: "Marco Ruiz",
       actuals: { create: [
         { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 100 },
         { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 95 },
@@ -365,33 +370,33 @@ async function seedDemo() {
 
   await prisma.valueReport.create({
     data: {
-      trackId: t1.id, kind: "QUARTERLY_QBR", title: "Q3 2026 QBR — Clarifier VE",
+      trackId: t1.id, kind: "QUARTERLY_QBR", title: "Q3 2026 QBR — Control-M Automation",
       periodStart: new Date("2026-07-01"), periodEnd: new Date("2026-09-30"),
       content: {
-        executiveStory: "On track: R690K of R1.25M realized by end of Q3 with no performance compromise.",
-        progress: "3 of 4 work packages complete or in progress; construction milestone next.",
+        executiveStory: "On track: R690K of R1.25M realized by end of Q3, SLA attainment up from 82% to 96%.",
+        progress: "3 of 4 work packages complete or in progress; final cutover next.",
         realizedToDate: 690000,
-        nextBestActions: ["Complete formwork procurement", "Begin optimised construction"],
-        expansion: "Apply standardised formwork approach to two further basins.",
+        nextBestActions: ["Migrate the last legacy jobs", "Complete decommission and final cutover"],
+        expansion: "Extend to Control-M for Data pipelines; cross-sell Helix for operations.",
       },
     },
   });
 
-  // --- Demo study 2: SaaS (in-progress, not yet handed over) ---
-  console.log("→ Building demo study 2 (SaaS)…");
+  // --- Demo study 2: BMC Helix ITSM (in-progress, not yet handed over) ---
+  console.log("→ Building demo study 2 (BMC Helix ITSM)…");
   const s2 = await prisma.study.create({
     data: {
       code: "VE-2026-021",
-      title: "Field Service Platform — ROI / TCO Business Case",
-      summary: "Value engineering the move from manual dispatch to an integrated field-service SaaS platform.",
+      title: "IT Service Management — BMC Helix ROI / TCO",
+      summary: "Value engineering the move from legacy ITSM to BMC Helix — ITSM, AIOps and self-service.",
       status: "IN_REVIEW",
       organizationId: org.id,
-      teamId: digital.id,
-      industryKey: "saas",
+      teamId: serviceTeam.id,
+      industryKey: "serviceops",
       ownerId: "u_ve",
-      studyType: "ROI / TCO business case",
-      problemStatement: "Manual dispatch and paper job cards drive high admin cost, low first-time-fix and slow invoicing.",
-      scope: "In: dispatch, mobile job execution, invoicing. Out: HR, payroll.",
+      studyType: "ITSM value / TCO study",
+      problemStatement: "High ticket volumes, long MTTR and a sprawl of monitoring tools drive cost and a poor employee experience.",
+      scope: "In: ITSM, AIOps / operations, self-service. Out: HR & payroll systems.",
       estimatedValue: 2_400_000,
       currency: "ZAR",
       startedAt: new Date("2026-07-10"),
@@ -405,7 +410,7 @@ async function seedDemo() {
       },
       recommendations: {
         create: [
-          { title: "Deploy integrated field-service SaaS", summary: "Replace manual dispatch with SaaS + mobile app.", technicalDetail: "Cloud platform, mobile app, ERP integration.", commercialDetail: "Subscription + implementation vs manual labour + legacy TCO.", status: "SHORTLISTED", estimatedValue: 2_400_000, estimatedCost: 620000, order: 1 },
+          { title: "Deploy BMC Helix ITSM with AIOps & self-service", summary: "Replace legacy ITSM and point monitoring tools with BMC Helix.", technicalDetail: "Helix ITSM + Operations Management (AIOps) + Digital Workplace self-service, with Discovery for CMDB.", commercialDetail: "Subscription + implementation vs legacy ITSM licences, tool sprawl and ticket-handling cost.", status: "SHORTLISTED", estimatedValue: 2_400_000, estimatedCost: 620000, order: 1 },
         ],
       },
     },
@@ -415,22 +420,22 @@ async function seedDemo() {
   await prisma.businessCase.create({
     data: {
       studyId: s2.id,
-      executiveSummary: "R2.4M three-year value (process automation + revenue uplift) against R1.4M TCO; 11-month payback.",
+      executiveSummary: "R2.4M three-year value (ticket deflection + tool consolidation) against R1.4M TCO; 11-month payback.",
       currency: "ZAR", roiPct: 71, paybackMonths: 11, npv: 980000, irrPct: 58, discountRatePct: 10, horizonYears: 3,
       lccaNotes: "3-year TCO includes subscription, implementation and change management.",
       scenarios: {
         create: [
-          { name: "Baseline (manual dispatch)", isBaseline: true, order: 0 },
-          { name: "Proposed (SaaS platform)", isBaseline: false, order: 1 },
+          { name: "Baseline (legacy ITSM + point tools)", isBaseline: true, order: 0 },
+          { name: "Proposed (BMC Helix)", isBaseline: false, order: 1 },
         ],
       },
       costItems: {
         create: [
-          { label: "Implementation & integration", kind: "ONE_OFF", amount: 380000, year: 0 },
+          { label: "Implementation & migration", kind: "ONE_OFF", amount: 380000, year: 0 },
           { label: "Change management & training", kind: "ONE_OFF", amount: 120000, year: 0 },
           { label: "Annual subscription", kind: "OPEX", amount: 300000, recurring: true },
-          { label: "Admin labour saving", kind: "BENEFIT", category: "COST_SAVING", amount: 520000, recurring: true },
-          { label: "First-time-fix revenue uplift", kind: "BENEFIT", category: "REVENUE_UPLIFT", amount: 300000, recurring: true },
+          { label: "Ticket-handling & tool saving", kind: "BENEFIT", category: "COST_SAVING", amount: 520000, recurring: true },
+          { label: "Avoided-downtime value", kind: "BENEFIT", category: "COST_SAVING", amount: 300000, recurring: true },
         ],
       },
     },

@@ -107,9 +107,7 @@ Improve value by {{objective}} without compromising {{must_not_compromise}}.
   {
     discipline: "VE",
     kind: "business_case",
-    title: "ROI / TCO business case (SaaS)",
-    industryKey: "saas",
-    body: `## Executive summary
+    title: "ROI / TCO business case (SaaS)",    body: `## Executive summary
 {{solution}} delivers {{headline_value}} of annual value: {{automation_savings}} in process savings + {{revenue_uplift}} revenue uplift, against {{tco}} total cost of ownership. Payback {{payback}} months.
 
 ## Current state (baseline)

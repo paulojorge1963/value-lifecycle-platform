@@ -74,7 +74,7 @@ export default async function PortfolioPage() {
 
       {/* By industry */}
       <div>
-        <SectionHeader title="By industry" />
+        <SectionHeader title="By solution" />
         <div className="grid gap-4 md:grid-cols-3">
           {byIndustry.map((i) => (
             <div key={i.key} className="card card-pad">
