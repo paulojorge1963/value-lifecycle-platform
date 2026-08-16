@@ -64,6 +64,7 @@ Three ideas hold it together:
 |---|---|---|
 | **Value Engineer (VE)** | The business case — discovery, value mapping, ROI/TCO, success criteria | Pre-sales & deal-shaping, to close |
 | **Value Realization Manager (VRM)** | The value plan — adoption, KPI tracking, QBRs, renewal & expansion | From go-live, across the lifecycle |
+| **Customer Success (CSM)** | Ongoing account health, adoption & renewal across the whole relationship — *adjacent to this process, not a step in it* | Continuously post-sale; receives the VRM's realized-value proof |
 | **Reviewer / Sponsor** | The governance gate — accept or reject recommendations | At the approval point before handover |
 | **Delivery / implementation team** | Building and configuring the solution | Implementation & execution |
 | **Account executive** | The commercial relationship and the deal | Throughout |
@@ -72,6 +73,8 @@ Three ideas hold it together:
 | **Vendor / OEM** | Product, value frameworks & benchmarks | Aligned throughout |
 
 > **Roles, not necessarily headcount.** A strong pre-sales consultant can play the Value Engineer; an engaged delivery lead or customer-success person can play the Value Realization Manager. Start by having people wear the hat on strategic deals, then formalise where it pays off.
+
+> **Where Customer Success fits.** Customer Success is **adjacent to this process, not a step in it.** A CSM owns the *ongoing* relationship, adoption and renewal across everything the customer runs; the **VRM is narrower and time-boxed** — proving the realized value of a *specific* business case, then closing it out. The two hand off rather than overlap: the VRM's realized-value evidence feeds the CSM's renewal and expansion. Where a team has both, Customer Success often originates a value initiative and pulls in a VRM; at small scale one person wears both hats.
 
 ---
 
@@ -245,8 +248,8 @@ The realization lifecycle takes a track — whether **handed over from a VE stud
 
 *Purpose.* Confirm final realized value, capture lessons, and feed improvements back to the front of the process.
 
-- **Key activities:** confirm final realized value vs the original business case; record lessons learned; route improvements back into the VE templates and playbooks; tee up the next opportunity.
-- **Exit criteria:** final value confirmed and signed off; lessons captured; next-step identified.
+- **Key activities:** confirm final realized value vs the original business case; record lessons learned; route improvements back into the VE templates and playbooks; **hand the proven outcome to Customer Success for ongoing renewal & account health** (CS owns the continuing relationship — the VRM's proof is its strongest input); tee up the next opportunity.
+- **Exit criteria:** final value confirmed and signed off; lessons captured; ongoing ownership passed to Customer Success; next-step identified.
 - **Tip:** close the loop — a proven outcome is the best possible input to the next VE study and the strongest reference you can have.
 
 ---
@@ -330,6 +333,7 @@ The realization lifecycle takes a track — whether **handed over from a VE stud
 
 - **Value Engineer (VE)** — pre-sales role that builds and quantifies the business case.
 - **Value Realization Manager (VRM)** — post-sales role that proves and grows realised value.
+- **Customer Success (CS / CSM)** — the ongoing post-sale function that owns account health, adoption and renewal across the whole relationship. **Adjacent to this process, not a phase in it:** the VRM proves the value of a specific case and hands the evidence to CS for renewal and continuing health.
 - **VE Job Plan** — the 8-phase value-engineering method (Orientation → Handover).
 - **VR lifecycle** — the 7-phase value-realization method (Intake → Close-out).
 - **Handover** — the guarded, first-class link that seeds a VR track from an accepted VE study.
