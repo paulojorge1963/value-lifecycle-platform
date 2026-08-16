@@ -86,6 +86,13 @@ enum TrackStatus {
   CANCELLED
 }
 
+/// Where a realization track came from: handed over from a VE study, or
+/// started standalone for software already in place (VRM-only, no VE).
+enum TrackOrigin {
+  VE_HANDOVER
+  STANDALONE
+}
+
 /// RAG health used on the VR dashboards.
 enum Health {
   GREEN
@@ -584,9 +591,13 @@ model RealizationTrack {
   industryKey    String
   industry       IndustryProfile @relation(fields: [industryKey], references: [key])
 
-  // The first-class VE → VR bridge:
-  studyId String
-  study   Study  @relation(fields: [studyId], references: [id])
+  // Origin of the track. VE_HANDOVER tracks carry a source study; STANDALONE
+  // tracks are VRM-only (software already in place, no VE), so studyId is null.
+  origin  TrackOrigin @default(VE_HANDOVER)
+
+  // The first-class VE → VR bridge (optional — absent for standalone tracks):
+  studyId String?
+  study   Study?  @relation(fields: [studyId], references: [id])
 
   ownerId String
   owner   User   @relation("TrackOwner", fields: [ownerId], references: [id])

@@ -158,7 +158,12 @@ export default async function PortfolioPage() {
                         {t.title}
                       </Link>
                       <div className="text-xs text-ink-400">
-                        {t.code} · from <span className="text-ve-600">{t.study.code}</span>
+                        {t.code} ·{" "}
+                        {t.study ? (
+                          <>from <span className="text-ve-600">{t.study.code}</span></>
+                        ) : (
+                          <span className="text-vr-600">standalone</span>
+                        )}
                       </div>
                     </td>
                     <td className="td"><HealthPill health={t.health} /></td>

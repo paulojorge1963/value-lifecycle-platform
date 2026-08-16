@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, SectionHeader, ProgressBar } from "@/components/ui";
 import { fmtMoney } from "@/lib/finance";
+import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
+import { NewTrackForm } from "@/components/NewTrackForm";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +23,11 @@ export default async function VrWorkspace() {
       <SectionHeader
         title="Value Realization workspace"
         desc="Implement approved recommendations, drive adoption, and prove realized value against the business case."
+        action={
+          can(user.role, "track.create") ? (
+            <NewTrackForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+          ) : null
+        }
       />
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -32,7 +39,12 @@ export default async function VrWorkspace() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-xs font-medium text-ink-400">
-                    {t.code} · from <span className="text-ve-600">{t.study.code}</span>
+                    {t.code} ·{" "}
+                    {t.study ? (
+                      <>from <span className="text-ve-600">{t.study.code}</span></>
+                    ) : (
+                      <span className="text-vr-600">standalone (existing software)</span>
+                    )}
                   </div>
                   <h3 className="mt-0.5 font-semibold text-ink-900">{t.title}</h3>
                 </div>
@@ -57,7 +69,8 @@ export default async function VrWorkspace() {
         })}
         {tracks.length === 0 && (
           <div className="card card-pad text-ink-500">
-            No realization tracks yet. Hand over an approved study from the <Link href="/ve" className="text-ve-700 underline">VE workspace</Link>.
+            No realization tracks yet. Hand over an approved study from the <Link href="/ve" className="text-ve-700 underline">VE workspace</Link>,
+            or start a standalone track above for software already in place.
           </div>
         )}
       </div>

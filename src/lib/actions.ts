@@ -457,6 +457,55 @@ export async function handoverToRealization(studyId: string) {
   return track.id;
 }
 
+// ---- Start a standalone realization track (VRM-only, no VE study) -----------
+// For software already in place at a customer where no Value Engineering is
+// needed — you just want to run the realization lifecycle to protect and prove
+// value. The track starts blank (7 VR phases + an adoption plan); benefits and
+// KPI targets are added from the existing deployment's baseline.
+export async function createRealizationTrack(formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.create")) throw new Error("Not permitted");
+
+  const title = String(formData.get("title") || "").trim();
+  if (!title) throw new Error("Title required");
+  const industryKey = String(formData.get("industryKey") || "automation");
+  const objectives = String(formData.get("objectives") || "") || null;
+  const successCriteria = String(formData.get("successCriteria") || "") || null;
+  const plannedValue = formData.get("plannedValue") ? Number(formData.get("plannedValue")) : null;
+  const currency = String(formData.get("currency") || "ZAR");
+  const targetDateRaw = String(formData.get("targetDate") || "");
+  const targetDate = targetDateRaw ? new Date(targetDateRaw) : null;
+
+  const code = await nextCode("VR");
+  const track = await prisma.realizationTrack.create({
+    data: {
+      code,
+      title,
+      status: "PLANNING",
+      health: "GREEN",
+      origin: "STANDALONE",
+      organizationId: user.organizationId,
+      industryKey,
+      studyId: null,
+      ownerId: user.id,
+      objectives,
+      successCriteria,
+      plannedValue,
+      currency,
+      startedAt: new Date(),
+      targetDate,
+      phases: {
+        create: VR_PHASES.map((p) => ({ phase: p.key as never, order: p.order, status: "NOT_STARTED" as never })),
+      },
+      adoptionPlan: { create: {} },
+    },
+  });
+
+  await audit("track.created", "RealizationTrack", track.id, { trackId: track.id, metadata: { origin: "STANDALONE" } });
+  revalidatePath("/vr");
+  return track.id;
+}
+
 // ---- Set a VR phase status -------------------------------------------------
 export async function setTrackPhaseStatus(trackId: string, phase: string, status: string) {
   const user = await getCurrentUser();

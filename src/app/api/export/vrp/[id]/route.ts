@@ -52,7 +52,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         children: [
           new Paragraph({ text: "Value Realization Plan & QBR Pack", heading: HeadingLevel.TITLE }),
           new Paragraph({ children: [new TextRun({ text: `${track.code} · ${track.title}`, bold: true })] }),
-          p(`Source study: ${track.study.code} · Solution: ${track.industry.name} · Owner: ${track.owner.name} · Health: ${track.health}`),
+          p(`${track.study ? `Source study: ${track.study.code}` : "Standalone (existing software)"} · Solution: ${track.industry.name} · Owner: ${track.owner.name} · Health: ${track.health}`),
 
           h("Objectives & success criteria"),
           p(track.objectives ?? "—"),

@@ -80,13 +80,19 @@ export default async function TrackPage({
             <HealthPill health={track.health} />
             <span className="badge bg-vr-50 text-vr-700">{track.industry.name}</span>
             <span>· Owner {track.owner.name}</span>
-            <span>· Source study{" "}
-              <Link href={`/ve/${track.studyId}`} className="text-ve-600 hover:underline">{track.study.code}</Link>
-            </span>
+            {track.study ? (
+              <span>· Source study{" "}
+                <Link href={`/ve/${track.studyId}`} className="text-ve-600 hover:underline">{track.study.code}</Link>
+              </span>
+            ) : (
+              <span>· Standalone (existing software)</span>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href={`/ve/${track.studyId}/report`} className="btn-ghost">Status report</Link>
+          {track.study && (
+            <Link href={`/ve/${track.studyId}/report`} className="btn-ghost">Status report</Link>
+          )}
           <a href={`/api/export/vrp/${track.id}`} className="btn-vr">Export VRP / QBR ↓</a>
         </div>
       </div>
