@@ -73,6 +73,19 @@ npm run dev   # http://localhost:3200
 | `npm run db:seed` | Seed config + demo data (idempotent for config; resets demo studies/tracks) |
 | `npm run db:reset` | Drop, re-migrate and re-seed |
 | `npx prisma studio` | Browse the database |
+| `npx tsx scripts/import-workbook.ts <file.xlsx>` | Import a capture workbook as a study/track (see below) |
+
+## Importing capture workbooks
+
+Meeting-capture Excel workbooks (a **VE Discovery Workbook** or **VR Intake Workbook**, whose columns/dropdowns mirror the schema) can be loaded straight into the app:
+
+```bash
+npx tsx scripts/import-workbook.ts <file.xlsx> [--owner <email>] [--org <id>] [--code <CODE>] [--dry-run]
+```
+
+- Auto-detects VE vs VR by the workbook's tabs, and creates the study/track **plus all children** (functions, alternatives + scores, recommendations, business case & line items with recomputed ROI/payback/NPV/IRR, handover artifacts, KPIs, work packages, benefits, risks, …) in one transaction.
+- `--dry-run` prints the full plan and writes nothing. `--owner` sets the owner (defaults to an org VE/VRM). A study/track code is auto-assigned unless `--code` is given.
+- Prepare the file first: **delete the greyed example row** in each table (or add rows beneath it) and keep each table's rows **contiguous** (a blank row ends a table). Each run creates a **new** study/track.
 
 ## API (selected)
 
