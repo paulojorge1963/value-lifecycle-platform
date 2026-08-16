@@ -8,8 +8,9 @@ Deliverables for demoing and explaining the **Value Lifecycle Platform** — one
 | **ValueLifecycle-User-Guide.docx** | A how-to guide covering the whole workflow and every module | Onboard a new user / hand to a customer |
 | **ValueLifecycle-Solution-Overview.pptx** | A 14-slide PowerPoint explaining the solution | Present to leadership / include in a proposal |
 | **ValueLifecycle-Design-Document.docx** | A design document with the workflow & architecture as diagrams (images baked in) | Explain the design; share on OneDrive where images must render |
+| **ValueLifecycle-Process-Guide.docx** | A practitioner's guide to the full VE → handover → VRM process, phase by phase, with six flow diagrams | Train the team / learn the method end to end |
 
-Each document is also provided as **Markdown source** (`*.md`) — the editable originals — and the demo script, user guide and design document each ship as a **PDF** for quick sharing. The solution overview ships as both **.pptx** (editable) and **.pdf**.
+Each document is also provided as **Markdown source** (`*.md`) — the editable originals — and the demo script, user guide, design document and process guide each ship as a **PDF** for quick sharing. The solution overview ships as both **.pptx** (editable) and **.pdf**.
 
 The design document's `.docx` and `.pdf` have the five diagrams embedded as images (so they render anywhere, including OneDrive/Word). The `.md` version references the same images from `diagrams/` and renders in GitHub, VS Code and Obsidian.
 
@@ -22,10 +23,12 @@ demo-kit/
 ├─ ValueLifecycle-Demo-Script.md / .docx / .pdf     ← live demo walkthrough
 ├─ ValueLifecycle-User-Guide.md / .docx / .pdf      ← everyday how-to
 ├─ ValueLifecycle-Design-Document.md / .docx        ← design + diagrams
+├─ ValueLifecycle-Process-Guide.md / .docx / .pdf   ← end-to-end process (learning guide)
 ├─ ValueLifecycle-Solution-Overview.pptx / .pdf     ← leadership deck
-├─ diagrams/                                        ← 5 diagrams (.svg + .png)
-├─ make-diagrams.js · md2docx.js ·
-│  build-design-docx.js · build-deck.js             ← regenerators
+├─ diagrams/                                        ← 5 design diagrams (.svg + .png)
+├─ guide-diagrams/                                  ← 6 process-guide diagrams (.svg + .png)
+├─ make-diagrams.js · md2docx.js · build-design-docx.js ·
+│  build-deck.js · make-process-diagrams.js · build-process-docx.js   ← regenerators
 └─ README.md
 ```
 
@@ -45,6 +48,8 @@ Run these with `node` from the **project root** (they use the project's `docx` /
 node demo-kit/make-diagrams.js        # rebuild diagrams/*.svg + *.png
 node demo-kit/md2docx.js              # rebuild Demo-Script.docx + User-Guide.docx from the .md
 node demo-kit/build-design-docx.js    # rebuild Design-Document.docx (embeds the PNGs)
+node demo-kit/make-process-diagrams.js # rebuild guide-diagrams/*.png (the process-guide flow diagrams)
+node demo-kit/build-process-docx.js   # rebuild Process-Guide.docx (embeds the PNGs)
 
 npm i -D pptxgenjs                     # deck only: install the generator ad-hoc, then:
 node demo-kit/build-deck.js           # rebuild Solution-Overview.pptx
