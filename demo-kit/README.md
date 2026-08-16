@@ -8,7 +8,7 @@ Deliverables for demoing and explaining the **Value Lifecycle Platform** — one
 | **ValueLifecycle-User-Guide.docx** | A how-to guide covering the whole workflow and every module | Onboard a new user / hand to a customer |
 | **ValueLifecycle-Solution-Overview.pptx** | A 14-slide PowerPoint explaining the solution | Present to leadership / include in a proposal |
 | **ValueLifecycle-Design-Document.docx** | A design document with the workflow & architecture as diagrams (images baked in) | Explain the design; share on OneDrive where images must render |
-| **ValueLifecycle-Process-Guide.docx** | A practitioner's guide to the full VE → handover → VRM process, phase by phase, with six flow diagrams | Train the team / learn the method end to end |
+| **ValueLifecycle-Process-Guide.docx** | A practitioner's guide to the full VE → handover → VRM process, phase by phase, with six flow diagrams — including the standalone VRM path for software already in place | Train the team / learn the method end to end |
 
 Each document is also provided as **Markdown source** (`*.md`) — the editable originals — and the demo script, user guide, design document and process guide each ship as a **PDF** for quick sharing. The solution overview ships as both **.pptx** (editable) and **.pdf**.
 
@@ -31,6 +31,26 @@ demo-kit/
 │  build-deck.js · make-process-diagrams.js · build-process-docx.js   ← regenerators
 └─ README.md
 ```
+
+## The process guide — what it covers
+
+`ValueLifecycle-Process-Guide` is a phase-by-phase learning guide to the whole method, with six flow diagrams and a worked example. Its sections:
+
+1. Introduction — what VE & VRM are and why they matter
+2. The value lifecycle at a glance — including the **two ways a track starts**
+3. Roles & responsibilities
+4. **Part A** — the 8-phase Value Engineering process
+5. The handover — the first-class bridge
+   - **5.1 · When there's no study — standalone realization** *(start VRM directly for software already in place)*
+6. **Part B** — the 7-phase Value Realization process
+7. Measuring value — the business case & KPIs
+8. Governance, artifacts & the enabling platform
+9. A worked example, end to end
+10. Good practice & common pitfalls
+11. Roles glossary & key terms
+12. Quick-reference checklists
+
+The **standalone VRM path** (new §5.1, and threaded through the lifecycle overview, the Part B intro, the Intake & Baseline phases, the glossary and the VR checklist) mirrors the app's **"New realization track"** flow — running the 7-phase realization lifecycle with no VE study, for an existing deployment, with baselines set from what's already live.
 
 ## The five diagrams
 
