@@ -138,7 +138,7 @@ async function seedDemo() {
       problemStatement: "Three legacy schedulers drive ~120 failed / rerun jobs a month and missed overnight SLAs that delay morning reporting.",
       scope: "In: batch orchestration, failure recovery, scheduler consolidation. Out: application code changes.",
       estimatedValue: 1_250_000,
-      currency: "ZAR",
+      currency: "USD",
       evaluationCriteria: DEFAULT_CRITERIA as object,
       startedAt: new Date("2026-05-04"),
       targetDate: new Date("2026-06-20"),
@@ -212,7 +212,7 @@ async function seedDemo() {
     data: {
       studyId: s1.id,
       executiveSummary: "Two accepted recommendations deliver ~R1.25M annual net value — legacy-scheduler licence takeout plus failed-job and firefighting reduction — against a R1.6M investment: about a 15-month payback and ~290% five-year ROI (NPV ~R3.4M at 8%).",
-      currency: "ZAR",
+      currency: "USD",
       roiPct: 291,
       paybackMonths: 15,
       npv: 3_390_000,
@@ -257,7 +257,7 @@ async function seedDemo() {
 
   // KPI targets on the study (VE planned)
   await prisma.kpiTarget.create({
-    data: { kpiKey: "cost_savings", studyId: s1.id, baselineValue: 3200000, targetValue: 1250000, unit: "ZAR", frequency: "once", dataSource: "Cost model", ownerName: "Dana Okafor" },
+    data: { kpiKey: "cost_savings", studyId: s1.id, baselineValue: 3200000, targetValue: 1250000, unit: "USD", frequency: "once", dataSource: "Cost model", ownerName: "Dana Okafor" },
   });
 
   // Discussion on study 1
@@ -299,7 +299,7 @@ async function seedDemo() {
       successCriteria: "≥R1.1M realized annual saving and ≥98% overnight-batch SLA attainment.",
       plannedValue: 1_250_000,
       realizedValue: 690_000,
-      currency: "ZAR",
+      currency: "USD",
       startedAt: new Date("2026-06-20"),
       targetDate: new Date("2026-12-15"),
       phases: {
@@ -400,7 +400,7 @@ async function seedDemo() {
       problemStatement: "High ticket volumes, long MTTR and a sprawl of monitoring tools drive cost and a poor employee experience.",
       scope: "In: ITSM, AIOps / operations, self-service. Out: HR & payroll systems.",
       estimatedValue: 2_400_000,
-      currency: "ZAR",
+      currency: "USD",
       startedAt: new Date("2026-07-10"),
       targetDate: new Date("2026-08-25"),
       phases: {
@@ -423,7 +423,7 @@ async function seedDemo() {
     data: {
       studyId: s2.id,
       executiveSummary: "R2.4M three-year value (ticket deflection + tool consolidation) against R1.4M TCO; 11-month payback.",
-      currency: "ZAR", roiPct: 71, paybackMonths: 11, npv: 980000, irrPct: 58, discountRatePct: 10, horizonYears: 3,
+      currency: "USD", roiPct: 71, paybackMonths: 11, npv: 980000, irrPct: 58, discountRatePct: 10, horizonYears: 3,
       lccaNotes: "3-year TCO includes subscription, implementation and change management.",
       scenarios: {
         create: [
@@ -445,6 +445,93 @@ async function seedDemo() {
 
   await prisma.kpiTarget.create({
     data: { kpiKey: "roi_pct", studyId: s2.id, baselineValue: 0, targetValue: 71, unit: "%", frequency: "once", dataSource: "Business case", ownerName: "Dana Okafor" },
+  });
+
+  // --- Standalone realization track: existing BMC Helix estate, no VE study ---
+  // The customer already runs Helix — nothing to engineer — so the VRM starts a
+  // realization track directly (origin STANDALONE, studyId null) and sets the
+  // baselines in Phase 2 from the live deployment instead of inheriting them.
+  console.log("→ Building standalone realization track (BMC Helix value assurance)…");
+  const t2 = await prisma.realizationTrack.create({
+    data: {
+      code: "VR-2026-002",
+      title: "BMC Helix Value Assurance — Meridian Bank",
+      status: "IN_FLIGHT",
+      health: "GREEN",
+      organizationId: org.id,
+      teamId: serviceTeam.id,
+      industryKey: "serviceops",
+      origin: "STANDALONE",
+      studyId: null,
+      ownerId: "u_vrm",
+      objectives: "Prove and protect value on the existing BMC Helix estate — drive self-service deflection and cut MTTR to secure the renewal and grow the account.",
+      successCriteria: "≥35% self-service deflection and MTTR under 3 hours, with the renewal defended on measured value.",
+      plannedValue: 1_800_000,
+      realizedValue: 540_000,
+      currency: "USD",
+      startedAt: new Date("2026-07-05"),
+      targetDate: new Date("2026-12-20"),
+      phases: {
+        create: VR_PHASES.map((p) => ({
+          phase: p.key as never,
+          order: p.order,
+          status: (p.order <= 3 ? "COMPLETE" : p.order === 4 ? "IN_PROGRESS" : "NOT_STARTED") as never,
+        })),
+      },
+      workPackages: {
+        create: [
+          { name: "Baseline the live Helix estate (MTTR, deflection, tool spend)", status: "DONE", ownerId: "u_vrm", isMilestone: true, order: 1, startDate: new Date("2026-07-05"), dueDate: new Date("2026-07-25") },
+          { name: "Tune AIOps event correlation to cut noise & MTTR", status: "DONE", ownerId: "u_vrm", order: 2, dueDate: new Date("2026-08-20") },
+          { name: "Launch Digital Workplace self-service & virtual agent", status: "IN_PROGRESS", ownerId: "u_vrm", order: 3, dueDate: new Date("2026-10-15") },
+          { name: "Consolidate remaining point monitoring tools", status: "NOT_STARTED", order: 4, isMilestone: true, dueDate: new Date("2026-12-10") },
+        ],
+      },
+      benefits: {
+        create: [
+          { label: "Ticket-handling saving from deflection", category: "COST_SAVING", plannedValue: 1_000_000, realizedValue: 360000, firstMeasuredAt: new Date("2026-08-31") },
+          { label: "Monitoring tool consolidation saving", category: "COST_SAVING", plannedValue: 800000, realizedValue: 180000, firstMeasuredAt: new Date("2026-09-15") },
+        ],
+      },
+      risks: {
+        create: [{ title: "Self-service adoption slower than planned", likelihood: 3, impact: 3, mitigation: "Champion network + targeted comms to shift demand to self-service.", status: "OPEN" }],
+      },
+      adoptionPlan: {
+        create: {
+          changeImpact: "Employees resolve more requests via self-service; ops shifts from manual triage to AIOps-assisted resolution.",
+          trainingPlan: "Digital Workplace self-service onboarding; AIOps operator enablement.",
+          commsPlan: "Launch campaign for the self-service portal; monthly value review with the customer.",
+          championNetwork: "Service-desk lead + line-of-business champions.",
+          activities: {
+            create: [
+              { label: "Self-service portal launch campaign", audience: "All employees", status: "IN_PROGRESS", order: 1 },
+              { label: "AIOps operator enablement", audience: "Ops / NOC", status: "DONE", order: 2 },
+            ],
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.comment.create({ data: { authorId: "u_vrm", body: "Baseline is set from the live estate: MTTR 6.5h and 12% deflection. Renewal review is in Q4 — deflection ramp is the value story.", entityType: "RealizationTrack", entityId: t2.id, trackId: t2.id } });
+
+  // KPI targets + actuals baselined from the live deployment (no study to inherit from)
+  await prisma.kpiTarget.create({
+    data: { kpiKey: "mttr", trackId: t2.id, baselineValue: 6.5, targetValue: 3.0, unit: "hours", frequency: "monthly", dataSource: "BMC Helix", ownerName: "Marco Ruiz",
+      actuals: { create: [
+        { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 6.2 },
+        { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 5.1, note: "AIOps correlation cutting event noise." },
+        { periodLabel: "2026-09", periodDate: new Date("2026-09-30"), value: 4.3 },
+      ] },
+    },
+  });
+  await prisma.kpiTarget.create({
+    data: { kpiKey: "ticket_deflection", trackId: t2.id, baselineValue: 12, targetValue: 35, unit: "%", frequency: "monthly", dataSource: "BMC Helix", ownerName: "Marco Ruiz",
+      actuals: { create: [
+        { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 14 },
+        { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 21 },
+        { periodLabel: "2026-09", periodDate: new Date("2026-09-30"), value: 27, note: "Self-service and virtual agent ramping." },
+      ] },
+    },
   });
 
   console.log("✓ Demo data ready.");

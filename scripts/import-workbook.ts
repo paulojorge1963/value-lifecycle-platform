@@ -127,7 +127,7 @@ async function importVE(wb: ExcelJS.Workbook) {
   const title = str(kv(eng, "Study title (as it will appear in app)")) ?? str(kv(eng, "Opportunity name")) ?? "Imported VE study";
   const industryKey = profileKey(str(kv(eng, "Solution profile")));
   if (!industryKey) throw new Error("Solution profile is missing or unrecognised on '1. Engagement'.");
-  const currency = str(kv(eng, "Currency")) ?? "ZAR";
+  const currency = str(kv(eng, "Currency")) ?? "USD";
   const scopeIn = str(kv(ori, "Scope — IN")); const scopeOut = str(kv(ori, "Scope — OUT"));
   const scope = [scopeIn && `In: ${scopeIn}`, scopeOut && `Out: ${scopeOut}`].filter(Boolean).join("  ") || null;
 
@@ -207,7 +207,7 @@ async function importVR(wb: ExcelJS.Workbook) {
   const title = str(kv(t, "Track title")) ?? "Imported realization track";
   const industryKey = profileKey(str(kv(t, "Solution profile")));
   if (!industryKey) throw new Error("Solution profile is missing or unrecognised on '1. Track'.");
-  const currency = str(kv(t, "Currency")) ?? "ZAR";
+  const currency = str(kv(t, "Currency")) ?? "USD";
   const originRaw = norm(kv(t, "Origin"));
   const isHandover = originRaw.includes("handover");
   const sourceCode = str(kv(t, "Source study code (if handover)"));

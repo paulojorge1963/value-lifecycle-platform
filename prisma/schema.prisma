@@ -328,7 +328,7 @@ model Study {
   evaluationCriteria Json?
 
   estimatedValue Float?  // planned value impact (headline number)
-  currency       String  @default("ZAR")
+  currency       String  @default("USD")
 
   startedAt   DateTime?
   targetDate  DateTime?
@@ -474,7 +474,7 @@ model BusinessCase {
   study       Study  @relation(fields: [studyId], references: [id], onDelete: Cascade)
 
   executiveSummary String?
-  currency         String @default("ZAR")
+  currency         String @default("USD")
 
   // Headline financials (computed & stored for fast portfolio rollups).
   roiPct         Float?
@@ -607,7 +607,7 @@ model RealizationTrack {
 
   plannedValue  Float? // carried from the business case
   realizedValue Float? // rolled up from Benefit actuals
-  currency      String @default("ZAR")
+  currency      String @default("USD")
 
   startedAt  DateTime?
   targetDate DateTime?
@@ -707,7 +707,7 @@ model Benefit {
   category      BenefitCategory
   plannedValue  Float
   realizedValue Float           @default(0)
-  currency      String          @default("ZAR")
+  currency      String          @default("USD")
   /// when the benefit was first measurable (drives time-to-value)
   firstMeasuredAt DateTime?
   notes         String?

@@ -126,10 +126,10 @@ export function computeFinance(
   };
 }
 
-// Supported currencies. ZAR is the platform default (SA-first).
+// Supported currencies. USD is the platform default.
 export const CURRENCIES: { code: string; label: string; locale: string }[] = [
-  { code: "ZAR", label: "South African Rand (R)", locale: "en-ZA" },
   { code: "USD", label: "US Dollar ($)", locale: "en-US" },
+  { code: "ZAR", label: "South African Rand (R)", locale: "en-ZA" },
   { code: "EUR", label: "Euro (€)", locale: "en-IE" },
   { code: "GBP", label: "British Pound (£)", locale: "en-GB" },
   { code: "AUD", label: "Australian Dollar (A$)", locale: "en-AU" },
@@ -138,7 +138,7 @@ export const CURRENCIES: { code: string; label: string; locale: string }[] = [
   { code: "BWP", label: "Botswana Pula (P)", locale: "en-BW" },
 ];
 
-export const DEFAULT_CURRENCY = "ZAR";
+export const DEFAULT_CURRENCY = "USD";
 
 const CURRENCY_LOCALE: Record<string, string> = Object.fromEntries(
   CURRENCIES.map((c) => [c.code, c.locale])

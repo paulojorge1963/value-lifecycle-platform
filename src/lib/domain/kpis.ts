@@ -274,7 +274,7 @@ export const KPI_CATALOG: KpiDef[] = [
     description: "Reduction in mainframe software cost from R4HA peak tuning and workload optimisation.",
     discipline: "VE",
     category: "COST_SAVING",
-    unit: "ZAR",
+    unit: "USD",
     direction: "HIGHER_IS_BETTER",
     formula: "baseline_mlc - optimised_mlc",
     scope: "study",
