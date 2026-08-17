@@ -33,7 +33,7 @@ export async function createStudy(formData: FormData) {
   const studyType = String(formData.get("studyType") || "") || null;
   const problemStatement = String(formData.get("problemStatement") || "") || null;
   const estimatedValue = formData.get("estimatedValue") ? Number(formData.get("estimatedValue")) : null;
-  const currency = String(formData.get("currency") || "ZAR");
+  const currency = String(formData.get("currency") || "USD");
   if (!title) throw new Error("Title required");
 
   const code = await nextCode("VE");
@@ -58,6 +58,39 @@ export async function createStudy(formData: FormData) {
   await audit("study.created", "Study", study.id, { studyId: study.id });
   revalidatePath("/ve");
   return study.id;
+}
+
+// ---- Archive / unarchive / delete a study ---------------------------------
+export async function archiveStudy(studyId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  await prisma.study.update({ where: { id: studyId }, data: { status: "ARCHIVED" } });
+  await audit("study.archived", "Study", studyId, { studyId });
+  revalidatePath("/ve");
+  revalidatePath(`/ve/${studyId}`);
+}
+
+export async function unarchiveStudy(studyId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  await prisma.study.update({ where: { id: studyId }, data: { status: "DRAFT" } });
+  await audit("study.unarchived", "Study", studyId, { studyId });
+  revalidatePath("/ve");
+  revalidatePath(`/ve/${studyId}`);
+}
+
+export async function deleteStudy(studyId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.delete")) throw new Error("Only an admin can delete a study");
+  // Org-scope: never delete another organization's study.
+  const study = await prisma.study.findFirst({ where: { id: studyId, organizationId: user.organizationId }, select: { id: true, code: true } });
+  if (!study) throw new Error("Study not found");
+  // Cascades all children; any realization track is detached (studyId → null) by the DB.
+  await prisma.study.delete({ where: { id: study.id } });
+  // Audit without a studyId FK — that row is gone now.
+  await prisma.auditEvent.create({ data: { actorId: user.id, action: "study.deleted", entityType: "Study", entityId: study.id, metadata: { code: study.code } } });
+  revalidatePath("/ve");
+  revalidatePath("/portfolio");
 }
 
 // ---- Set a study phase status ---------------------------------------------
@@ -472,7 +505,7 @@ export async function createRealizationTrack(formData: FormData) {
   const objectives = String(formData.get("objectives") || "") || null;
   const successCriteria = String(formData.get("successCriteria") || "") || null;
   const plannedValue = formData.get("plannedValue") ? Number(formData.get("plannedValue")) : null;
-  const currency = String(formData.get("currency") || "ZAR");
+  const currency = String(formData.get("currency") || "USD");
   const targetDateRaw = String(formData.get("targetDate") || "");
   const targetDate = targetDateRaw ? new Date(targetDateRaw) : null;
 
@@ -652,7 +685,7 @@ export async function restoreBusinessCaseVersion(versionId: string, studyId: str
     where: { id: dv.entityId },
     data: {
       executiveSummary: snap.executiveSummary ?? null,
-      currency: snap.currency ?? "ZAR",
+      currency: snap.currency ?? "USD",
       roiPct: snap.roiPct ?? null,
       paybackMonths: snap.paybackMonths ?? null,
       npv: snap.npv ?? null,

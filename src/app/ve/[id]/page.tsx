@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, Money, PhaseStepper } from "@/components/ui";
 import { PhaseStatusControl, HandoverButton } from "@/components/StudyControls";
+import { StudyActions } from "@/components/StudyActions";
 import { FunctionEditor } from "@/components/FunctionEditor";
 import { FastDiagram } from "@/components/FastDiagram";
 import { CommentThread } from "@/components/CommentThread";
@@ -64,6 +65,7 @@ export default async function StudyPage({
 
   const acceptedCount = study.recommendations.filter((r) => r.status === "ACCEPTED").length;
   const canEdit = can(user.role, "study.edit");
+  const canDelete = can(user.role, "study.delete");
   const canDecide = can(user.role, "recommendation.accept");
   const aiEnabled = isAiEnabled();
   const canHandover = can(user.role, "track.create");
@@ -93,6 +95,9 @@ export default async function StudyPage({
             <Link href={`/ve/${study.id}/business-case`} className="btn-ghost">Business case</Link>
             <Link href={`/ve/${study.id}/report`} className="btn-ghost">Status report</Link>
             <a href={`/api/export/business-case/${study.id}`} className="btn-ghost">Export ↓</a>
+            {canEdit && (
+              <StudyActions studyId={study.id} code={study.code} status={study.status} canDelete={canDelete} />
+            )}
           </div>
         </div>
       </div>
