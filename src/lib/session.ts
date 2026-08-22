@@ -58,6 +58,7 @@ export type Capability =
   | "recommendation.accept"
   | "track.create"
   | "track.edit"
+  | "track.delete"
   | "kpi.record"
   | "report.publish"
   | "team.manage"
@@ -66,7 +67,7 @@ export type Capability =
 const ROLE_CAPS: Record<Role, Capability[]> = {
   ADMIN: [
     "study.create", "study.edit", "study.approve", "study.delete", "recommendation.accept",
-    "track.create", "track.edit", "kpi.record", "report.publish", "team.manage", "view",
+    "track.create", "track.edit", "track.delete", "kpi.record", "report.publish", "team.manage", "view",
   ],
   VALUE_ENGINEER: ["study.create", "study.edit", "track.create", "view"],
   VALUE_REALIZATION_MANAGER: ["track.create", "track.edit", "kpi.record", "report.publish", "view"],

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
 import { TrackPhaseControl, WorkPackageControl, KpiActualForm, BenefitInput } from "@/components/TrackControls";
+import { TrackActions } from "@/components/TrackActions";
 import { CommentThread } from "@/components/CommentThread";
 import { VR_PHASES } from "@/lib/domain/phases";
 import { fmtMoney, fmtPct } from "@/lib/finance";
@@ -56,6 +57,7 @@ export default async function TrackPage({
   const tmplContent = tmpl?.content as { requiredInputs: string[]; tasks: string[]; artifacts: string[]; exitCriteria: string[] } | undefined;
 
   const canEdit = can(user.role, "track.edit");
+  const canDelete = can(user.role, "track.delete");
   const canKpi = can(user.role, "kpi.record");
 
   const planned = track.plannedValue ?? 0;
@@ -94,6 +96,9 @@ export default async function TrackPage({
             <Link href={`/ve/${track.studyId}/report`} className="btn-ghost">Status report</Link>
           )}
           <a href={`/api/export/vrp/${track.id}`} className="btn-vr">Export VRP / QBR ↓</a>
+          {canEdit && (
+            <TrackActions trackId={track.id} code={track.code} status={track.status} canDelete={canDelete} />
+          )}
         </div>
       </div>
 

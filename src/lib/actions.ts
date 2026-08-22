@@ -539,6 +539,38 @@ export async function createRealizationTrack(formData: FormData) {
   return track.id;
 }
 
+// ---- Archive / unarchive / delete a realization track ---------------------
+export async function archiveTrack(trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.realizationTrack.update({ where: { id: trackId }, data: { status: "ARCHIVED" } });
+  await audit("track.archived", "RealizationTrack", trackId, { trackId });
+  revalidatePath("/vr");
+  revalidatePath(`/vr/${trackId}`);
+}
+
+export async function unarchiveTrack(trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.realizationTrack.update({ where: { id: trackId }, data: { status: "PLANNING" } });
+  await audit("track.unarchived", "RealizationTrack", trackId, { trackId });
+  revalidatePath("/vr");
+  revalidatePath(`/vr/${trackId}`);
+}
+
+export async function deleteTrack(trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.delete")) throw new Error("Only an admin can delete a track");
+  // Org-scope: never delete another organization's track.
+  const track = await prisma.realizationTrack.findFirst({ where: { id: trackId, organizationId: user.organizationId }, select: { id: true, code: true } });
+  if (!track) throw new Error("Track not found");
+  // Cascades all children; handover artifacts stay on the study (their trackId → null).
+  await prisma.realizationTrack.delete({ where: { id: track.id } });
+  await prisma.auditEvent.create({ data: { actorId: user.id, action: "track.deleted", entityType: "RealizationTrack", entityId: track.id, metadata: { code: track.code } } });
+  revalidatePath("/vr");
+  revalidatePath("/portfolio");
+}
+
 // ---- Set a VR phase status -------------------------------------------------
 export async function setTrackPhaseStatus(trackId: string, phase: string, status: string) {
   const user = await getCurrentUser();

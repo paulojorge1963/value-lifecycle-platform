@@ -84,6 +84,7 @@ enum TrackStatus {
   REALIZED
   CLOSED
   CANCELLED
+  ARCHIVED
 }
 
 /// Where a realization track came from: handed over from a VE study, or
