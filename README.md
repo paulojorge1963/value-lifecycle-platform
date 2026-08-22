@@ -23,6 +23,8 @@ Supports three configurable industry profiles out of the box — **Construction 
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full design, data model and user flows.
 
+🧭 **Proposed:** [`docs/CS-MODULE-DESIGN.md`](docs/CS-MODULE-DESIGN.md) — a draft design for a Customer Success pillar (continuous 8-stage lifecycle) alongside VE and VR. Not yet built.
+
 ## Stack
 
 Next.js 15 (App Router) · TypeScript · Prisma · PostgreSQL · Tailwind CSS · docx / exceljs exports.
