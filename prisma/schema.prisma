@@ -32,9 +32,30 @@ enum Discipline {
 enum Role {
   VALUE_ENGINEER
   VALUE_REALIZATION_MANAGER
+  CUSTOMER_SUCCESS_MANAGER // owns the continuous CS engagement (post-sale relationship)
   REVIEWER // reviewer / manager — read + approve
   VIEWER // stakeholder / viewer — read only
   ADMIN
+}
+
+/// The 8 stages of the continuous Customer Success lifecycle (see docs/CS-MODULE-DESIGN.md).
+enum CsStageKey {
+  HANDOVER
+  ONBOARDING
+  ADOPTION
+  VALUE_REALISATION
+  HEALTH_MANAGEMENT
+  GOVERNANCE_RHYTHM
+  RENEWAL_MANAGEMENT
+  EXPANSION_GROWTH
+}
+
+enum CsEngagementStatus {
+  ACTIVE
+  AT_RISK
+  RENEWED
+  CHURNED
+  ARCHIVED
 }
 
 /// The 8-phase VE Job Plan.
@@ -168,6 +189,7 @@ model Organization {
   users       User[]
   studies     Study[]
   tracks      RealizationTrack[]
+  engagements CustomerSuccessEngagement[]
 }
 
 model Team {
@@ -179,6 +201,7 @@ model Team {
 
   studies Study[]
   tracks  RealizationTrack[]
+  engagements CustomerSuccessEngagement[]
 
   @@index([organizationId])
 }
@@ -196,6 +219,7 @@ model User {
   memberships       Membership[]
   ownedStudies      Study[]            @relation("StudyOwner")
   ownedTracks       RealizationTrack[] @relation("TrackOwner")
+  ownedEngagements  CustomerSuccessEngagement[] @relation("EngagementOwner")
   assignedTasks     PhaseTask[]        @relation("TaskAssignee")
   assignedWork      WorkPackage[]      @relation("WorkOwner")
   comments          Comment[]
@@ -237,6 +261,7 @@ model IndustryProfile {
 
   studies        Study[]
   tracks         RealizationTrack[]
+  engagements    CustomerSuccessEngagement[]
   kpiDefinitions KpiDefinition[]
 
   @@index([key])
@@ -320,6 +345,10 @@ model Study {
 
   ownerId String
   owner   User   @relation("StudyOwner", fields: [ownerId], references: [id])
+
+  // Optional link to a Customer Success engagement (CS references VE/VR).
+  engagementId String?
+  engagement   CustomerSuccessEngagement? @relation(fields: [engagementId], references: [id])
 
   studyType      String? // from industry profile's studyTypes
   scope          String? // problem statement / scope document (markdown)
@@ -603,6 +632,10 @@ model RealizationTrack {
   ownerId String
   owner   User   @relation("TrackOwner", fields: [ownerId], references: [id])
 
+  // Optional link to a Customer Success engagement (CS references VE/VR).
+  engagementId String?
+  engagement   CustomerSuccessEngagement? @relation(fields: [engagementId], references: [id])
+
   objectives      String?
   successCriteria String?
 
@@ -841,4 +874,62 @@ model DocumentVersion {
   createdAt  DateTime @default(now())
 
   @@index([entityType, entityId])
+}
+
+// -----------------------------------------------------------------------------
+//  CUSTOMER SUCCESS  (continuous, whole-relationship lifecycle — Phase-1 MVP)
+//  A CS engagement is per-account and long-lived; it REFERENCES the account's
+//  VE studies and VR tracks (single source of truth) rather than copying them.
+//  See docs/CS-MODULE-DESIGN.md.
+// -----------------------------------------------------------------------------
+
+model CustomerSuccessEngagement {
+  id             String             @id @default(cuid())
+  code           String             @unique // e.g. "CS-2026-001"
+  accountName    String
+  status         CsEngagementStatus @default(ACTIVE)
+  healthOverall  Health             @default(GREEN)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teamId         String?
+  team           Team?        @relation(fields: [teamId], references: [id])
+  industryKey    String
+  industry       IndustryProfile @relation(fields: [industryKey], references: [key])
+
+  ownerId String // the CSM
+  owner   User   @relation("EngagementOwner", fields: [ownerId], references: [id])
+
+  arr         Float?  // annual recurring revenue
+  currency    String  @default("USD")
+  renewalDate DateTime?
+  objectives  String?
+  successPlan Json?   // Customer Success Plan: objectives, commitments, success criteria
+
+  startedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  stages  CsStageInstance[]
+  studies Study[]            // linked VE studies (via Study.engagementId)
+  tracks  RealizationTrack[] // linked VR tracks  (via RealizationTrack.engagementId)
+
+  @@index([organizationId, status])
+  @@index([industryKey])
+}
+
+/// A concrete instance of a CS lifecycle stage within an engagement.
+model CsStageInstance {
+  id           String      @id @default(cuid())
+  engagementId String
+  engagement   CustomerSuccessEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  stage        CsStageKey
+  order        Int
+  status       PhaseStatus @default(NOT_STARTED)
+  notes        String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  @@unique([engagementId, stage])
+  @@index([engagementId])
 }

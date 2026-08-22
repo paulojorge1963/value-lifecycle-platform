@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/portfolio", label: "Portfolio" },
   { href: "/ve", label: "Value Engineering", accent: "ve" },
   { href: "/vr", label: "Value Realization", accent: "vr" },
+  { href: "/cs", label: "Customer Success", accent: "vr" },
   { href: "/kpis", label: "KPIs" },
   { href: "/templates", label: "Templates" },
 ];
@@ -14,6 +15,7 @@ const LINKS = [
 const ROLE_LABEL: Record<string, string> = {
   VALUE_ENGINEER: "Value Engineer",
   VALUE_REALIZATION_MANAGER: "Value Realization Mgr",
+  CUSTOMER_SUCCESS_MANAGER: "Customer Success Mgr",
   REVIEWER: "Reviewer",
   VIEWER: "Viewer",
   ADMIN: "Admin",

@@ -10,7 +10,7 @@ export default async function PortfolioPage() {
   const user = await getCurrentUser();
   if (!user) return <NoData />;
 
-  const [studies, tracks, industries] = await Promise.all([
+  const [studies, tracks, industries, engagements] = await Promise.all([
     prisma.study.findMany({
       where: { organizationId: user.organizationId },
       include: { industry: true, businessCase: true, phases: true, tracks: true, _count: { select: { recommendations: true } } },
@@ -22,7 +22,19 @@ export default async function PortfolioPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.industryProfile.findMany(),
+    prisma.customerSuccessEngagement.findMany({
+      where: { organizationId: user.organizationId },
+      orderBy: { renewalDate: "asc" },
+    }),
   ]);
+
+  // Customer Success lens
+  const activeEngagements = engagements.filter((e) => !["ARCHIVED", "CHURNED"].includes(e.status)).length;
+  const health = { GREEN: 0, AMBER: 0, RED: 0 } as Record<string, number>;
+  engagements.forEach((e) => { health[e.healthOverall] = (health[e.healthOverall] ?? 0) + 1; });
+  const upcomingRenewals = engagements
+    .filter((e) => e.renewalDate && new Date(e.renewalDate).getTime() - Date.now() < 120 * 86400000 && !["CHURNED", "ARCHIVED"].includes(e.status))
+    .slice(0, 6);
 
   const plannedTotal = studies.reduce((s, x) => s + (x.estimatedValue ?? 0), 0);
   const realizedTotal = tracks.reduce((s, x) => s + (x.realizedValue ?? 0), 0);
@@ -71,6 +83,46 @@ export default async function PortfolioPage() {
           <ProgressBar pct={realizationPct} accent="vr" />
         </div>
       </div>
+
+      {/* Customer Success lens */}
+      {engagements.length > 0 && (
+        <div>
+          <SectionHeader
+            title="Customer Success"
+            action={<Link href="/cs" className="text-sm font-medium text-vr-700 hover:underline">Open workspace →</Link>}
+          />
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="card card-pad">
+              <div className="label">Active engagements</div>
+              <div className="mt-1 text-2xl font-bold text-ink-900">{activeEngagements}</div>
+              <div className="text-xs text-ink-500">{engagements.length} total</div>
+            </div>
+            <div className="card card-pad">
+              <div className="label">Health</div>
+              <div className="mt-2 flex gap-3 text-sm">
+                <span className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-700">● {health.GREEN} green</span>
+                <span className="rounded bg-amber-50 px-2 py-0.5 text-amber-700">● {health.AMBER} amber</span>
+                <span className="rounded bg-red-50 px-2 py-0.5 text-red-700">● {health.RED} red</span>
+              </div>
+            </div>
+            <div className="card card-pad">
+              <div className="label">Upcoming renewals (120 days)</div>
+              {upcomingRenewals.length === 0 ? (
+                <p className="mt-1 text-sm text-ink-400">None</p>
+              ) : (
+                <ul className="mt-1.5 space-y-1 text-sm">
+                  {upcomingRenewals.map((e) => (
+                    <li key={e.id} className="flex justify-between gap-2">
+                      <Link href={`/cs/${e.id}`} className="text-ink-700 hover:text-vr-700">{e.accountName}</Link>
+                      <span className="text-ink-400">{e.renewalDate ? new Date(e.renewalDate).toLocaleDateString() : ""}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* By industry */}
       <div>

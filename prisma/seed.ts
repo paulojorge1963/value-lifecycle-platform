@@ -2,6 +2,7 @@
 import { PrismaClient } from "@prisma/client";
 import { INDUSTRY_PROFILES } from "../src/lib/domain/industries";
 import { VE_PHASES, VR_PHASES } from "../src/lib/domain/phases";
+import { CS_STAGES } from "../src/lib/domain/cs-stages";
 import { KPI_CATALOG } from "../src/lib/domain/kpis";
 import { CONTENT_TEMPLATES } from "../src/lib/domain/templates";
 import { DEFAULT_CRITERIA, weightedScore } from "../src/lib/evaluation";
@@ -97,6 +98,7 @@ async function seedDemo() {
     { id: "u_vrm", email: "vrm@demo.app", name: "Marco Ruiz", title: "Value Realization Manager", role: "VALUE_REALIZATION_MANAGER" },
     { id: "u_rev", email: "reviewer@demo.app", name: "Priya Nair", title: "Portfolio Reviewer", role: "REVIEWER" },
     { id: "u_view", email: "viewer@demo.app", name: "Sam Lee", title: "Stakeholder", role: "VIEWER" },
+    { id: "u_csm", email: "cs@demo.app", name: "Thabo Nkosi", title: "Customer Success Manager", role: "CUSTOMER_SUCCESS_MANAGER" },
     { id: "u_admin", email: "admin@demo.app", name: "Admin", title: "Administrator", role: "ADMIN" },
   ] as const;
 
@@ -115,7 +117,8 @@ async function seedDemo() {
   }
 
   // Clean demo domain data (config is preserved).
-  console.log("→ Resetting demo studies & tracks…");
+  console.log("→ Resetting demo studies, tracks & engagements…");
+  await prisma.customerSuccessEngagement.deleteMany({ where: { organizationId: org.id } });
   await prisma.realizationTrack.deleteMany({ where: { organizationId: org.id } });
   await prisma.study.deleteMany({ where: { organizationId: org.id } });
 
@@ -533,6 +536,35 @@ async function seedDemo() {
       ] },
     },
   });
+
+  // --- Demo Customer Success engagements (link the studies + tracks) ---------
+  console.log("→ Building Customer Success engagements…");
+  const csStages = (advancedTo: number) =>
+    ({ create: CS_STAGES.map((s) => ({ stage: s.key as never, order: s.order, status: (s.order < advancedTo ? "COMPLETE" : s.order === advancedTo ? "IN_PROGRESS" : "NOT_STARTED") as never })) });
+
+  const eng1 = await prisma.customerSuccessEngagement.create({
+    data: {
+      code: "CS-2026-001", accountName: "Retail Bank (Pty) Ltd", organizationId: org.id, teamId: automationTeam.id,
+      industryKey: "automation", ownerId: "u_csm", status: "ACTIVE", healthOverall: "GREEN",
+      arr: 3_200_000, currency: "USD", renewalDate: new Date("2026-12-15"),
+      objectives: "Protect and grow value from the Control-M automation estate; secure renewal and expand into adjacent workloads.",
+      startedAt: new Date("2026-06-20"), stages: csStages(6),
+    },
+  });
+  await prisma.study.update({ where: { id: s1.id }, data: { engagementId: eng1.id } });
+  await prisma.realizationTrack.update({ where: { id: t1.id }, data: { engagementId: eng1.id } });
+
+  const eng2 = await prisma.customerSuccessEngagement.create({
+    data: {
+      code: "CS-2026-002", accountName: "Global Manufacturer", organizationId: org.id, teamId: serviceTeam.id,
+      industryKey: "serviceops", ownerId: "u_csm", status: "AT_RISK", healthOverall: "AMBER",
+      arr: 2_400_000, currency: "USD", renewalDate: new Date("2026-10-30"),
+      objectives: "Prove Helix ITSM value and lift ticket deflection ahead of the renewal review.",
+      startedAt: new Date("2026-07-05"), stages: csStages(5),
+    },
+  });
+  await prisma.study.update({ where: { id: s2.id }, data: { engagementId: eng2.id } });
+  await prisma.realizationTrack.update({ where: { id: t2.id }, data: { engagementId: eng2.id } });
 
   console.log("✓ Demo data ready.");
 }

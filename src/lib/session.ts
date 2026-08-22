@@ -12,6 +12,7 @@ import { auth } from "@/lib/auth";
 export type Role =
   | "VALUE_ENGINEER"
   | "VALUE_REALIZATION_MANAGER"
+  | "CUSTOMER_SUCCESS_MANAGER"
   | "REVIEWER"
   | "VIEWER"
   | "ADMIN";
@@ -59,6 +60,9 @@ export type Capability =
   | "track.create"
   | "track.edit"
   | "track.delete"
+  | "cs.create"
+  | "cs.edit"
+  | "cs.delete"
   | "kpi.record"
   | "report.publish"
   | "team.manage"
@@ -67,10 +71,12 @@ export type Capability =
 const ROLE_CAPS: Record<Role, Capability[]> = {
   ADMIN: [
     "study.create", "study.edit", "study.approve", "study.delete", "recommendation.accept",
-    "track.create", "track.edit", "track.delete", "kpi.record", "report.publish", "team.manage", "view",
+    "track.create", "track.edit", "track.delete", "cs.create", "cs.edit", "cs.delete",
+    "kpi.record", "report.publish", "team.manage", "view",
   ],
   VALUE_ENGINEER: ["study.create", "study.edit", "track.create", "view"],
   VALUE_REALIZATION_MANAGER: ["track.create", "track.edit", "kpi.record", "report.publish", "view"],
+  CUSTOMER_SUCCESS_MANAGER: ["cs.create", "cs.edit", "track.create", "kpi.record", "report.publish", "view"],
   REVIEWER: ["study.approve", "recommendation.accept", "view"],
   VIEWER: ["view"],
 };
