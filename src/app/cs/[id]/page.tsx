@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
 import { CsStageControl, CsHealthControl, LinkPicker, UnlinkButton } from "@/components/CsControls";
+import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPlanForm, SuccessPlanForm } from "@/components/CsPanels";
 import { CS_STAGES, CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
 import { fmtMoney, fmtPct } from "@/lib/finance";
 
@@ -31,6 +32,11 @@ export default async function EngagementPage({
       stages: true,
       studies: { include: { businessCase: true }, orderBy: { createdAt: "desc" } },
       tracks: { include: { study: true }, orderBy: { createdAt: "desc" } },
+      stakeholders: { orderBy: { influence: "desc" } },
+      actions: { orderBy: { createdAt: "desc" } },
+      healthScores: { orderBy: { periodDate: "asc" } },
+      renewalPlan: true,
+      growthPlan: true,
     },
   });
   if (!e) notFound();
@@ -46,6 +52,17 @@ export default async function EngagementPage({
   const plannedValue = e.tracks.reduce((s, t) => s + (t.plannedValue ?? 0), 0);
   const realizedValue = e.tracks.reduce((s, t) => s + (t.realizedValue ?? 0), 0);
   const rd = e.renewalDate ? Math.round((new Date(e.renewalDate).getTime() - Date.now()) / 86400000) : null;
+
+  const healthHistory = e.healthScores.map((h) => ({ periodLabel: h.periodLabel, overall: h.overall }));
+  const lastHs = e.healthScores[e.healthScores.length - 1];
+  const latestHealth = lastHs
+    ? { periodLabel: lastHs.periodLabel, overall: lastHs.overall, factors: (lastHs.factors as unknown as { key: string; label: string; score: number; weight: number }[]) ?? [], note: lastHs.note }
+    : null;
+  const actions = e.actions.map((a) => ({ id: a.id, title: a.title, owner: a.owner, dueDate: a.dueDate ? a.dueDate.toISOString() : null, status: a.status }));
+  const stakeholders = e.stakeholders.map((s) => ({ id: s.id, name: s.name, title: s.title, role: s.role, influence: s.influence, sentiment: s.sentiment }));
+  const renewal = e.renewalPlan ? { renewalDate: e.renewalPlan.renewalDate ? e.renewalPlan.renewalDate.toISOString() : null, stage: e.renewalPlan.stage, valueSummary: e.renewalPlan.valueSummary, risks: e.renewalPlan.risks, procurementStatus: e.renewalPlan.procurementStatus, plannedActions: e.renewalPlan.plannedActions } : null;
+  const growth = e.growthPlan ? { triggers: e.growthPlan.triggers, narrative: e.growthPlan.narrative, targetValue: e.growthPlan.targetValue } : null;
+  const successPlan = (e.successPlan as unknown as { commitments?: string | null; successCriteria?: string | null; notes?: string | null } | null) ?? null;
 
   const activeKey =
     stageParam ||
@@ -75,6 +92,7 @@ export default async function EngagementPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <a href={`/api/export/cs/${e.id}`} className="btn-ghost">Export account review ↓</a>
           <CsHealthControl engagementId={e.id} health={e.healthOverall} canEdit={canEdit} />
         </div>
       </div>
@@ -182,14 +200,17 @@ export default async function EngagementPage({
             </div>
             <LinkPicker engagementId={e.id} kind="study" canEdit={canEdit} options={freeStudies.map((s) => ({ id: s.id, label: `${s.code} · ${s.title}` }))} />
           </div>
+
+          <HealthScorecard engagementId={e.id} latest={latestHealth} history={healthHistory} canEdit={canEdit} />
+          <ActionLog engagementId={e.id} actions={actions} canEdit={canEdit} />
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          <div className="card card-pad">
-            <div className="label">Objectives</div>
-            <p className="mt-1 text-sm text-ink-700">{e.objectives ?? "—"}</p>
-          </div>
+          <StakeholderPanel engagementId={e.id} stakeholders={stakeholders} canEdit={canEdit} />
+          <RenewalPlanForm engagementId={e.id} plan={renewal} canEdit={canEdit} />
+          <GrowthPlanForm engagementId={e.id} plan={growth} canEdit={canEdit} />
+          <SuccessPlanForm engagementId={e.id} objectives={e.objectives} successPlan={successPlan} canEdit={canEdit} />
           <div className="card card-pad">
             <div className="label">About this engagement</div>
             <dl className="mt-2 space-y-1.5 text-sm">

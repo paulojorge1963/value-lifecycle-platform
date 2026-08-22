@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { INDUSTRY_PROFILES } from "../src/lib/domain/industries";
 import { VE_PHASES, VR_PHASES } from "../src/lib/domain/phases";
 import { CS_STAGES } from "../src/lib/domain/cs-stages";
+import { HEALTH_FACTORS, overallScore } from "../src/lib/domain/cs-health";
 import { KPI_CATALOG } from "../src/lib/domain/kpis";
 import { CONTENT_TEMPLATES } from "../src/lib/domain/templates";
 import { DEFAULT_CRITERIA, weightedScore } from "../src/lib/evaluation";
@@ -565,6 +566,41 @@ async function seedDemo() {
   });
   await prisma.study.update({ where: { id: s2.id }, data: { engagementId: eng2.id } });
   await prisma.realizationTrack.update({ where: { id: t2.id }, data: { engagementId: eng2.id } });
+
+  // --- CS Phase-2 detail (health, stakeholders, actions, renewal, growth) ----
+  const hs = (scores: Record<string, number>) => ({
+    factors: HEALTH_FACTORS.map((f) => ({ key: f.key, label: f.label, score: scores[f.key], weight: f.weight })),
+    overall: overallScore(scores),
+  });
+  const h1 = hs({ adoption: 85, value: 88, sentiment: 80, support: 78, engagement: 80 });
+  await prisma.healthScore.create({ data: { engagementId: eng1.id, periodLabel: "2026-Q3", periodDate: new Date("2026-09-30"), overall: h1.overall, factors: h1.factors as object, note: "Strong adoption; renewal on track." } });
+  await prisma.customerSuccessEngagement.update({ where: { id: eng1.id }, data: { healthOverall: "GREEN", successPlan: { commitments: "Quarterly value reviews; jobs-as-code enablement.", successCriteria: "Zero missed regulatory SLAs; two legacy schedulers retired.", notes: "Executive sponsor: CFO office." } as object } });
+  await prisma.stakeholder.createMany({ data: [
+    { engagementId: eng1.id, name: "T. Mokoena", title: "Head of IT Ops", role: "Champion", influence: 5, sentiment: "PROMOTER" },
+    { engagementId: eng1.id, name: "CFO office", title: "Economic buyer", role: "Sponsor", influence: 5, sentiment: "NEUTRAL" },
+    { engagementId: eng1.id, name: "Batch operations lead", title: "Operations", role: "User lead", influence: 3, sentiment: "PROMOTER" },
+  ] });
+  await prisma.actionItem.createMany({ data: [
+    { engagementId: eng1.id, title: "Confirm Q4 renewal stakeholders", owner: "Thabo Nkosi", status: "IN_PROGRESS", dueDate: new Date("2026-10-15") },
+    { engagementId: eng1.id, title: "Decommission last legacy scheduler", owner: "Marco Ruiz", status: "IN_PROGRESS", dueDate: new Date("2026-09-30") },
+    { engagementId: eng1.id, title: "Draft expansion case (Control-M for Data)", owner: "Thabo Nkosi", status: "OPEN" },
+  ] });
+  await prisma.renewalPlan.create({ data: { engagementId: eng1.id, renewalDate: new Date("2026-12-15"), stage: "3 months out", valueSummary: "R690k realized of R1.25M; overnight SLAs restored.", risks: "One legacy scheduler still live.", procurementStatus: "Not yet engaged", plannedActions: "Book renewal EBR; finalise the value story." } });
+  await prisma.growthPlan.create({ data: { engagementId: eng1.id, triggers: "Data-pipeline growth; MFT consolidation", targetValue: 900000, narrative: "Expand Control-M into data workflows and managed file transfer." } });
+
+  const h2 = hs({ adoption: 55, value: 60, sentiment: 45, support: 50, engagement: 55 });
+  await prisma.healthScore.create({ data: { engagementId: eng2.id, periodLabel: "2026-Q3", periodDate: new Date("2026-09-30"), overall: h2.overall, factors: h2.factors as object, note: "Deflection ramp slower than planned; renewal risk." } });
+  await prisma.customerSuccessEngagement.update({ where: { id: eng2.id }, data: { healthOverall: "AMBER", successPlan: { commitments: "Lift deflection to 40%; monthly value reviews.", successCriteria: "MTTR down 25%; deflection ≥ 30% before renewal.", notes: "Renewal review in Q4." } as object } });
+  await prisma.stakeholder.createMany({ data: [
+    { engagementId: eng2.id, name: "L. Botha", title: "Service Desk Manager", role: "Champion", influence: 4, sentiment: "NEUTRAL" },
+    { engagementId: eng2.id, name: "CIO office", title: "Economic buyer", role: "Sponsor", influence: 5, sentiment: "DETRACTOR" },
+  ] });
+  await prisma.actionItem.createMany({ data: [
+    { engagementId: eng2.id, title: "Accelerate self-service deflection", owner: "Thabo Nkosi", status: "IN_PROGRESS", dueDate: new Date("2026-10-10") },
+    { engagementId: eng2.id, title: "Executive alignment call with CIO", owner: "Thabo Nkosi", status: "OPEN", dueDate: new Date("2026-10-05") },
+  ] });
+  await prisma.renewalPlan.create({ data: { engagementId: eng2.id, renewalDate: new Date("2026-10-30"), stage: "1 month out", valueSummary: "Value behind plan; deflection ramp slow.", risks: "CIO sentiment negative; deflection below target.", procurementStatus: "In progress", plannedActions: "EBR with value story; deflection remediation plan." } });
+  await prisma.growthPlan.create({ data: { engagementId: eng2.id, triggers: "AIOps expansion; Discovery", targetValue: 600000, narrative: "Expand into AIOps and Discovery once deflection stabilises." } });
 
   console.log("✓ Demo data ready.");
 }

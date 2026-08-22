@@ -1,0 +1,100 @@
+import { NextRequest, NextResponse } from "next/server";
+import { Document, Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun } from "docx";
+import { prisma } from "@/lib/db";
+import { fmtMoney, fmtPct } from "@/lib/finance";
+import { CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
+
+// CS deliverable export: Account Success Review (health, value, renewal, growth).
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const e = await prisma.customerSuccessEngagement.findUnique({
+    where: { id },
+    include: {
+      industry: true, owner: true, stages: true,
+      stakeholders: { orderBy: { influence: "desc" } },
+      actions: { orderBy: { createdAt: "desc" } },
+      healthScores: { orderBy: { periodDate: "asc" } },
+      renewalPlan: true, growthPlan: true,
+      studies: { include: { businessCase: true } },
+      tracks: true,
+    },
+  });
+  if (!e) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  const cur = e.currency;
+
+  const h = (t: string) => new Paragraph({ text: t, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 80 } });
+  const p = (t: string) => new Paragraph({ children: [new TextRun(t)], spacing: { after: 80 } });
+  const bullet = (t: string) => new Paragraph({ text: t, bullet: { level: 0 } });
+  const cell = (t: string, bold = false) => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: t, bold })] })] });
+
+  const planned = e.tracks.reduce((s, t) => s + (t.plannedValue ?? 0), 0);
+  const realized = e.tracks.reduce((s, t) => s + (t.realizedValue ?? 0), 0);
+  const doneStages = e.stages.filter((s) => s.status === "COMPLETE").length;
+  const latestHealth = e.healthScores[e.healthScores.length - 1];
+  const factors = (latestHealth?.factors as unknown as { label: string; score: number }[]) ?? [];
+  const sp = (e.successPlan as { commitments?: string; successCriteria?: string; notes?: string } | null) ?? null;
+
+  const stakeRows = [
+    new TableRow({ children: [cell("Name", true), cell("Role", true), cell("Influence", true), cell("Sentiment", true)] }),
+    ...e.stakeholders.map((s) => new TableRow({ children: [cell([s.name, s.title].filter(Boolean).join(" — ")), cell(s.role ?? "—"), cell(s.influence ? `${s.influence}/5` : "—"), cell(s.sentiment.toLowerCase())] })),
+  ];
+
+  const doc = new Document({
+    sections: [{
+      children: [
+        new Paragraph({ text: "Account Success Review", heading: HeadingLevel.TITLE }),
+        new Paragraph({ children: [new TextRun({ text: `${e.code} · ${e.accountName}`, bold: true })] }),
+        p(`Solution: ${e.industry.name} · CSM: ${e.owner.name} · Status: ${e.status} · Health: ${e.healthOverall} · Lifecycle stage ${doneStages}/8`),
+        p(e.arr ? `ARR: ${fmtMoney(e.arr, cur)}${e.renewalDate ? ` · Renewal: ${new Date(e.renewalDate).toLocaleDateString()}` : ""}` : ""),
+
+        h("Objectives & success plan"),
+        p(e.objectives ?? "—"),
+        ...(sp?.successCriteria ? [bullet(`Success criteria: ${sp.successCriteria}`)] : []),
+        ...(sp?.commitments ? [bullet(`Commitments: ${sp.commitments}`)] : []),
+
+        h("Value summary (from linked realization tracks)"),
+        bullet(`Planned value: ${fmtMoney(planned, cur)}`),
+        bullet(`Realized value: ${fmtMoney(realized, cur)} (${fmtPct((realized / (planned || 1)) * 100)} of plan)`),
+        ...e.tracks.map((t) => bullet(`${t.code} · ${t.title}: ${fmtMoney(t.realizedValue ?? 0, t.currency)} / ${fmtMoney(t.plannedValue ?? 0, t.currency)}`)),
+        ...e.studies.map((s) => bullet(`${s.code} · ${s.title}${s.businessCase?.roiPct != null ? ` — ROI ${fmtPct(s.businessCase.roiPct)}` : ""}`)),
+
+        h("Customer health"),
+        latestHealth ? p(`Overall ${latestHealth.overall}/100 (${latestHealth.periodLabel})`) : p("No health score recorded."),
+        ...factors.map((f) => bullet(`${f.label}: ${f.score}/100`)),
+
+        h("Stakeholder map"),
+        ...(e.stakeholders.length ? [new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: stakeRows })] : [p("—")]),
+
+        h("Action log"),
+        ...(e.actions.length ? e.actions.map((a) => bullet(`[${a.status.toLowerCase()}] ${a.title}${a.owner ? ` — ${a.owner}` : ""}${a.dueDate ? ` (due ${new Date(a.dueDate).toLocaleDateString()})` : ""}`)) : [p("—")]),
+
+        h("Renewal plan"),
+        ...(e.renewalPlan ? [
+          p(`Renewal date: ${e.renewalPlan.renewalDate ? new Date(e.renewalPlan.renewalDate).toLocaleDateString() : "—"}${e.renewalPlan.stage ? ` · ${e.renewalPlan.stage}` : ""}`),
+          ...(e.renewalPlan.valueSummary ? [bullet(`Value: ${e.renewalPlan.valueSummary}`)] : []),
+          ...(e.renewalPlan.risks ? [bullet(`Risks & gaps: ${e.renewalPlan.risks}`)] : []),
+          ...(e.renewalPlan.procurementStatus ? [bullet(`Procurement: ${e.renewalPlan.procurementStatus}`)] : []),
+          ...(e.renewalPlan.plannedActions ? [bullet(`Planned actions: ${e.renewalPlan.plannedActions}`)] : []),
+        ] : [p("—")]),
+
+        h("Expansion & growth plan"),
+        ...(e.growthPlan ? [
+          ...(e.growthPlan.triggers ? [bullet(`Triggers: ${e.growthPlan.triggers}`)] : []),
+          ...(e.growthPlan.targetValue ? [bullet(`Target value: ${fmtMoney(e.growthPlan.targetValue, cur)}`)] : []),
+          ...(e.growthPlan.narrative ? [p(e.growthPlan.narrative)] : []),
+        ] : [p("—")]),
+
+        h("Lifecycle status"),
+        ...e.stages.sort((a, b) => a.order - b.order).map((s) => bullet(`${s.order}. ${CS_STAGE_TITLE[s.stage]} — ${s.status.toLowerCase()}`)),
+      ],
+    }],
+  });
+
+  const buf = await Packer.toBuffer(doc);
+  return new NextResponse(buf as unknown as BodyInit, {
+    headers: {
+      "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "Content-Disposition": `attachment; filename="${e.code}-account-success-review.docx"`,
+    },
+  });
+}

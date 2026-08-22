@@ -7,9 +7,11 @@
 // =============================================================================
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { CS_STAGES } from "@/lib/domain/cs-stages";
+import { HEALTH_FACTORS, overallScore, ragFor } from "@/lib/domain/cs-health";
 
 async function audit(action: string, entityId: string, metadata?: object) {
   const user = await getCurrentUser();
@@ -135,5 +137,135 @@ export async function unlinkStudy(engagementId: string, studyId: string) {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
   await prisma.study.update({ where: { id: studyId }, data: { engagementId: null } });
+  revalidatePath(`/cs/${engagementId}`);
+}
+
+// ---- Phase 2: stakeholders -------------------------------------------------
+export async function addStakeholder(engagementId: string, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const name = String(formData.get("name") || "").trim();
+  if (!name) throw new Error("Name required");
+  await prisma.stakeholder.create({
+    data: {
+      engagementId, name,
+      title: String(formData.get("title") || "") || null,
+      role: String(formData.get("role") || "") || null,
+      influence: formData.get("influence") ? Number(formData.get("influence")) : null,
+      sentiment: (String(formData.get("sentiment") || "NEUTRAL")) as never,
+      notes: String(formData.get("notes") || "") || null,
+    },
+  });
+  await audit("engagement.stakeholder.add", engagementId, { name });
+  revalidatePath(`/cs/${engagementId}`);
+}
+
+export async function deleteStakeholder(engagementId: string, id: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  await prisma.stakeholder.delete({ where: { id } });
+  revalidatePath(`/cs/${engagementId}`);
+}
+
+// ---- Phase 2: action log ---------------------------------------------------
+export async function addAction(engagementId: string, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const title = String(formData.get("title") || "").trim();
+  if (!title) throw new Error("Title required");
+  const due = String(formData.get("dueDate") || "");
+  await prisma.actionItem.create({
+    data: {
+      engagementId, title,
+      owner: String(formData.get("owner") || "") || null,
+      dueDate: due ? new Date(due) : null,
+      status: "OPEN",
+    },
+  });
+  await audit("engagement.action.add", engagementId, { title });
+  revalidatePath(`/cs/${engagementId}`);
+}
+
+export async function setActionStatus(engagementId: string, id: string, status: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  await prisma.actionItem.update({ where: { id }, data: { status: status as never } });
+  revalidatePath(`/cs/${engagementId}`);
+}
+
+// ---- Phase 2: health scorecard ---------------------------------------------
+export async function recordHealthScore(engagementId: string, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const periodLabel = String(formData.get("periodLabel") || "").trim();
+  if (!periodLabel) throw new Error("Period required");
+  const scores: Record<string, number> = {};
+  const factors = HEALTH_FACTORS.map((f) => {
+    const v = Number(formData.get(`f_${f.key}`) ?? 0);
+    scores[f.key] = Number.isFinite(v) ? v : 0;
+    return { key: f.key, label: f.label, score: scores[f.key], weight: f.weight };
+  });
+  const overall = overallScore(scores);
+  await prisma.healthScore.upsert({
+    where: { engagementId_periodLabel: { engagementId, periodLabel } },
+    create: { engagementId, periodLabel, periodDate: new Date(), overall, factors: factors as unknown as Prisma.InputJsonValue, note: String(formData.get("note") || "") || null },
+    update: { periodDate: new Date(), overall, factors: factors as unknown as Prisma.InputJsonValue, note: String(formData.get("note") || "") || null },
+  });
+  // Roll the RAG band up to the engagement's overall health.
+  await prisma.customerSuccessEngagement.update({ where: { id: engagementId }, data: { healthOverall: ragFor(overall) as never } });
+  await audit("engagement.health.score", engagementId, { periodLabel, overall });
+  revalidatePath(`/cs/${engagementId}`);
+  revalidatePath("/cs");
+}
+
+// ---- Phase 2: renewal plan -------------------------------------------------
+export async function saveRenewalPlan(engagementId: string, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const renewalRaw = String(formData.get("renewalDate") || "");
+  const data = {
+    renewalDate: renewalRaw ? new Date(renewalRaw) : null,
+    stage: String(formData.get("stage") || "") || null,
+    valueSummary: String(formData.get("valueSummary") || "") || null,
+    risks: String(formData.get("risks") || "") || null,
+    procurementStatus: String(formData.get("procurementStatus") || "") || null,
+    plannedActions: String(formData.get("plannedActions") || "") || null,
+  };
+  await prisma.renewalPlan.upsert({ where: { engagementId }, create: { engagementId, ...data }, update: data });
+  // Keep the engagement's headline renewal date in step.
+  if (data.renewalDate) await prisma.customerSuccessEngagement.update({ where: { id: engagementId }, data: { renewalDate: data.renewalDate } });
+  await audit("engagement.renewal.save", engagementId, {});
+  revalidatePath(`/cs/${engagementId}`);
+  revalidatePath("/cs");
+}
+
+// ---- Phase 2: growth plan --------------------------------------------------
+export async function saveGrowthPlan(engagementId: string, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const data = {
+    triggers: String(formData.get("triggers") || "") || null,
+    narrative: String(formData.get("narrative") || "") || null,
+    targetValue: formData.get("targetValue") ? Number(formData.get("targetValue")) : null,
+  };
+  await prisma.growthPlan.upsert({ where: { engagementId }, create: { engagementId, ...data }, update: data });
+  await audit("engagement.growth.save", engagementId, {});
+  revalidatePath(`/cs/${engagementId}`);
+}
+
+// ---- Phase 2: customer success plan ----------------------------------------
+export async function saveSuccessPlan(engagementId: string, formData: FormData) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const successPlan = {
+    commitments: String(formData.get("commitments") || "") || null,
+    successCriteria: String(formData.get("successCriteria") || "") || null,
+    notes: String(formData.get("notes") || "") || null,
+  };
+  await prisma.customerSuccessEngagement.update({
+    where: { id: engagementId },
+    data: { objectives: String(formData.get("objectives") || "") || null, successPlan: successPlan as unknown as Prisma.InputJsonValue },
+  });
+  await audit("engagement.successplan.save", engagementId, {});
   revalidatePath(`/cs/${engagementId}`);
 }

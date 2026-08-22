@@ -58,6 +58,19 @@ enum CsEngagementStatus {
   ARCHIVED
 }
 
+enum ActionStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum Sentiment {
+  PROMOTER
+  NEUTRAL
+  DETRACTOR
+}
+
 /// The 8-phase VE Job Plan.
 enum VePhaseKey {
   ORIENTATION // 1. Orientation / Pre-Study
@@ -910,7 +923,12 @@ model CustomerSuccessEngagement {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  stages  CsStageInstance[]
+  stages       CsStageInstance[]
+  stakeholders Stakeholder[]
+  actions      ActionItem[]
+  healthScores HealthScore[]
+  renewalPlan  RenewalPlan?
+  growthPlan   GrowthPlan?
   studies Study[]            // linked VE studies (via Study.engagementId)
   tracks  RealizationTrack[] // linked VR tracks  (via RealizationTrack.engagementId)
 
@@ -932,4 +950,79 @@ model CsStageInstance {
 
   @@unique([engagementId, stage])
   @@index([engagementId])
+}
+
+// ---- CS Phase-2 artefacts ---------------------------------------------------
+
+/// A person in the account relationship (stakeholder map): influence × sentiment.
+model Stakeholder {
+  id           String @id @default(cuid())
+  engagementId String
+  engagement   CustomerSuccessEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  name         String
+  title        String?
+  role         String?    // economic buyer / champion / sponsor / user lead / detractor
+  influence    Int?       // 1..5
+  sentiment    Sentiment  @default(NEUTRAL)
+  notes        String?
+  createdAt    DateTime   @default(now())
+
+  @@index([engagementId])
+}
+
+/// A tracked action / commitment (the governance Action Log).
+model ActionItem {
+  id           String       @id @default(cuid())
+  engagementId String
+  engagement   CustomerSuccessEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  title        String
+  owner        String?
+  dueDate      DateTime?
+  status       ActionStatus @default(OPEN)
+  sourceStage  CsStageKey?
+  createdAt    DateTime     @default(now())
+
+  @@index([engagementId])
+}
+
+/// A point-in-time customer health score (weighted factors + overall 0..100).
+model HealthScore {
+  id           String   @id @default(cuid())
+  engagementId String
+  engagement   CustomerSuccessEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  periodLabel  String   // "2026-Q3", "2026-08", ...
+  periodDate   DateTime
+  overall      Int      // 0..100
+  factors      Json     // [{ key, label, score, weight }]
+  note         String?
+  createdAt    DateTime @default(now())
+
+  @@unique([engagementId, periodLabel])
+  @@index([engagementId])
+}
+
+/// The renewal plan for an engagement (one per engagement).
+model RenewalPlan {
+  id                String   @id @default(cuid())
+  engagementId      String   @unique
+  engagement        CustomerSuccessEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  renewalDate       DateTime?
+  stage             String?  // e.g. "6–9 months out"
+  valueSummary      String?
+  risks             String?
+  procurementStatus String?
+  plannedActions    String?
+  updatedAt         DateTime @updatedAt
+}
+
+/// The expansion / growth plan for an engagement (one per engagement).
+model GrowthPlan {
+  id            String   @id @default(cuid())
+  engagementId  String   @unique
+  engagement    CustomerSuccessEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  triggers      String?
+  opportunities Json?    // [{ name, value, stage }]
+  targetValue   Float?
+  narrative     String?
+  updatedAt     DateTime @updatedAt
 }
