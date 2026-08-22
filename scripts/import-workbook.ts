@@ -77,7 +77,15 @@ function readTable(ws: ExcelJS.Worksheet | undefined, headers: string[], example
     let anyVal = false;
     headers.forEach((h, i) => { const v = cellVal(row.getCell(i + 1)); rec[h] = v; if (v != null && String(v).trim() !== "") anyVal = true; });
     if (!anyVal) break;                                                        // contiguous table → stop at first blank
-    if (r === hr + 1 && exampleFirst && norm(cellVal(row.getCell(1))) === norm(exampleFirst)) continue; // skip sample row only at header+1
+    // Skip the greyed SAMPLE row: it sits at header+1 and is the only italic data row.
+    // Detecting by style (not by text) means a real first row that happens to match an
+    // example value (e.g. "EXPECTED_BENEFIT", "what_worked") is never dropped.
+    if (r === hr + 1) {
+      const f = row.getCell(1).font as { italic?: boolean } | undefined;
+      const othersFilled = headers.slice(1).some((h, i) => { const v = cellVal(row.getCell(i + 2)); return v != null && String(v).trim() !== ""; });
+      const isSample = (f && f.italic) || (exampleFirst && norm(cellVal(row.getCell(1))) === norm(exampleFirst) && !othersFilled);
+      if (isSample) continue;
+    }
     out.push(rec);
   }
   return out;
