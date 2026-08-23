@@ -2,7 +2,7 @@
 
 ## A continuous, whole-relationship CS lifecycle alongside the Value Lifecycle Platform
 
-**Status:** Draft for review · **Scope:** a new *Customer Success* pillar added to the existing Value Engineering (VE) + Value Realization (VR) app · **Audience:** product/engineering + value practice leads.
+**Status:** ✅ Built — Phases 1–3 shipped (`git log` on `docs`/`src/**/cs*`). Remaining/optional: first-class Account entity, CS capture-workbook + importer, deeper VE-template feedback loop, background scheduling for alerts. · **Scope:** a new *Customer Success* pillar added to the existing Value Engineering (VE) + Value Realization (VR) app · **Audience:** product/engineering + value practice leads.
 
 > **In one line.** Add Customer Success as a **third pillar** — a per-customer, continuous 8-stage lifecycle that *references* (does not duplicate) the bounded VE studies and VR tracks, completing the loop *sell → prove → retain & grow*.
 
@@ -213,16 +213,16 @@ A CSM sees the CS workspace; VRM/VE see linked engagements read-only from their 
 
 ## 8 · Phased build plan
 
-**Phase 1 — MVP (~1.5–2 weeks): the engagement + lifecycle + links.**
+**Phase 1 — MVP ✅ built: the engagement + lifecycle + links.**
 - `CustomerSuccessEngagement` + `CsStageInstance` (8 stages, config-driven guidance in `src/lib/domain/`), CSM role + RBAC, optional `engagementId` on Study/Track.
 - `/cs` list + `/cs/[id]` detail with the 8-stage stepper, basic overall Health (GREEN/AMBER/RED), `renewalDate`, and linked studies/tracks surfacing VR value.
 - Portfolio CS lens (renewal dates + health).
 
-**Phase 2 — the CS artefacts (~1–2 weeks).**
+**Phase 2 — the CS artefacts ✅ built.**
 - Health Scorecard (weighted factors + trend), Stakeholder Map, Action Log, Renewal Plan, Growth Plan, Customer Success Plan.
 - Exports: Renewal Plan, Growth Plan, EBR deck; capture-workbook + importer support for CS (mirroring the VE/VR capture kit).
 
-**Phase 3 — proactivity & intelligence (~1–2 weeks).**
+**Phase 3 — proactivity & intelligence ✅ built.**
 - Renewal reminders & health alerts; feedback-loop wiring back into VE templates; optional GenAI assists (EBR narrative, health summary, renewal-risk call) via the existing `src/lib/ai.ts` seam.
 
 *Estimates are indicative and assume the current stack/patterns.*
