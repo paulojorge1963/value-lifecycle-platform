@@ -243,12 +243,41 @@ function handover() {
   return svg(w, h, b);
 }
 
+function customerSuccess() {
+  const w = 1160, h = 470;
+  const CS = "#0891B2", CS_D = "#0E7490", CS_MIST = "#ECFEFF";
+  let b = "";
+  b += label(w / 2, 40, "Customer Success — the continuous, per-account relationship layer", { s: 15, c: CS_D, b: true });
+  b += rrect(30, 62, w - 60, 258, { fill: CS_MIST, stroke: CS, sw: 2 });
+  b += boxText(w / 2, 88, [{ t: "Customer Success engagement · 8-stage lifecycle", b: true, s: 14, c: CS_D }]);
+  const stages = ["1 Handover", "2 Onboarding", "3 Adoption", "4 Value Realisation", "5 Health Mgmt", "6 Governance", "7 Renewal", "8 Expansion"];
+  const pw = 255, ph = 44, gx = 22, gy = 16, x0 = 56, y0 = 112;
+  stages.forEach((s, i) => {
+    const col = i % 4, row = Math.floor(i / 4);
+    const x = x0 + col * (pw + gx), y = y0 + row * (ph + gy);
+    b += rrect(x, y, pw, ph, { fill: WHITE, stroke: CS, rx: 8 });
+    b += boxText(x + pw / 2, y + ph / 2, [{ t: s, s: 12.5, c: CS_D }]);
+  });
+  const sy = y0 + 2 * (ph + gy);
+  b += rrect(56, sy, w - 112, 40, { fill: WHITE, stroke: HAIR, rx: 8 });
+  b += boxText(w / 2, sy + 20, [{ t: "Health Scorecard (RAG) · attention signals · renewal & growth plans · AI-assisted EBR", s: 12.5, c: MUTED }]);
+  b += label(w / 2, 346, "references — surfaces value, never duplicates", { s: 12, c: MUTED });
+  b += rrect(230, 372, 320, 68, { fill: VE_MIST, stroke: VE, rx: 10 });
+  b += boxText(390, 406, [{ t: "VE study — the value case", b: true, s: 13.5, c: VE_D }]);
+  b += rrect(610, 372, 320, 68, { fill: VR_MIST, stroke: VR, rx: 10 });
+  b += boxText(770, 406, [{ t: "VR track — proven value", b: true, s: 13.5, c: VR_D }]);
+  b += arrow(390, 320, 390, 370, { c: CS, id: "csA" });
+  b += arrow(770, 320, 770, 370, { c: CS, id: "csB" });
+  return svg(w, h, b);
+}
+
 const diagrams = {
   "1-value-lifecycle": lifecycle(),
   "2-industry-config": industryConfig(),
   "3-data-to-documents": dataToDocs(),
   "4-architecture": architecture(),
   "5-handover": handover(),
+  "6-customer-success": customerSuccess(),
 };
 
 (async () => {

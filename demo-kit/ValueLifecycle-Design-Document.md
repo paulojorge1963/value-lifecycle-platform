@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Solution Design Document
 
-*One workspace for the whole value lifecycle — a value engineer who finds and quantifies value, and a realization manager who implements and proves it. This document explains the design and shows the workflow and architecture as diagrams.*
+*One workspace for the whole value lifecycle — a value engineer who finds and quantifies value, a realization manager who implements and proves it, and a customer success manager who retains and grows the relationship. This document explains the design and shows the workflow and architecture as diagrams.*
 
 > The `.docx` version in this kit has the diagrams embedded as images (so they render anywhere, including OneDrive/Word). This Markdown version references the same images from the `diagrams/` folder and renders in GitHub, VS Code and Obsidian.
 
@@ -18,7 +18,7 @@ A piece of work moves from a framed problem, through a quantified business case 
 
 ![The value lifecycle](diagrams/1-value-lifecycle.png)
 
-The engineering side ends where the realization side begins — at the handover. The two are deliberately different methods, joined by one required link.
+The engineering side ends where the realization side begins — at the handover; realization ends at close-out, where **Customer Success** picks up the continuous relationship (§6). Three deliberately different methods, joined by first-class links.
 
 ## 3. Industry as configuration
 
@@ -46,7 +46,17 @@ This is the point of the product. From a study with at least one accepted recomm
 - **Seeded, not re-keyed:** work packages come from the recommendations, benefits from the expected-benefit artifacts, KPI targets (with baselines) from the KPI artifacts, and success criteria carry across.
 - **Traceable:** the study is marked handed-over, an audit event is written, and the track back-links to its source study.
 
-## 6. System architecture
+## 6. Customer Success — the continuing relationship
+
+Value Realization proves *one* initiative and then ends at close-out; **Customer Success** is the *continuous*, per-account layer that carries the relationship on through renewal and expansion. It is a separate pillar with its own role (the CSM) and its own 8-stage lifecycle — not a change to VR.
+
+![Customer Success — the continuous relationship layer](diagrams/6-customer-success.png)
+
+- **References, never duplicates.** A CS engagement links to the account's VE studies and VR tracks and *surfaces* their planned/realized value; the numbers still live on the tracks (single source of truth).
+- **Health, proactively.** A weighted **Health Scorecard** (adoption, value, sentiment, support, engagement) rolls up to a green/amber/red band, and **attention signals** flag renewals due, poor health, overdue actions, detractor stakeholders and value below plan — on the engagement and in the portfolio.
+- **Governance & growth.** Stakeholder map, action log, renewal and growth plans; an **EBR narrative** (AI via the Anthropic seam, or a template fallback) that seeds its next-best-actions into the action log; and an Account Success Review export.
+
+## 7. System architecture
 
 A single-language, type-safe stack. Role-aware React Server Components render the dashboards; server actions and REST routes handle mutations and exports; Prisma talks to PostgreSQL through an organisation-scoped client; and the relational model holds the VE↔VR graph together.
 
@@ -56,19 +66,19 @@ A single-language, type-safe stack. Role-aware React Server Components render th
 - **Application layer:** server actions (create study, phase status, recommendation decisions, handover, KPI actuals) plus REST routes and the finance/export engine.
 - **AI is optional and never authoritative:** the Anthropic seam produces starter text only; the static template library is the fallback.
 
-## 7. Domain & data model
+## 8. Domain & data model
 
 Everything hangs off the Organisation (the tenant). On the engineering side: `Study → StudyPhase → PhaseTask`, `FunctionItem → Alternative → Recommendation`, and `BusinessCase → Scenario → CostItem`. On the realization side: `RealizationTrack → VrPhaseInstance`, `WorkPackage`, `AdoptionPlan`, `Benefit`, `ValueReport` and `LessonLearned`.
 
-**The bridge:** a `HandoverArtifact` captures each expected benefit, KPI, baseline, measurement plan and success criterion on the study, and is linked to the `RealizationTrack` on handover. `RealizationTrack` carries a **required** foreign key to its source `Study`. KPIs are modelled as `KpiDefinition` (catalogue) → `KpiTarget` (on a study or track) → `KpiActual` (time series). `Comment`, `AuditEvent` and `DocumentVersion` provide governance across the model.
+**The bridge:** a `HandoverArtifact` captures each expected benefit, KPI, baseline, measurement plan and success criterion on the study, and is linked to the `RealizationTrack` on handover. A track's `studyId` is **optional** — `origin` is `VE_HANDOVER` (has a source study) or `STANDALONE` (software already in place, no study). **Customer Success** adds `CustomerSuccessEngagement → CsStageInstance` plus `Stakeholder`, `ActionItem`, `HealthScore`, `RenewalPlan` and `GrowthPlan`; studies and tracks carry an optional `engagementId` so an engagement references them without copying. KPIs are modelled as `KpiDefinition` (catalogue) → `KpiTarget` (on a study or track) → `KpiActual` (time series). `Comment`, `AuditEvent` and `DocumentVersion` provide governance across the model.
 
-## 8. Multi-tenancy, roles & governance
+## 9. Multi-tenancy, roles & governance
 
-Self-service registration creates a new, isolated Organisation with the signer as Admin; every study and track is scoped to its organisation. Role-based access maps each role — Value Engineer, Value Realization Manager, Reviewer, Viewer, Admin — to a capability set enforced on the server; the UI merely hides what a role can't do.
+Self-service registration creates a new, isolated Organisation with the signer as Admin; every study and track is scoped to its organisation. Role-based access maps each role — Value Engineer, Value Realization Manager, Customer Success Manager, Reviewer, Viewer, Admin — to a capability set enforced on the server; the UI merely hides what a role can't do.
 
 Admins manage the team from a dedicated page: add members with an initial password, change roles, reset passwords, and remove access. Removing a member who owns studies, tracks or comments reassigns that work to another member first, so nothing is orphaned. Business-case snapshots (version history) and an audit log keep the realized-vs-planned reconciliation defensible.
 
-## 9. Key design principles
+## 10. Key design principles
 
 | Principle | What it means in the product |
 |---|---|
@@ -80,7 +90,7 @@ Admins manage the team from a dedicated page: add members with an initial passwo
 | Deterministic finance | ROI, payback, NPV, IRR and life-cycle cost are computed in code; the finance engine is authoritative. |
 | AI proposes, human disposes | AI produces starter text only, with a template fallback; the product is fully usable with AI switched off. |
 
-## 10. Technology stack
+## 11. Technology stack
 
 - **Frontend:** Next.js 15 (App Router) · React Server Components · TypeScript (strict) · Tailwind CSS (VE = blue, VR = emerald)
 - **Application:** server actions + REST API · zod validation · finance engine (ROI · payback · NPV · IRR · LCC)
@@ -89,8 +99,8 @@ Admins manage the team from a dedicated page: add members with an initial passwo
 - **AI (optional):** Anthropic API, structured outputs, starter text with a template fallback
 - **Exports:** docx (Word business case & VRP/QBR) · exceljs (Excel KPI workbook)
 
-## 11. What's built
+## 12. What's built
 
-A complete Phase-1 platform: the 8-phase VE Job Plan with function analysis, a FAST diagram, a weighted evaluation matrix and inline editing throughout; a live business-case builder with the finance engine, multi-currency (ZAR default), version history and Word export; the first-class VE→VR handover; the 7-phase realization lifecycle with work packages, adoption plan, KPI tracker and benefits realization; portfolio and KPI dashboards; three industry profiles; real Auth.js login with role-based access; and self-service registration with admin team management including owner reassignment.
+A complete platform across all three pillars: the 8-phase VE Job Plan with function analysis, a FAST diagram, a weighted evaluation matrix and inline editing throughout; a live business-case builder with the finance engine, multi-currency, version history and Word export; the first-class VE→VR handover plus standalone VR tracks (software already in place); the 7-phase realization lifecycle with work packages, adoption plan, KPI tracker and benefits realization; the **Customer Success pillar** — per-account engagements, the 8-stage lifecycle, a weighted health scorecard, attention signals, stakeholder map, action log, renewal/growth plans, AI-assisted EBRs and an Account Success Review export; portfolio and KPI dashboards (with a CS lens); real Auth.js login with role-based access; self-service registration with admin team management including owner reassignment; and Excel capture-workbooks with an importer for all three pillars.
 
-*The Value Lifecycle Platform — one workspace that turns approved value into proven value, with a first-class handover so nothing is lost between the two.*
+*The Value Lifecycle Platform — one workspace that turns approved value into proven value and proven value into a retained, growing relationship.*
