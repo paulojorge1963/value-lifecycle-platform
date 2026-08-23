@@ -8,7 +8,7 @@ import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPl
 import { CS_STAGES, CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
 import { computeSignals } from "@/lib/cs-signals";
 import { isAiEnabled } from "@/lib/ai";
-import { fmtMoney, fmtPct } from "@/lib/finance";
+import { fmtMoney, fmtPct, fmtDate } from "@/lib/finance";
 
 export const dynamic = "force-dynamic";
 
@@ -94,7 +94,7 @@ export default async function EngagementPage({
             <HealthPill health={e.healthOverall} />
             <span className="badge bg-vr-50 text-vr-700">{e.industry.name}</span>
             <span>· CSM {e.owner.name}</span>
-            {e.renewalDate && <span className={rd !== null && rd < 90 ? "text-amber-700" : ""}>· Renewal {new Date(e.renewalDate).toLocaleDateString()}</span>}
+            {e.renewalDate && <span className={rd !== null && rd < 90 ? "text-amber-700" : ""}>· Renewal {fmtDate(e.renewalDate)}</span>}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ export default async function EngagementPage({
         <StatTile label="ARR" value={e.arr ? fmtMoney(e.arr, e.currency) : "—"} accent="vr" />
         <StatTile label="Planned value (linked)" value={fmtMoney(plannedValue, e.currency)} accent="ve" />
         <StatTile label="Realized value (linked)" value={fmtMoney(realizedValue, e.currency)} sub={`${fmtPct((realizedValue / (plannedValue || 1)) * 100)} of plan`} accent="vr" />
-        <StatTile label="Renewal" value={rd !== null ? `${rd} days` : "—"} sub={e.renewalDate ? new Date(e.renewalDate).toLocaleDateString() : "not set"} accent={rd !== null && rd < 90 ? "ink" : "vr"} />
+        <StatTile label="Renewal" value={rd !== null ? `${rd} days` : "—"} sub={e.renewalDate ? fmtDate(e.renewalDate) : "not set"} accent={rd !== null && rd < 90 ? "ink" : "vr"} />
       </div>
 
       {/* Stage stepper */}
@@ -235,8 +235,8 @@ export default async function EngagementPage({
               <Row k="Status" v={e.status} />
               <Row k="CSM" v={e.owner.name} />
               <Row k="ARR" v={e.arr ? fmtMoney(e.arr, e.currency) : "—"} />
-              <Row k="Renewal" v={e.renewalDate ? new Date(e.renewalDate).toLocaleDateString() : "—"} />
-              <Row k="Started" v={e.startedAt ? new Date(e.startedAt).toLocaleDateString() : "—"} />
+              <Row k="Renewal" v={e.renewalDate ? fmtDate(e.renewalDate) : "—"} />
+              <Row k="Started" v={e.startedAt ? fmtDate(e.startedAt) : "—"} />
             </dl>
           </div>
           <div className="card card-pad text-xs text-ink-400">

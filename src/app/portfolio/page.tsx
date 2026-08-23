@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { StatTile, StatusBadge, HealthPill, Money, SectionHeader, ProgressBar } from "@/components/ui";
-import { fmtMoney, fmtPct } from "@/lib/finance";
+import { fmtMoney, fmtPct, fmtDate } from "@/lib/finance";
 import { computeSignals, attentionScore } from "@/lib/cs-signals";
 
 export const dynamic = "force-dynamic";
@@ -125,7 +125,7 @@ export default async function PortfolioPage() {
                   {upcomingRenewals.map((e) => (
                     <li key={e.id} className="flex justify-between gap-2">
                       <Link href={`/cs/${e.id}`} className="text-ink-700 hover:text-vr-700">{e.accountName}</Link>
-                      <span className="text-ink-400">{e.renewalDate ? new Date(e.renewalDate).toLocaleDateString() : ""}</span>
+                      <span className="text-ink-400">{e.renewalDate ? fmtDate(e.renewalDate) : ""}</span>
                     </li>
                   ))}
                 </ul>

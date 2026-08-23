@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { HEALTH_FACTORS } from "@/lib/domain/cs-health";
+import { fmtDate } from "@/lib/finance";
 import {
   addStakeholder, deleteStakeholder, addAction, setActionStatus,
   recordHealthScore, saveRenewalPlan, saveGrowthPlan, saveSuccessPlan,
@@ -157,7 +158,7 @@ export function ActionLog({ engagementId, actions, canEdit }: { engagementId: st
             <div key={a.id} className="flex items-center justify-between gap-2 rounded border border-ink-100 px-3 py-1.5 text-sm">
               <div>
                 <span className={a.status === "DONE" ? "text-ink-400 line-through" : "text-ink-800"}>{a.title}</span>
-                <span className="ml-2 text-xs text-ink-400">{a.owner ?? "—"}{a.dueDate ? ` · due ${new Date(a.dueDate).toLocaleDateString()}` : ""}</span>
+                <span className="ml-2 text-xs text-ink-400">{a.owner ?? "—"}{a.dueDate ? ` · due ${fmtDate(a.dueDate)}` : ""}</span>
               </div>
               {canEdit && next && (
                 <button className="btn border border-ink-200 px-2 py-0.5 text-xs text-ink-600 hover:bg-ink-100" disabled={pending} onClick={() => start(() => setActionStatus(engagementId, a.id, next.value))}>
@@ -259,7 +260,7 @@ function CollapsibleForm({ title, summary, canEdit, children, onSubmit }: { titl
 }
 
 export function RenewalPlanForm({ engagementId, plan, canEdit }: { engagementId: string; plan: { renewalDate: string | null; stage: string | null; valueSummary: string | null; risks: string | null; procurementStatus: string | null; plannedActions: string | null } | null; canEdit: boolean }) {
-  const summary = plan ? [plan.renewalDate ? `Renewal: ${new Date(plan.renewalDate).toLocaleDateString()}` : "", plan.stage, plan.valueSummary, plan.risks ? `Risks: ${plan.risks}` : "", plan.plannedActions].filter(Boolean).join("\n") : "";
+  const summary = plan ? [plan.renewalDate ? `Renewal: ${fmtDate(plan.renewalDate)}` : "", plan.stage, plan.valueSummary, plan.risks ? `Risks: ${plan.risks}` : "", plan.plannedActions].filter(Boolean).join("\n") : "";
   return (
     <CollapsibleForm title="Renewal Plan" summary={summary} canEdit={canEdit} onSubmit={(fd) => saveRenewalPlan(engagementId, fd)}>
       <input name="renewalDate" type="date" defaultValue={plan?.renewalDate ? plan.renewalDate.slice(0, 10) : ""} className="input text-sm" />

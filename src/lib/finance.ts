@@ -158,3 +158,13 @@ export function fmtPct(n: number | null | undefined): string {
   if (n == null) return "—";
   return `${n.toFixed(1)}%`;
 }
+
+// Deterministic date format (UTC parts) — identical on server and client, so it
+// never triggers a hydration mismatch the way toLocaleDateString() can.
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export function fmtDate(d: Date | string | null | undefined): string {
+  if (!d) return "—";
+  const x = new Date(d);
+  if (isNaN(+x)) return "—";
+  return `${x.getUTCDate()} ${MONTHS[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
+}

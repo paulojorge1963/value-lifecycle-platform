@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, SectionHeader, ProgressBar } from "@/components/ui";
-import { fmtMoney } from "@/lib/finance";
+import { fmtMoney, fmtDate } from "@/lib/finance";
 import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
 import { NewEngagementForm } from "@/components/NewEngagementForm";
 import { computeSignals } from "@/lib/cs-signals";
@@ -70,7 +70,7 @@ export default async function CsWorkspace() {
               </div>
               {e.renewalDate && (
                 <div className={`mt-2 text-xs ${rd !== null && rd < 90 ? "text-amber-700" : "text-ink-400"}`}>
-                  Renewal {new Date(e.renewalDate).toLocaleDateString()}{rd !== null ? ` · ${rd} days` : ""}
+                  Renewal {fmtDate(e.renewalDate)}{rd !== null ? ` · ${rd} days` : ""}
                 </div>
               )}
               {signals.length > 0 && (
