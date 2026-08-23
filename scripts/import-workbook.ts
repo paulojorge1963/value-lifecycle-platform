@@ -1,10 +1,10 @@
 /**
- * Import a Blue Turtle capture workbook (VE Discovery or VR Intake) into the app.
+ * Import a Blue Turtle capture workbook (VE Discovery, VR Intake or CS Intake).
  *
  *   npx tsx scripts/import-workbook.ts <file.xlsx> [options]
- *     --owner <email>   owner user (default: an org VE/VRM, else first member)
+ *     --owner <email>   owner user (default: an org VE/VRM/CSM, else first member)
  *     --org <id>        organization id (default: org_demo)
- *     --code <CODE>     force the VE/VR code (default: auto VE-YYYY-NNN / VR-YYYY-NNN)
+ *     --code <CODE>     force the VE/VR/CS code (default: auto <PREFIX>-YYYY-NNN)
  *     --dry-run         parse + report only, write nothing (default is to WRITE)
  *
  * The workbook columns/enums mirror the schema 1:1, so this is a mapping, not a
@@ -13,6 +13,8 @@
 import ExcelJS from "exceljs";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { INDUSTRY_PROFILES } from "../src/lib/domain/industries";
+import { CS_STAGES } from "../src/lib/domain/cs-stages";
+import { HEALTH_FACTORS, overallScore, ragFor } from "../src/lib/domain/cs-health";
 import { VE_PHASES, VR_PHASES } from "../src/lib/domain/phases";
 import { DEFAULT_CRITERIA } from "../src/lib/evaluation";
 import { computeFinance, CashFlowLine } from "../src/lib/finance";
@@ -111,7 +113,9 @@ function critKeyFor(label: string): string {
 }
 async function nextCode(prefix: string): Promise<string> {
   const year = new Date().getFullYear();
-  const n = prefix === "VE" ? await prisma.study.count() : await prisma.realizationTrack.count();
+  const n = prefix === "VE" ? await prisma.study.count()
+    : prefix === "CS" ? await prisma.customerSuccessEngagement.count()
+    : await prisma.realizationTrack.count();
   return `${prefix}-${year}-${String(n + 1).padStart(3, "0")}`;
 }
 
@@ -274,14 +278,93 @@ async function importVR(wb: ExcelJS.Workbook) {
 }
 
 // =============================================================================
+async function importCS(wb: ExcelJS.Workbook) {
+  const acc = wb.getWorksheet("1. Account");
+  const accountName = str(kv(acc, "Account / customer")) ?? "Imported CS engagement";
+  const industryKey = profileKey(str(kv(acc, "Solution profile")));
+  if (!industryKey) throw new Error("Solution profile is missing or unrecognised on '1. Account'.");
+  const currency = str(kv(acc, "Currency")) ?? "USD";
+  const objectives = str(kv(acc, "Objectives"));
+
+  const sp = wb.getWorksheet("2. Success plan");
+  const successPlan = { successCriteria: str(kv(sp, "Success criteria")), commitments: str(kv(sp, "Commitments")), notes: str(kv(sp, "Notes")) };
+
+  // lifecycle: status per stage (by title)
+  const lc = wb.getWorksheet("3. Lifecycle");
+  const stageStatus: Record<string, string> = {};
+  for (const s of CS_STAGES) { const v = str(kv(lc, s.title)); if (v) stageStatus[s.key] = v; }
+
+  const stake = readTable(wb.getWorksheet("4. Stakeholders"), ["Name", "Title", "Role", "Influence (1–5)", "Sentiment", "Notes"], "e.g. T. Mokoena");
+
+  // health: factor scores by label
+  const hw = wb.getWorksheet("5. Health");
+  const scores: Record<string, number> = {};
+  let anyScore = false;
+  for (const f of HEALTH_FACTORS) { const v = num(kv(hw, f.label)); if (v != null) { scores[f.key] = v; anyScore = true; } }
+  const health = anyScore
+    ? { periodLabel: str(kv(hw, "Period label")) ?? "current", note: str(kv(hw, "Note")), overall: overallScore(scores), factors: HEALTH_FACTORS.map((f) => ({ key: f.key, label: f.label, score: scores[f.key] ?? 0, weight: f.weight })) }
+    : null;
+
+  const acts = readTable(wb.getWorksheet("6. Actions"), ["Title", "Owner", "Due", "Status"], "e.g. Book renewal EBR");
+
+  const rn = wb.getWorksheet("7. Renewal");
+  const renewalRaw = str(kv(rn, "Renewal date"));
+  const renewal = { renewalDate: date(renewalRaw), stage: str(kv(rn, "Stage")), valueSummary: str(kv(rn, "Value summary")), risks: str(kv(rn, "Risks")), procurementStatus: str(kv(rn, "Procurement status")), plannedActions: str(kv(rn, "Planned actions")) };
+  const hasRenewal = Object.values(renewal).some((v) => v != null);
+
+  const gr = wb.getWorksheet("8. Growth");
+  const growth = { triggers: str(kv(gr, "Triggers")), targetValue: num(kv(gr, "Target value")), narrative: str(kv(gr, "Narrative")) };
+  const hasGrowth = Object.values(growth).some((v) => v != null);
+
+  const studyCodes = readTable(wb.getWorksheet("9. Links"), ["VE study code"], "e.g. VE-2026-014").map((r) => str(r["VE study code"])).filter(Boolean) as string[];
+  const trackCodes = readTable(wb.getWorksheet("9. Links"), ["VR track code"], "e.g. VR-2026-014").map((r) => str(r["VR track code"])).filter(Boolean) as string[];
+
+  const ownerId = await resolveOwner("CUSTOMER_SUCCESS_MANAGER");
+  const code = FORCE_CODE ?? (await nextCode("CS"));
+  const healthOverall = health ? ragFor(health.overall) : "GREEN";
+
+  const plan = {
+    code, accountName, industryKey, currency, healthOverall,
+    status: str(kv(acc, "Status")) ?? "ACTIVE",
+    counts: { stagesSet: Object.keys(stageStatus).length, stakeholders: stake.length, actions: acts.length, health: health ? `${health.overall}/100` : "none", renewalPlan: hasRenewal, growthPlan: hasGrowth, linkStudies: studyCodes.length, linkTracks: trackCodes.length },
+  };
+  console.log("CS engagement plan:\n" + JSON.stringify(plan, null, 2));
+  if (DRY) { console.log("\n[dry-run] nothing written."); return; }
+
+  const eng = await prisma.customerSuccessEngagement.create({
+    data: {
+      code, accountName, industryKey, currency, ownerId, organizationId: ORG_ID,
+      status: (str(kv(acc, "Status")) as never) ?? "ACTIVE", healthOverall: healthOverall as never,
+      arr: num(kv(acc, "ARR")), renewalDate: date(str(kv(acc, "Renewal date"))) ?? renewal.renewalDate,
+      startedAt: date(str(kv(acc, "Start date"))) ?? new Date(),
+      objectives,
+      successPlan: (successPlan.successCriteria || successPlan.commitments || successPlan.notes ? successPlan : undefined) as Prisma.InputJsonValue | undefined,
+      stages: { create: CS_STAGES.map((s) => ({ stage: s.key as never, order: s.order, status: (stageStatus[s.key] ?? "NOT_STARTED") as never })) },
+    },
+  });
+  for (const s of stake) if (str(s["Name"])) await prisma.stakeholder.create({ data: { engagementId: eng.id, name: String(s["Name"]), title: str(s["Title"]), role: str(s["Role"]), influence: num(s["Influence (1–5)"]) ?? undefined, sentiment: (str(s["Sentiment"]) as never) ?? "NEUTRAL", notes: str(s["Notes"]) } });
+  for (const a of acts) if (str(a["Title"])) await prisma.actionItem.create({ data: { engagementId: eng.id, title: String(a["Title"]), owner: str(a["Owner"]), dueDate: date(a["Due"]), status: (str(a["Status"]) as never) ?? "OPEN" } });
+  if (health) await prisma.healthScore.create({ data: { engagementId: eng.id, periodLabel: health.periodLabel, periodDate: new Date(), overall: health.overall, factors: health.factors as unknown as Prisma.InputJsonValue, note: health.note } });
+  if (hasRenewal) await prisma.renewalPlan.create({ data: { engagementId: eng.id, ...renewal } });
+  if (hasGrowth) await prisma.growthPlan.create({ data: { engagementId: eng.id, ...growth } });
+  for (const c of studyCodes) { const st = await prisma.study.findFirst({ where: { code: c, organizationId: ORG_ID }, select: { id: true } }); if (st) await prisma.study.update({ where: { id: st.id }, data: { engagementId: eng.id } }); }
+  for (const c of trackCodes) { const tr = await prisma.realizationTrack.findFirst({ where: { code: c, organizationId: ORG_ID }, select: { id: true } }); if (tr) await prisma.realizationTrack.update({ where: { id: tr.id }, data: { engagementId: eng.id } }); }
+  await prisma.auditEvent.create({ data: { action: "engagement.imported", entityType: "CustomerSuccessEngagement", entityId: eng.id, actorId: ownerId, metadata: { source: "workbook-import" } } });
+  console.log(`\n✓ Imported engagement ${code} (${eng.id}).`);
+}
+
+// =============================================================================
 (async () => {
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.readFile(file);
   const isVE = !!wb.getWorksheet("1. Engagement");
   const isVR = !!wb.getWorksheet("1. Track");
-  console.log(`File: ${file}\nOrg: ${ORG_ID}  Owner: ${OWNER_EMAIL ?? "(auto)"}  ${DRY ? "[DRY RUN]" : "[WRITE]"}\nType: ${isVE ? "VE Discovery Workbook" : isVR ? "VR Intake Workbook" : "UNKNOWN"}\n`);
+  const isCS = !!wb.getWorksheet("1. Account");
+  const kind = isVE ? "VE Discovery Workbook" : isVR ? "VR Intake Workbook" : isCS ? "CS Intake Workbook" : "UNKNOWN";
+  console.log(`File: ${file}\nOrg: ${ORG_ID}  Owner: ${OWNER_EMAIL ?? "(auto)"}  ${DRY ? "[DRY RUN]" : "[WRITE]"}\nType: ${kind}\n`);
   if (isVE) await importVE(wb);
   else if (isVR) await importVR(wb);
-  else throw new Error("Not a recognised capture workbook (missing '1. Engagement' or '1. Track').");
+  else if (isCS) await importCS(wb);
+  else throw new Error("Not a recognised capture workbook (missing '1. Engagement', '1. Track' or '1. Account').");
   await prisma.$disconnect();
 })().catch(async (e) => { console.error("\n✗ Import failed:", e.message); await prisma.$disconnect(); process.exit(1); });
