@@ -5,6 +5,7 @@ import { StatusBadge, HealthPill, SectionHeader, ProgressBar } from "@/component
 import { fmtMoney } from "@/lib/finance";
 import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
 import { NewEngagementForm } from "@/components/NewEngagementForm";
+import { computeSignals } from "@/lib/cs-signals";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,13 @@ export default async function CsWorkspace() {
 
   const engagements = await prisma.customerSuccessEngagement.findMany({
     where: { organizationId: user.organizationId },
-    include: { industry: true, owner: true, stages: true, _count: { select: { studies: true, tracks: true } } },
+    include: {
+      industry: true, owner: true, stages: true,
+      actions: { select: { dueDate: true, status: true } },
+      stakeholders: { select: { sentiment: true } },
+      tracks: { select: { plannedValue: true, realizedValue: true } },
+      _count: { select: { studies: true, tracks: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -34,6 +41,7 @@ export default async function CsWorkspace() {
         {engagements.map((e) => {
           const done = e.stages.filter((s) => s.status === "COMPLETE").length;
           const rd = daysUntil(e.renewalDate);
+          const signals = computeSignals({ status: e.status, healthOverall: e.healthOverall, renewalDate: e.renewalDate, actions: e.actions, stakeholders: e.stakeholders, tracks: e.tracks });
           return (
             <Link key={e.id} href={`/cs/${e.id}`} className="card block p-5 transition-shadow hover:shadow-md">
               <div className="flex items-start justify-between gap-3">
@@ -63,6 +71,13 @@ export default async function CsWorkspace() {
               {e.renewalDate && (
                 <div className={`mt-2 text-xs ${rd !== null && rd < 90 ? "text-amber-700" : "text-ink-400"}`}>
                   Renewal {new Date(e.renewalDate).toLocaleDateString()}{rd !== null ? ` · ${rd} days` : ""}
+                </div>
+              )}
+              {signals.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {signals.slice(0, 3).map((s, i) => (
+                    <span key={i} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
+                  ))}
                 </div>
               )}
             </Link>

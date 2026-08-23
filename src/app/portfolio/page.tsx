@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { StatTile, StatusBadge, HealthPill, Money, SectionHeader, ProgressBar } from "@/components/ui";
 import { fmtMoney, fmtPct } from "@/lib/finance";
+import { computeSignals, attentionScore } from "@/lib/cs-signals";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,19 @@ export default async function PortfolioPage() {
     prisma.industryProfile.findMany(),
     prisma.customerSuccessEngagement.findMany({
       where: { organizationId: user.organizationId },
+      include: {
+        actions: { select: { dueDate: true, status: true } },
+        stakeholders: { select: { sentiment: true } },
+        tracks: { select: { plannedValue: true, realizedValue: true } },
+      },
       orderBy: { renewalDate: "asc" },
     }),
   ]);
+
+  const attention = engagements
+    .map((e) => ({ e, signals: computeSignals({ status: e.status, healthOverall: e.healthOverall, renewalDate: e.renewalDate, actions: e.actions, stakeholders: e.stakeholders, tracks: e.tracks }) }))
+    .filter((x) => x.signals.length > 0)
+    .sort((a, b) => attentionScore(b.signals) - attentionScore(a.signals));
 
   // Customer Success lens
   const activeEngagements = engagements.filter((e) => !["ARCHIVED", "CHURNED"].includes(e.status)).length;
@@ -121,6 +132,25 @@ export default async function PortfolioPage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* CS needs-attention */}
+      {attention.length > 0 && (
+        <div className="card card-pad">
+          <div className="label">Customer Success — needs attention</div>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {attention.slice(0, 8).map(({ e, signals }) => (
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-2">
+                <Link href={`/cs/${e.id}`} className="font-medium text-ink-800 hover:text-vr-700">{e.accountName}</Link>
+                <span className="flex flex-wrap gap-1">
+                  {signals.slice(0, 4).map((s, i) => (
+                    <span key={i} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
+                  ))}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

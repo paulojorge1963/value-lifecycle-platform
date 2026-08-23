@@ -6,7 +6,56 @@ import { HEALTH_FACTORS } from "@/lib/domain/cs-health";
 import {
   addStakeholder, deleteStakeholder, addAction, setActionStatus,
   recordHealthScore, saveRenewalPlan, saveGrowthPlan, saveSuccessPlan,
+  generateEbrNarrative,
 } from "@/lib/cs-actions";
+
+type EbrContent = { executiveStory?: string; valueSummary?: string; risks?: string; nextBestActions?: string[]; expansion?: string };
+
+// ---- EBR & value reports (with GenAI / template generation) ----------------
+export function ReportsPanel({
+  engagementId, reports, canEdit, aiEnabled,
+}: {
+  engagementId: string;
+  reports: { id: string; kind: string; title: string; content: EbrContent | null }[];
+  canEdit: boolean;
+  aiEnabled: boolean;
+}) {
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState("");
+  const router = useRouter();
+  return (
+    <div className="card card-pad">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-ink-900">EBR &amp; value reports</h2>
+        {canEdit && (
+          <button className="btn-vr" disabled={pending} onClick={() => start(async () => { const r = await generateEbrNarrative(engagementId); setMsg(`Generated (${r.source})`); router.refresh(); })}>
+            {pending ? "Generating…" : aiEnabled ? "Generate EBR (AI)" : "Generate EBR (template)"}
+          </button>
+        )}
+      </div>
+      {msg && <p className="mt-1 text-xs text-vr-600">{msg}</p>}
+      <div className="mt-3 space-y-3">
+        {reports.map((r) => (
+          <div key={r.id} className="rounded-lg border border-ink-200 p-3">
+            <div className="flex items-center gap-2">
+              <span className="badge bg-vr-50 text-vr-700">{r.kind.replaceAll("_", " ").toLowerCase()}</span>
+              <span className="font-medium text-ink-800">{r.title}</span>
+            </div>
+            {r.content?.executiveStory && <p className="mt-1.5 text-sm text-ink-600">{r.content.executiveStory}</p>}
+            {r.content?.risks && <p className="mt-1 text-sm text-amber-700">{r.content.risks}</p>}
+            {r.content?.nextBestActions && r.content.nextBestActions.length > 0 && (
+              <ul className="mt-1.5 space-y-0.5 text-sm text-ink-700">
+                {r.content.nextBestActions.map((a, i) => <li key={i} className="flex gap-2"><span className="text-vr-500">→</span>{a}</li>)}
+              </ul>
+            )}
+            {r.content?.expansion && <p className="mt-1 text-sm text-ink-500"><span className="font-medium">Expansion:</span> {r.content.expansion}</p>}
+          </div>
+        ))}
+        {reports.length === 0 && <p className="text-sm text-ink-500">No reports yet. Generate an EBR narrative from the engagement data.</p>}
+      </div>
+    </div>
+  );
+}
 
 type Factor = { key: string; label: string; score: number; weight: number };
 

@@ -12,6 +12,8 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { CS_STAGES } from "@/lib/domain/cs-stages";
 import { HEALTH_FACTORS, overallScore, ragFor } from "@/lib/domain/cs-health";
+import { isAiEnabled, generateJSON } from "@/lib/ai";
+import { fmtMoney, fmtPct } from "@/lib/finance";
 
 async function audit(action: string, entityId: string, metadata?: object) {
   const user = await getCurrentUser();
@@ -268,4 +270,113 @@ export async function saveSuccessPlan(engagementId: string, formData: FormData) 
   });
   await audit("engagement.successplan.save", engagementId, {});
   revalidatePath(`/cs/${engagementId}`);
+}
+
+// ---- Phase 3: GenAI EBR narrative + renewal-risk (template fallback) --------
+type EbrContent = { executiveStory: string; valueSummary: string; risks: string; nextBestActions: string[]; expansion: string };
+
+export async function generateEbrNarrative(engagementId: string): Promise<{ source: "ai" | "template" }> {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+
+  const e = await prisma.customerSuccessEngagement.findFirst({
+    where: { id: engagementId, organizationId: user.organizationId },
+    include: {
+      industry: true,
+      tracks: true,
+      studies: { include: { businessCase: true } },
+      healthScores: { orderBy: { periodDate: "asc" } },
+      renewalPlan: true, growthPlan: true,
+      stakeholders: true,
+      actions: true,
+    },
+  });
+  if (!e) throw new Error("Engagement not found");
+  const cur = e.currency;
+  const planned = e.tracks.reduce((s, t) => s + (t.plannedValue ?? 0), 0);
+  const realized = e.tracks.reduce((s, t) => s + (t.realizedValue ?? 0), 0);
+  const pct = planned > 0 ? (realized / planned) * 100 : 0;
+  const latestHealth = e.healthScores[e.healthScores.length - 1];
+  const factors = (latestHealth?.factors as unknown as { label: string; score: number }[]) ?? [];
+  const weakest = factors.slice().sort((a, b) => a.score - b.score)[0];
+  const rd = e.renewalDate ? Math.round((new Date(e.renewalDate).getTime() - Date.now()) / 86400000) : null;
+  const detractors = e.stakeholders.filter((s) => s.sentiment === "DETRACTOR").length;
+
+  let content: EbrContent;
+  let source: "ai" | "template" = "template";
+
+  if (isAiEnabled()) {
+    try {
+      content = await generateJSON<EbrContent>({
+        system:
+          "You are a Customer Success Manager drafting a concise Executive Business Review (EBR) narrative for a customer. Be specific, value-led and honest about risk. This is an editable draft.",
+        prompt:
+          `Account: ${e.accountName}\nSolution: ${e.industry.name}\nStatus: ${e.status} · Health: ${e.healthOverall}\n` +
+          `Value: ${fmtMoney(realized, cur)} realized of ${fmtMoney(planned, cur)} planned (${fmtPct(pct)}).\n` +
+          (latestHealth ? `Latest health score: ${latestHealth.overall}/100; weakest factor: ${weakest?.label ?? "n/a"}.\n` : "") +
+          (rd !== null ? `Renewal in ${rd} days.\n` : "") +
+          (detractors ? `${detractors} detractor stakeholder(s).\n` : "") +
+          (e.growthPlan?.triggers ? `Expansion triggers: ${e.growthPlan.triggers}\n` : "") +
+          "\nDraft: (1) a 2–3 sentence executive story, (2) a one-line value summary, (3) the key risks, (4) 3 next best actions, (5) the expansion opportunity.",
+        schema: {
+          type: "object", additionalProperties: false,
+          properties: {
+            executiveStory: { type: "string" },
+            valueSummary: { type: "string" },
+            risks: { type: "string" },
+            nextBestActions: { type: "array", items: { type: "string" } },
+            expansion: { type: "string" },
+          },
+          required: ["executiveStory", "valueSummary", "risks", "nextBestActions", "expansion"],
+        },
+        maxTokens: 900,
+      });
+      source = "ai";
+    } catch {
+      content = templateEbr();
+    }
+  } else {
+    content = templateEbr();
+  }
+
+  function templateEbr(): EbrContent {
+    const riskBits: string[] = [];
+    if (e!.healthOverall === "RED") riskBits.push("health is red");
+    else if (e!.healthOverall === "AMBER") riskBits.push("health is amber");
+    if (rd !== null && rd <= 90) riskBits.push(`renewal is ${rd < 0 ? "overdue" : `in ${rd} days`}`);
+    if (detractors) riskBits.push(`${detractors} detractor stakeholder(s)`);
+    if (weakest && weakest.score < 60) riskBits.push(`${weakest.label.toLowerCase()} is the weakest health factor`);
+    return {
+      executiveStory: `${e!.accountName} is ${e!.status.toLowerCase().replace("_", " ")} on the ${e!.industry.name} solution. To date the account has realized ${fmtMoney(realized, cur)} of ${fmtMoney(planned, cur)} planned value (${fmtPct(pct)}). ${e!.healthOverall === "GREEN" ? "The relationship is healthy and renewal is on track." : "Focused action is needed to protect the renewal."}`,
+      valueSummary: `${fmtMoney(realized, cur)} realized of ${fmtMoney(planned, cur)} planned (${fmtPct(pct)} of plan) across ${e!.tracks.length} initiative(s).`,
+      risks: riskBits.length ? `Key risks: ${riskBits.join("; ")}.` : "No material risks flagged this period.",
+      nextBestActions: [
+        rd !== null && rd <= 120 ? "Confirm renewal stakeholders and book the renewal EBR." : "Schedule the next executive value review.",
+        weakest ? `Close the top health gap: ${weakest.label.toLowerCase()}.` : "Sustain adoption and value tracking.",
+        e!.growthPlan?.triggers ? "Progress the expansion case." : "Identify an expansion opportunity.",
+      ],
+      expansion: e!.growthPlan?.narrative || e!.growthPlan?.triggers || "Explore adjacent workloads once value is proven.",
+    };
+  }
+
+  await prisma.valueReport.create({
+    data: {
+      engagementId: e.id, kind: "EXECUTIVE_EBR",
+      title: `EBR — ${e.accountName} · ${new Date().toLocaleDateString()}`,
+      content: content as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  // Close the insight → action loop: seed next-best-actions into the Action Log
+  // (skip any that already exist as an open action).
+  const existing = new Set(e.actions.filter((a) => a.status !== "DONE").map((a) => a.title.toLowerCase()));
+  for (const t of content.nextBestActions) {
+    if (t && !existing.has(t.toLowerCase())) {
+      await prisma.actionItem.create({ data: { engagementId: e.id, title: t, owner: user.name, status: "OPEN", sourceStage: "GOVERNANCE_RHYTHM" } });
+    }
+  }
+
+  await audit("engagement.ebr.generated", e.id, { source });
+  revalidatePath(`/cs/${engagementId}`);
+  return { source };
 }

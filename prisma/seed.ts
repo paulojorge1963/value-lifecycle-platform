@@ -587,6 +587,13 @@ async function seedDemo() {
   ] });
   await prisma.renewalPlan.create({ data: { engagementId: eng1.id, renewalDate: new Date("2026-12-15"), stage: "3 months out", valueSummary: "R690k realized of R1.25M; overnight SLAs restored.", risks: "One legacy scheduler still live.", procurementStatus: "Not yet engaged", plannedActions: "Book renewal EBR; finalise the value story." } });
   await prisma.growthPlan.create({ data: { engagementId: eng1.id, triggers: "Data-pipeline growth; MFT consolidation", targetValue: 900000, narrative: "Expand Control-M into data workflows and managed file transfer." } });
+  await prisma.valueReport.create({ data: { engagementId: eng1.id, kind: "EXECUTIVE_EBR", title: "EBR — Retail Bank (Pty) Ltd", content: {
+    executiveStory: "Retail Bank is active on the Control-M automation solution, with R690k of R1.25M planned value realized and overnight SLAs restored. The relationship is healthy and renewal is on track.",
+    valueSummary: "R690k realized of R1.25M planned (55% of plan).",
+    risks: "Key risks: one legacy scheduler still live; renewal in ~3 months.",
+    nextBestActions: ["Confirm renewal stakeholders and book the renewal EBR.", "Decommission the last legacy scheduler.", "Progress the Control-M for Data expansion case."],
+    expansion: "Expand Control-M into data workflows and managed file transfer.",
+  } as object } });
 
   const h2 = hs({ adoption: 55, value: 60, sentiment: 45, support: 50, engagement: 55 });
   await prisma.healthScore.create({ data: { engagementId: eng2.id, periodLabel: "2026-Q3", periodDate: new Date("2026-09-30"), overall: h2.overall, factors: h2.factors as object, note: "Deflection ramp slower than planned; renewal risk." } });

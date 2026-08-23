@@ -764,8 +764,11 @@ model Benefit {
 
 model ValueReport {
   id        String     @id @default(cuid())
-  trackId   String
-  track     RealizationTrack @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  // A report hangs off a VR track OR a CS engagement (EBR/QBR).
+  trackId   String?
+  track     RealizationTrack? @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  engagementId String?
+  engagement   CustomerSuccessEngagement? @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   kind      ReportKind
   title     String
   periodStart DateTime?
@@ -775,6 +778,7 @@ model ValueReport {
   createdAt DateTime   @default(now())
 
   @@index([trackId, kind])
+  @@index([engagementId])
 }
 
 model LessonLearned {
@@ -929,6 +933,7 @@ model CustomerSuccessEngagement {
   healthScores HealthScore[]
   renewalPlan  RenewalPlan?
   growthPlan   GrowthPlan?
+  reports      ValueReport[]
   studies Study[]            // linked VE studies (via Study.engagementId)
   tracks  RealizationTrack[] // linked VR tracks  (via RealizationTrack.engagementId)
 

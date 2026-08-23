@@ -4,8 +4,10 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
 import { CsStageControl, CsHealthControl, LinkPicker, UnlinkButton } from "@/components/CsControls";
-import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPlanForm, SuccessPlanForm } from "@/components/CsPanels";
+import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPlanForm, SuccessPlanForm, ReportsPanel } from "@/components/CsPanels";
 import { CS_STAGES, CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
+import { computeSignals } from "@/lib/cs-signals";
+import { isAiEnabled } from "@/lib/ai";
 import { fmtMoney, fmtPct } from "@/lib/finance";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +39,7 @@ export default async function EngagementPage({
       healthScores: { orderBy: { periodDate: "asc" } },
       renewalPlan: true,
       growthPlan: true,
+      reports: { orderBy: { createdAt: "desc" } },
     },
   });
   if (!e) notFound();
@@ -63,6 +66,9 @@ export default async function EngagementPage({
   const renewal = e.renewalPlan ? { renewalDate: e.renewalPlan.renewalDate ? e.renewalPlan.renewalDate.toISOString() : null, stage: e.renewalPlan.stage, valueSummary: e.renewalPlan.valueSummary, risks: e.renewalPlan.risks, procurementStatus: e.renewalPlan.procurementStatus, plannedActions: e.renewalPlan.plannedActions } : null;
   const growth = e.growthPlan ? { triggers: e.growthPlan.triggers, narrative: e.growthPlan.narrative, targetValue: e.growthPlan.targetValue } : null;
   const successPlan = (e.successPlan as unknown as { commitments?: string | null; successCriteria?: string | null; notes?: string | null } | null) ?? null;
+  const reports = e.reports.map((r) => ({ id: r.id, kind: r.kind, title: r.title, content: (r.content as unknown as { executiveStory?: string; valueSummary?: string; risks?: string; nextBestActions?: string[]; expansion?: string } | null) }));
+  const signals = computeSignals({ status: e.status, healthOverall: e.healthOverall, renewalDate: e.renewalDate, actions: e.actions, stakeholders: e.stakeholders, tracks: e.tracks });
+  const aiEnabled = isAiEnabled();
 
   const activeKey =
     stageParam ||
@@ -96,6 +102,16 @@ export default async function EngagementPage({
           <CsHealthControl engagementId={e.id} health={e.healthOverall} canEdit={canEdit} />
         </div>
       </div>
+
+      {/* Attention signals */}
+      {signals.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm">
+          <span className="font-medium text-amber-800">Needs attention:</span>
+          {signals.map((s, i) => (
+            <span key={i} className={`rounded px-2 py-0.5 text-xs font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
+          ))}
+        </div>
+      )}
 
       {/* Tiles */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -203,6 +219,7 @@ export default async function EngagementPage({
 
           <HealthScorecard engagementId={e.id} latest={latestHealth} history={healthHistory} canEdit={canEdit} />
           <ActionLog engagementId={e.id} actions={actions} canEdit={canEdit} />
+          <ReportsPanel engagementId={e.id} reports={reports} canEdit={canEdit} aiEnabled={aiEnabled} />
         </div>
 
         {/* Sidebar */}
