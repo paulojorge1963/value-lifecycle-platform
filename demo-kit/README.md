@@ -9,6 +9,8 @@ Deliverables for demoing and explaining the **Value Lifecycle Platform** — one
 | **ValueLifecycle-Solution-Overview.pptx** | A 14-slide PowerPoint explaining the solution | Present to leadership / include in a proposal |
 | **ValueLifecycle-Design-Document.docx** | A design document with the workflow & architecture as diagrams (images baked in) | Explain the design; share on OneDrive where images must render |
 | **ValueLifecycle-Process-Guide.docx** | A practitioner's guide to the full VE → handover → VRM process, phase by phase, with six flow diagrams — including the standalone VRM path for software already in place | Train the team / learn the method end to end |
+| **ValueLifecycle-Runbook.md** | A step-by-step operator's runbook — run the app, fill in the capture workbooks, and import them | Set up / operate the app end to end |
+| **ValueLifecycle-Field-Guides.md** | One-page field guides for the three capture workbooks (VE Discovery, VR Intake, CS Intake) | Hand to a VE / VRM / CSM before a client meeting |
 
 Each document is also provided as **Markdown source** (`*.md`) — the editable originals — and the demo script, user guide, design document and process guide each ship as a **PDF** for quick sharing. The solution overview ships as both **.pptx** (editable) and **.pdf**.
 
@@ -24,6 +26,8 @@ demo-kit/
 ├─ ValueLifecycle-User-Guide.md / .docx / .pdf      ← everyday how-to
 ├─ ValueLifecycle-Design-Document.md / .docx        ← design + diagrams
 ├─ ValueLifecycle-Process-Guide.md / .docx / .pdf   ← end-to-end process (learning guide)
+├─ ValueLifecycle-Runbook.md                        ← operator runbook (run + capture + import)
+├─ ValueLifecycle-Field-Guides.md                   ← one-page guides for the capture workbooks
 ├─ ValueLifecycle-Solution-Overview.pptx / .pdf     ← leadership deck
 ├─ diagrams/                                        ← 5 design diagrams (.svg + .png)
 ├─ guide-diagrams/                                  ← 6 process-guide diagrams (.svg + .png)
