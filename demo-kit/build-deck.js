@@ -271,6 +271,29 @@ function bg(slide, color) { slide.background = { color }; }
   s.addText("A single number, traceable all the way back to the study.", { x: 7.8, y: 5.5, w: 4.6, h: 0.7, margin: 0, fontFace: BFONT, fontSize: 13.5, color: LIGHT });
 }
 
+// ── 9b. Customer Success (continuing relationship) ────────────────────────
+{
+  const s = pres.addSlide();
+  bg(s, WHITE);
+  sectionLabel(s, "Customer Success", EMERB);
+  heading(s, "Proven value → a retained, growing relationship.");
+  s.addText("Realization proves one initiative and closes out; Customer Success is the continuous, per-account layer — and it references the account's studies and tracks, it never duplicates their value.", { x: MX, y: 2.15, w: CW, h: 0.7, margin: 0, fontFace: BFONT, fontSize: 15, color: MUTED, lineSpacingMultiple: 1.15 });
+  const cards = [
+    ["8-stage lifecycle", "Handover → onboarding → adoption → value → health → governance → renewal → expansion."],
+    ["Health, proactively", "A weighted scorecard rolls up to a RAG band; attention signals flag renewals, risk and detractors."],
+    ["Renewal & growth", "Stakeholder map, action log, renewal and growth plans — renewal becomes a non-event."],
+    ["AI-assisted EBR", "Generate an executive review from the account's own data; export an Account Success Review."],
+  ];
+  const cw = 2.9, gap = (CW - cw * 4) / 3;
+  cards.forEach(([h, d], i) => {
+    const x = MX + i * (cw + gap);
+    card(s, x, 3.05, cw, 2.9, i % 2 === 0 ? EMER_MIST : BLUE_MIST);
+    s.addText(h, { x: x + 0.3, y: 3.35, w: cw - 0.6, h: 0.8, margin: 0, fontFace: HFONT, fontSize: 16, bold: true, color: i % 2 === 0 ? EMER : BLUE });
+    s.addText(d, { x: x + 0.3, y: 4.15, w: cw - 0.6, h: 1.7, margin: 0, fontFace: BFONT, fontSize: 12.5, color: MUTED, lineSpacingMultiple: 1.15 });
+  });
+  s.addText("The portfolio gains a Customer Success lens — engagement health, upcoming renewals and accounts needing attention.", { x: MX, y: 6.2, w: CW, h: 0.5, margin: 0, align: "center", fontFace: BFONT, fontSize: 13, italic: true, color: MUTED });
+}
+
 // ── 10. Industry profiles ─────────────────────────────────────────────────
 {
   const s = pres.addSlide();
@@ -299,7 +322,7 @@ function bg(slide, color) { slide.background = { color }; }
   sectionLabel(s, "Governance & enterprise", EMERB);
   heading(s, "Separation of duties, enforced — and multi-tenant.", { color: WHITE });
   const cards = [
-    ["Role-based access", "Value Engineer, Realization Manager, Reviewer, Viewer, Admin — capabilities enforced on the server, not just hidden in the UI."],
+    ["Role-based access", "Value Engineer, Realization Manager, Customer Success Manager, Reviewer, Viewer, Admin — capabilities enforced on the server, not just hidden in the UI."],
     ["A real governance gate", "Only reviewer-accepted recommendations can be handed over — the line between proposed and committed value."],
     ["Multi-tenant & auditable", "Self-serve workspaces isolated by organisation; version history and an audit log keep every number defensible."],
   ];
@@ -318,7 +341,7 @@ function bg(slide, color) { slide.background = { color }; }
   bg(s, WHITE);
   sectionLabel(s, "The platform");
   heading(s, "A complete platform, already built.");
-  const stats = [["8 + 7", "VE + VR phases"], ["3", "industry profiles"], ["5", "finance metrics"], ["100%", "tenant-isolated"]];
+  const stats = [["8·7·8", "VE · VR · CS phases"], ["3", "linked pillars"], ["5", "finance metrics"], ["100%", "tenant-isolated"]];
   const cw = 2.75, gap = (CW - cw * 4) / 3;
   stats.forEach(([n, l], i) => {
     const x = MX + i * (cw + gap);
@@ -332,7 +355,8 @@ function bg(slide, color) { slide.background = { color }; }
     "Business case — live finance engine (ROI/payback/NPV/IRR/LCC), multi-currency, version history, Word export",
     "The first-class VE→VR handover — accepted recommendations become a seeded realization track",
     "Realization lifecycle — work packages, adoption plan, KPI tracker, benefits realization, VRP/QBR export",
-    "Platform — portfolio & KPI dashboards, real Auth.js RBAC, self-service workspaces + admin team management",
+    "Customer Success — per-account engagements, 8-stage lifecycle, health scorecard, renewal/growth plans, AI-assisted EBRs",
+    "Platform — portfolio & KPI dashboards (with a CS lens), real Auth.js RBAC, self-service workspaces + admin team management",
   ];
   s.addText(
     rel.map((t, i) => ({ text: t, options: { bullet: { code: "2022", indent: 16 }, color: MUTED, breakLine: i < rel.length - 1, paraSpaceAfter: 6 } })),
