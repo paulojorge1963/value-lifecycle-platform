@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Demo Kit
 
-Deliverables for demoing and explaining the **Value Lifecycle Platform** — one workspace that runs both the **Value Engineer** (8-phase VE Job Plan) and the **Value Realization Manager** (7-phase realization lifecycle), with a first-class handover between them.
+Deliverables for demoing and explaining the **Value Lifecycle Platform** — one workspace across three roles: the **Value Engineer** (8-phase VE Job Plan), the **Value Realization Manager** (7-phase realization lifecycle) with a first-class handover between them, and the **Customer Success Manager** (continuous 8-stage engagement that references — never duplicates — the account's studies and tracks).
 
 | File | What it is | Use it to… |
 |---|---|---|

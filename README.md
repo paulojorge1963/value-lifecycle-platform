@@ -10,12 +10,13 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)
 
-An end-to-end web app for two complementary roles across the full value lifecycle:
+An end-to-end web app for three complementary roles across the full value lifecycle:
 
 - **Value Engineer (VE)** — runs structured value studies (8-phase VE Job Plan), analyses functions/cost/performance, generates alternatives, and builds a quantified business case.
 - **Value Realization Manager (VRM)** — implements approved recommendations (7-phase realization lifecycle), drives adoption, measures outcomes, and proves realized value against the business case.
+- **Customer Success Manager (CSM)** — runs the continuous, per-account lifecycle (8 stages: onboarding → health → renewal → expansion), with a health scorecard, renewal/growth plans and AI-assisted EBRs. See [`docs/CS-MODULE-DESIGN.md`](docs/CS-MODULE-DESIGN.md).
 
-The **VE → VR handover is first-class**: every realization track links back to its source study, business case, baselines, KPIs and success criteria.
+The **VE → VR handover is first-class** (every realization track links back to its source study, business case, baselines, KPIs and success criteria), and a **Customer Success engagement references** the account's studies and tracks — surfacing their value, never duplicating it.
 
 Supports three configurable industry profiles out of the box — **Construction & Infrastructure**, **Manufacturing & Product Development**, and **Enterprise Software / SaaS** — with industry as *configuration, not code*.
 

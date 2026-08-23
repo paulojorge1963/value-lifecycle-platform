@@ -19,12 +19,13 @@ How to run a value study end-to-end — from a fresh problem to proven, realized
 
 One workspace that carries a piece of work through its **whole value lifecycle** — from a value engineer framing a problem and building the business case, to a value realization manager implementing it and proving the money was actually saved.
 
-It maps to two complementary roles and two structured methods. The link between them is the point of the tool: every realization effort traces straight back to the study, business case and success criteria it came from — nothing gets lost in the handover.
+It maps to three complementary roles and their structured methods. The links are the point of the tool: every realization effort traces straight back to the study it came from, and every customer relationship references the studies and tracks beneath it — nothing gets lost between the hand-offs.
 
 | Role | What they do |
 |---|---|
 | 🔵 **Value Engineer** | Runs the 8-phase VE Job Plan: analyse functions, cost and performance, generate and score alternatives, and produce a quantified business case with baselines, KPIs and success criteria. |
 | 🟢 **Value Realization Manager** | Runs the 7-phase realization lifecycle: implement approved recommendations, drive adoption, measure actuals against baseline, report to executives, and confirm realized value. |
+| 🔷 **Customer Success Manager** | Runs the continuous 8-stage engagement per account: onboarding, adoption, health, governance, renewal and expansion — referencing (not duplicating) the account's studies and tracks. |
 
 > **The vocabulary.** A **Value Lifecycle** = one **VE study** plus the **Value Realization track(s)** it spawns. "Starting a new lifecycle" means creating a study and running it through to a handover. Section 3 walks the whole thing.
 
@@ -34,7 +35,7 @@ It maps to two complementary roles and two structured methods. The link between 
 
 Open the app and you land on the sign-in page. Enter your email and password, or use a **demo quick-login** button to jump in as a specific role. To experience the separation of duties, sign out and sign back in as a different person — the navigation and the buttons you see change with your role.
 
-> **Demo logins.** Password for every demo account is `demo1234`. Try `ve@demo.app` (Value Engineer), `vrm@demo.app` (Realization Manager), `reviewer@demo.app` (approver) and `viewer@demo.app` (read-only stakeholder).
+> **Demo logins.** Password for every demo account is `demo1234`. Try `ve@demo.app` (Value Engineer), `vrm@demo.app` (Realization Manager), `cs@demo.app` (Customer Success Manager), `reviewer@demo.app` (approver) and `viewer@demo.app` (read-only stakeholder).
 
 ### Creating your own workspace
 
@@ -100,13 +101,23 @@ This is the everyday operating procedure. A study moves through the VE Job Plan,
 
 **12. Close out & feed back (phase 7)** — Confirm **final realized value vs the original business case**, record lessons learned, and route improvements back into the VE templates and playbooks. The loop is closed — you can now point to proven, measured value against the plan you started with.
 
-> **Watch it roll up.** At any point, leaders open the **Portfolio** dashboard to see planned value (from VE studies) against realized value (from VR tracks), broken down by industry and health — the whole book of work in one view.
+> **Watch it roll up.** At any point, leaders open the **Portfolio** dashboard to see planned value (from VE studies) against realized value (from VR tracks), broken down by industry and health, plus a **Customer Success lens** (engagement health, upcoming renewals, accounts needing attention) — the whole book of work in one view.
+
+### 🔷 Customer Success — retaining & growing the relationship
+
+Value Realization proves *one* initiative and then ends; **Customer Success** is the *continuous* relationship layer for the whole account. The **Customer Success Manager** opens **Customer Success**, starts (or imports) an engagement, and works the **8-stage lifecycle**: Handover → Onboarding → Adoption → Value Realisation → Health Management → Governance Rhythm → Renewal → Expansion.
+
+- **It links, it doesn't duplicate.** Attach the account's VE studies and VR tracks — the engagement *surfaces* their planned/realized value; the numbers still live on the tracks (single source of truth).
+- **Health Scorecard** — score five weighted factors (adoption, value, sentiment, support, engagement); the overall rolls up to a green/amber/red band shown across the workspace and portfolio.
+- **Attention signals** — the engagement and the portfolio flag renewals coming due, red/amber health, overdue actions, detractor stakeholders, and value below plan.
+- **Governance artefacts** — a stakeholder map, an action log, and renewal & growth plans. **Generate an EBR narrative** (with Claude, or a template fallback) that also seeds its next-best-actions into the action log; **export an Account Success Review** to Word.
 
 ---
 
 ## 4 · Everyday features
 
-- **Portfolio dashboard** — leaders' view: active studies & tracks, planned vs realized value, and a by-industry rollup.
+- **Portfolio dashboard** — leaders' view: active studies & tracks, planned vs realized value, a by-industry rollup, and a Customer Success lens (health + renewals + needs-attention).
+- **Customer Success** — per-account engagements: the 8-stage lifecycle, health scorecard, stakeholder map, action log, renewal/growth plans, AI-assisted EBRs, and Account Success Review export.
 - **KPI dashboard** — role- and industry-filterable KPIs — VE (alternatives, recs accepted, planned value, avg ROI) and VR (realized value, variance, on-time, reports) — plus the formula catalogue.
 - **Template library** — industry profiles, phase-by-phase guidance and reusable starter text for every deliverable.
 - **Discussion** — threaded comments on any study or track; delete your own, admins can moderate.
