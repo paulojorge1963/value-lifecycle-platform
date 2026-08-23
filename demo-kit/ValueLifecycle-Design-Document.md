@@ -8,9 +8,9 @@
 
 ## 1. Purpose
 
-Organisations are good at identifying value — value-engineering studies, business cases, board approvals — and poor at proving it was ever realized. The study lives in one team's deck; the realization lives in another team's spreadsheet; the link between them is an email thread. The Value Lifecycle Platform closes that loop by running both roles in one system and making the handover between them first-class.
+Organisations are good at identifying value — value-engineering studies, business cases, board approvals — and poor at proving it was ever realized, then keeping and growing the accounts where it was. The study lives in one team's deck; the realization lives in another team's spreadsheet; the renewal conversation runs on activity metrics rather than proven value; the links between them are email threads. The Value Lifecycle Platform closes that loop by running all three roles in one system and making the handovers between them first-class.
 
-Two complementary roles, two structured methods: **the Value Engineer runs an 8-phase VE Job Plan; the Value Realization Manager runs a 7-phase realization lifecycle.** Every realization track traces back to the study, business case and success criteria it came from.
+Three complementary roles, three structured methods: **the Value Engineer runs an 8-phase VE Job Plan; the Value Realization Manager runs a 7-phase realization lifecycle; the Customer Success Manager runs a continuous 8-stage customer-success lifecycle.** Every realization track traces back to the study, business case and success criteria it came from — and every customer-success engagement references, but never re-keys, the value those studies and tracks prove.
 
 ## 2. The value lifecycle
 
@@ -58,11 +58,11 @@ Value Realization proves *one* initiative and then ends at close-out; **Customer
 
 ## 7. System architecture
 
-A single-language, type-safe stack. Role-aware React Server Components render the dashboards; server actions and REST routes handle mutations and exports; Prisma talks to PostgreSQL through an organisation-scoped client; and the relational model holds the VE↔VR graph together.
+A single-language, type-safe stack. Role-aware React Server Components render the dashboards; server actions and REST routes handle mutations and exports; Prisma talks to PostgreSQL through an organisation-scoped client; and the relational model holds the VE↔VR↔CS graph together.
 
 ![System architecture](diagrams/4-architecture.png)
 
-- **Role-aware UI:** `/portfolio`, `/ve`, `/vr`, `/kpis`, `/templates`; capabilities resolve from the signed-in user's role.
+- **Role-aware UI:** `/portfolio`, `/ve`, `/vr`, `/cs`, `/kpis`, `/templates`; capabilities resolve from the signed-in user's role.
 - **Application layer:** server actions (create study, phase status, recommendation decisions, handover, KPI actuals) plus REST routes and the finance/export engine.
 - **AI is optional and never authoritative:** the Anthropic seam produces starter text only; the static template library is the fallback.
 
@@ -92,9 +92,9 @@ Admins manage the team from a dedicated page: add members with an initial passwo
 
 ## 11. Technology stack
 
-- **Frontend:** Next.js 15 (App Router) · React Server Components · TypeScript (strict) · Tailwind CSS (VE = blue, VR = emerald)
+- **Frontend:** Next.js 15 (App Router) · React Server Components · TypeScript (strict) · Tailwind CSS (VE = blue, VR = emerald, CS = cyan)
 - **Application:** server actions + REST API · zod validation · finance engine (ROI · payback · NPV · IRR · LCC)
-- **Data:** Prisma 6 · PostgreSQL — the VE↔VR relational graph
+- **Data:** Prisma 6 · PostgreSQL — the VE↔VR↔CS relational graph
 - **Auth:** Auth.js (NextAuth v5) credentials, JWT sessions, edge-safe middleware · capability-based RBAC
 - **AI (optional):** Anthropic API, structured outputs, starter text with a template fallback
 - **Exports:** docx (Word business case & VRP/QBR) · exceljs (Excel KPI workbook)

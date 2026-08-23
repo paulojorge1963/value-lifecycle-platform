@@ -75,17 +75,17 @@ function principlesTable() {
 (async () => {
   const children = [
     new Paragraph({ heading: HeadingLevel.TITLE, spacing: { after: 80 }, children: [new TextRun({ text: "Value Lifecycle Platform — Solution Design Document", color: BLUE })] }),
-    P([new TextRun({ text: "One workspace for the whole value lifecycle — a value engineer who finds and quantifies value, and a realization manager who implements and proves it. This document explains the design and shows the workflow and architecture as diagrams.", italics: true, color: GREY })]),
+    P([new TextRun({ text: "One workspace for the whole value lifecycle — a value engineer who finds and quantifies value, a realization manager who implements and proves it, and a customer success manager who retains and grows the relationship. This document explains the design and shows the workflow and architecture as diagrams.", italics: true, color: GREY })]),
     new Paragraph({ border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: "DBE3F0", space: 1 } }, spacing: { after: 160 }, children: [] }),
 
     H1("1. Purpose"),
-    P("Organisations are good at identifying value — value-engineering studies, business cases, board approvals — and poor at proving it was ever realized. The study lives in one team's deck; the realization lives in another team's spreadsheet; the link between them is an email thread. The Value Lifecycle Platform closes that loop by running both roles in one system and making the handover between them first-class."),
-    P([new TextRun({ text: "Two complementary roles, two structured methods: ", }), new TextRun({ text: "the Value Engineer runs an 8-phase VE Job Plan; the Value Realization Manager runs a 7-phase realization lifecycle. ", bold: true }), new TextRun("Every realization track traces back to the study, business case and success criteria it came from.")]),
+    P("Organisations are good at identifying value — value-engineering studies, business cases, board approvals — and poor at proving it was ever realized, then keeping and growing the accounts where it was. The study lives in one team's deck; the realization lives in another team's spreadsheet; the renewal conversation runs on activity metrics rather than proven value; the links between them are email threads. The Value Lifecycle Platform closes that loop by running all three roles in one system and making the handovers between them first-class."),
+    P([new TextRun({ text: "Three complementary roles, three structured methods: ", }), new TextRun({ text: "the Value Engineer runs an 8-phase VE Job Plan; the Value Realization Manager runs a 7-phase realization lifecycle; the Customer Success Manager runs a continuous 8-stage customer-success lifecycle. ", bold: true }), new TextRun("Every realization track traces back to the study, business case and success criteria it came from — and every customer-success engagement references, but never re-keys, the value those studies and tracks prove.")]),
 
     H1("2. The value lifecycle"),
     P("A piece of work moves from a framed problem, through a quantified business case and a governance gate, into implementation and proof of realized value. The platform turns that lifecycle into a guided sequence, teaching at each phase and using each phase's exit criteria as a quality gate."),
     await img("1-value-lifecycle", 620),
-    P("The engineering side ends where the realization side begins — at the handover. The two are deliberately different methods, joined by one required link."),
+    P("The engineering side ends where the realization side begins — at the handover; realization ends at close-out, where Customer Success picks up the continuous relationship (§6). Three deliberately different methods, joined by first-class links."),
 
     H1("3. Industry as configuration"),
     P("The workflow is data-driven, not hard-coded. The core engine — the 8 VE and 7 VR phases, the deliverables, the finance engine and the KPI catalogue — is the same for everyone. An industry profile layers on the study types, cost drivers, value levers and default KPIs that make a study feel native to that sector."),
@@ -104,36 +104,43 @@ function principlesTable() {
     bullet("**Seeded, not re-keyed:** work packages come from the recommendations, benefits from the expected-benefit artifacts, KPI targets (with baselines) from the KPI artifacts, and success criteria carry across."),
     bullet("**Traceable:** the study is marked handed-over, an audit event is written, and the track back-links to its source study."),
 
-    H1("6. System architecture"),
-    P("A single-language, type-safe stack. Role-aware React Server Components render the dashboards; server actions and REST routes handle mutations and exports; Prisma talks to PostgreSQL through an organisation-scoped client; and the relational model holds the VE↔VR graph together."),
+    H1("6. Customer Success — the continuing relationship"),
+    P("Value Realization proves one initiative and then ends at close-out; Customer Success is the continuous, per-account layer that carries the relationship on through renewal and expansion. It is a separate pillar with its own role (the CSM) and its own 8-stage lifecycle — not a change to VR."),
+    await img("6-customer-success", 620),
+    bullet("**References, never duplicates.** A CS engagement links to the account's VE studies and VR tracks and surfaces their planned/realized value; the numbers still live on the tracks (single source of truth)."),
+    bullet("**Health, proactively.** A weighted **Health Scorecard** (adoption, value, sentiment, support, engagement) rolls up to a green/amber/red band, and **attention signals** flag renewals due, poor health, overdue actions, detractor stakeholders and value below plan — on the engagement and in the portfolio."),
+    bullet("**Governance & growth.** Stakeholder map, action log, renewal and growth plans; an **EBR narrative** (AI via the Anthropic seam, or a template fallback) that seeds its next-best-actions into the action log; and an Account Success Review export."),
+
+    H1("7. System architecture"),
+    P("A single-language, type-safe stack. Role-aware React Server Components render the dashboards; server actions and REST routes handle mutations and exports; Prisma talks to PostgreSQL through an organisation-scoped client; and the relational model holds the VE↔VR↔CS graph together."),
     await img("4-architecture", 460),
-    bullet("**Role-aware UI:** `/portfolio`, `/ve`, `/vr`, `/kpis`, `/templates`; capabilities resolve from the signed-in user's role."),
+    bullet("**Role-aware UI:** `/portfolio`, `/ve`, `/vr`, `/cs`, `/kpis`, `/templates`; capabilities resolve from the signed-in user's role."),
     bullet("**Application layer:** server actions (create study, phase status, recommendation decisions, handover, KPI actuals) plus REST routes and the finance/export engine."),
     bullet("**AI is optional and never authoritative:** the Anthropic seam produces starter text only; the static template library is the fallback."),
 
-    H1("7. Domain & data model"),
+    H1("8. Domain & data model"),
     P("Everything hangs off the Organisation (the tenant). On the engineering side: Study → StudyPhase → PhaseTask, FunctionItem → Alternative → Recommendation, and BusinessCase → Scenario → CostItem. On the realization side: RealizationTrack → VrPhaseInstance, WorkPackage, AdoptionPlan, Benefit, ValueReport and LessonLearned."),
-    P([new TextRun({ text: "The bridge: ", bold: true }), new TextRun("a HandoverArtifact captures each expected benefit, KPI, baseline, measurement plan and success criterion on the study, and is linked to the RealizationTrack on handover. RealizationTrack carries a required foreign key to its source Study. KPIs are modelled as KpiDefinition (catalogue) → KpiTarget (on a study or track) → KpiActual (time series). Comment, AuditEvent and DocumentVersion provide governance across the model.")]),
+    P([new TextRun({ text: "The bridge: ", bold: true }), new TextRun("a HandoverArtifact captures each expected benefit, KPI, baseline, measurement plan and success criterion on the study, and is linked to the RealizationTrack on handover. A track's studyId is optional — origin is VE_HANDOVER (has a source study) or STANDALONE (software already in place, no study). Customer Success adds CustomerSuccessEngagement → CsStageInstance plus Stakeholder, ActionItem, HealthScore, RenewalPlan and GrowthPlan; studies and tracks carry an optional engagementId so an engagement references them without copying. KPIs are modelled as KpiDefinition (catalogue) → KpiTarget (on a study or track) → KpiActual (time series). Comment, AuditEvent and DocumentVersion provide governance across the model.")]),
 
-    H1("8. Multi-tenancy, roles & governance"),
-    P("Self-service registration creates a new, isolated Organisation with the signer as Admin; every study and track is scoped to its organisation. Role-based access maps each role — Value Engineer, Value Realization Manager, Reviewer, Viewer, Admin — to a capability set enforced on the server; the UI merely hides what a role can't do."),
+    H1("9. Multi-tenancy, roles & governance"),
+    P("Self-service registration creates a new, isolated Organisation with the signer as Admin; every study and track is scoped to its organisation. Role-based access maps each role — Value Engineer, Value Realization Manager, Customer Success Manager, Reviewer, Viewer, Admin — to a capability set enforced on the server; the UI merely hides what a role can't do."),
     P("Admins manage the team from a dedicated page: add members with an initial password, change roles, reset passwords, and remove access. Removing a member who owns studies, tracks or comments reassigns that work to another member first, so nothing is orphaned. Business-case snapshots (version history) and an audit log keep the realized-vs-planned reconciliation defensible."),
 
-    H1("9. Key design principles"),
+    H1("10. Key design principles"),
     principlesTable(),
     P(""),
 
-    H1("10. Technology stack"),
-    bullet("**Frontend:** Next.js 15 (App Router) · React Server Components · TypeScript (strict) · Tailwind CSS (VE = blue, VR = emerald)"),
+    H1("11. Technology stack"),
+    bullet("**Frontend:** Next.js 15 (App Router) · React Server Components · TypeScript (strict) · Tailwind CSS (VE = blue, VR = emerald, CS = cyan)"),
     bullet("**Application:** server actions + REST API · zod validation · finance engine (ROI · payback · NPV · IRR · LCC)"),
-    bullet("**Data:** Prisma 6 · PostgreSQL — the VE↔VR relational graph"),
+    bullet("**Data:** Prisma 6 · PostgreSQL — the VE↔VR↔CS relational graph"),
     bullet("**Auth:** Auth.js (NextAuth v5) credentials, JWT sessions, edge-safe middleware · capability-based RBAC"),
     bullet("**AI (optional):** Anthropic API, structured outputs, starter text with a template fallback"),
     bullet("**Exports:** docx (Word business case & VRP/QBR) · exceljs (Excel KPI workbook)"),
 
-    H1("11. What's built"),
-    P("A complete Phase-1 platform: the 8-phase VE Job Plan with function analysis, a FAST diagram, a weighted evaluation matrix and inline editing throughout; a live business-case builder with the finance engine, multi-currency (ZAR default), version history and Word export; the first-class VE→VR handover; the 7-phase realization lifecycle with work packages, adoption plan, KPI tracker and benefits realization; portfolio and KPI dashboards; three industry profiles; real Auth.js login with role-based access; and self-service registration with admin team management including owner reassignment."),
-    P([new TextRun({ text: "The Value Lifecycle Platform — one workspace that turns approved value into proven value, with a first-class handover so nothing is lost between the two.", italics: true, color: GREY })]),
+    H1("12. What's built"),
+    P("A complete platform across all three pillars: the 8-phase VE Job Plan with function analysis, a FAST diagram, a weighted evaluation matrix and inline editing throughout; a live business-case builder with the finance engine, multi-currency, version history and Word export; the first-class VE→VR handover plus standalone VR tracks (software already in place); the 7-phase realization lifecycle with work packages, adoption plan, KPI tracker and benefits realization; the Customer Success pillar — per-account engagements, the 8-stage lifecycle, a weighted health scorecard, attention signals, stakeholder map, action log, renewal/growth plans, AI-assisted EBRs and an Account Success Review export; portfolio and KPI dashboards (with a CS lens); real Auth.js login with role-based access; self-service registration with admin team management including owner reassignment; and Excel capture-workbooks with an importer for all three pillars."),
+    P([new TextRun({ text: "The Value Lifecycle Platform — one workspace that turns approved value into proven value and proven value into a retained, growing relationship.", italics: true, color: GREY })]),
   ];
 
   const doc = new Document({
