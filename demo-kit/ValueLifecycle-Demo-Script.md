@@ -16,6 +16,7 @@ A timed, click-by-click script for a **20–25 minute** live demo. It tells one 
 | Value Engineer login | `ve@demo.app` · `demo1234` |
 | Reviewer login | `reviewer@demo.app` · `demo1234` |
 | Realization Manager login | `vrm@demo.app` · `demo1234` |
+| Customer Success login | `cs@demo.app` · `demo1234` |
 | Admin login | `admin@demo.app` · `demo1234` |
 | Hero study (construction, handed over) | `VE-2026-014` → track `VR-2026-014` |
 | Ready-to-hand-over study (SaaS) | `VE-2026-021` |
@@ -143,6 +144,20 @@ Contrast it with the handover track from section 5: one was *born from a study*,
 
 ---
 
+## 6c · Customer Success — the continuing relationship *(2 min · optional)*
+
+Realization proves *one* initiative and closes out; **Customer Success** keeps the whole account healthy through renewal and expansion. Switch to **Customer Success** as `cs@demo.app`.
+
+1. On the **Customer Success workspace**, point at the two engagements and their **attention badges** (health, renewal countdown, at-risk).
+2. Open **Retail Bank** — walk the **8-stage lifecycle** stepper, then the **value tiles surfaced from the linked VR track** (the key line): *"the value lives on the track; Customer Success references it, it never re-enters it."*
+3. Show the **Health Scorecard** (five weighted factors → a RAG band), the **Stakeholder Map**, and the **Action Log**.
+4. Click **Generate EBR** — an executive narrative (AI, or a template fallback) is drafted from the account's data, and its next-best-actions drop straight into the Action Log. Then **Export account review**.
+5. Back on the **Portfolio**, point at the **Customer Success lens** — health distribution, upcoming renewals, and the needs-attention list.
+
+> "Sell it, prove it, keep it. The handover turns approved value into proven value; Customer Success turns proven value into a renewed, growing relationship — one workspace, each layer referencing the one beneath it."
+
+---
+
 ## 7 · Multi-tenant & roles (1–2 min · optional)
 
 If your audience cares about running this as a product or across teams:
@@ -171,6 +186,7 @@ Leave the **Portfolio** on screen for the discussion.
 |---|---|
 | "We already have a PM / PPM tool." | "Those track *tasks and schedules.* This tracks *value* — the function analysis, the business case, and the realized-vs-planned reconciliation a PM tool doesn't model. It complements delivery tooling; it doesn't replace it." |
 | "The customer already owns the software — there's no new deal to engineer." | "Then start a **standalone realization track**: skip VE and the handover, and run the same 7-phase lifecycle to protect and prove value on what they already run — ideal for **renewals and adoption rescues** (section 6b)." |
+| "How is this different from our CRM / Customer Success tool?" | "It doesn't replace the CRM — it's the value spine underneath it. The Customer Success engagement here **references the actual VE studies and VR tracks**, so health, renewal and expansion conversations are grounded in proven value, not just activity metrics (section 6c)." |
 | "Do we have to use the AI?" | "No. Every AI touch is a starter-text convenience with a template fallback — the whole platform works with AI switched off, and AI never saves anything on its own." |
 | "Our industry isn't one of the three." | "Industry is configuration. A new profile — study types, cost drivers, value levers, default KPIs — is a data file plus a re-seed. The engine doesn't change." |
 | "How do we know the realized numbers are honest?" | "They're measured against the baselines captured at handover, and every change is versioned and audit-logged. Soft baselines flatter the numbers — so the tool makes the baseline explicit and traceable." |
@@ -190,6 +206,7 @@ Leave the **Portfolio** on screen for the discussion.
 | 5 · Handover | 3 | 16 |
 | 6 · Proving the value | 3 | 19 |
 | 6b · Standalone realization *(optional)* | +1–2 | — |
+| 6c · Customer Success *(optional)* | +2 | — |
 | 7 · Multi-tenant & roles | 2 | 21 |
 | 8 · Close | 1 | 22 |
 
