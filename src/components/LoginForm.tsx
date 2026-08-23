@@ -8,6 +8,7 @@ const DEMO_PASSWORD = "demo1234";
 const DEMO_USERS = [
   { email: "ve@demo.app", name: "Dana Okafor", role: "Value Engineer" },
   { email: "vrm@demo.app", name: "Marco Ruiz", role: "Value Realization Manager" },
+  { email: "cs@demo.app", name: "Thabo Nkosi", role: "Customer Success Manager" },
   { email: "reviewer@demo.app", name: "Priya Nair", role: "Reviewer" },
   { email: "viewer@demo.app", name: "Sam Lee", role: "Stakeholder / Viewer" },
   { email: "admin@demo.app", name: "Admin", role: "Administrator" },
