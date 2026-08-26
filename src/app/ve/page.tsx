@@ -64,7 +64,7 @@ export default async function VeWorkspace() {
                   {s._count.recommendations} recs · {s._count.alternatives} alternatives
                   {s.tracks.length > 0 && <span className="text-vr-600"> · {s.tracks.length} VR</span>}
                 </span>
-                <span className="font-semibold text-ink-800"><Money value={s.estimatedValue} /></span>
+                <span className="font-semibold text-ink-800"><Money value={s.estimatedValue} currency={s.currency} /></span>
               </div>
             </Link>
           );

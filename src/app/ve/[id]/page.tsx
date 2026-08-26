@@ -280,7 +280,7 @@ export default async function StudyPage({
             {study.businessCase ? (
               <dl className="space-y-2 text-sm">
                 <Row k="ROI" v={study.businessCase.roiPct != null ? `${study.businessCase.roiPct.toFixed(0)}%` : "—"} />
-                <Row k="Payback" v={study.businessCase.paybackMonths != null ? `${study.businessCase.paybackMonths} mo` : "—"} />
+                <Row k="Payback" v={study.businessCase.paybackMonths != null ? `${study.businessCase.paybackMonths.toFixed(1)} mo` : "—"} />
                 <Row k="NPV" v={fmtMoney(study.businessCase.npv, study.currency)} />
                 <Row k="IRR" v={study.businessCase.irrPct != null ? `${study.businessCase.irrPct.toFixed(0)}%` : "—"} />
                 <div className="pt-2">
