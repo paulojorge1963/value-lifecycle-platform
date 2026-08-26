@@ -264,6 +264,9 @@ async function importVR(wb: ExcelJS.Workbook) {
     if (ap) for (const a of acts) if (str(a["Activity"])) await tx.adoptionActivity.create({ data: { adoptionPlanId: ap.id, label: String(a["Activity"]), audience: str(a["Audience / who's impacted"]), status: (str(a["Status"]) as any) ?? "NOT_STARTED", dueDate: date(a["Due"]), order: ao++ } });
     // benefits
     for (const b of benefits) if (str(b["Benefit"])) await tx.benefit.create({ data: { trackId: track.id, label: String(b["Benefit"]), category: (str(b["Category"]) as any) ?? "COST_SAVING", plannedValue: num(b["Planned value"]) ?? 0, realizedValue: num(b["Realized value"]) ?? 0, currency } });
+    // roll the realized benefit total up to the track so the value tiles reflect it on import
+    const realizedTotal = benefits.reduce((s, b) => s + (num(b["Realized value"]) ?? 0), 0);
+    if (realizedTotal > 0) await tx.realizationTrack.update({ where: { id: track.id }, data: { realizedValue: realizedTotal } });
     // risks
     for (const r of risks) if (str(r["Risk / issue"])) await tx.riskItem.create({ data: { trackId: track.id, title: String(r["Risk / issue"]).slice(0, 120), description: str(r["Risk / issue"]), likelihood: num(r["Likelihood (1–5)"]) ?? undefined, impact: num(r["Impact (1–5)"]) ?? undefined, mitigation: str(r["Mitigation"]), status: (str(r["Status"]) as any) ?? "OPEN" } });
     // lessons
