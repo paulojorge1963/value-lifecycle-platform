@@ -44,7 +44,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     ...track.workPackages.map((w) => new TableRow({ children: [cell(w.name), cell(w.recommendation?.title ?? "—"), cell(w.dueDate ? new Date(w.dueDate).toLocaleDateString() : "—"), cell(w.status.toLowerCase())] })),
   ];
 
-  const qbr = track.reports[0]?.content as { executiveStory?: string; nextBestActions?: string[]; expansion?: string } | undefined;
+  const qbr = track.reports[0]?.content as { executiveStory?: string; nextBestActions?: string[] | string; expansion?: string } | undefined;
+  const nextBestActions: string[] = Array.isArray(qbr?.nextBestActions)
+    ? qbr!.nextBestActions
+    : qbr?.nextBestActions
+      ? String(qbr.nextBestActions).split(/\s*;\s*/).filter(Boolean)
+      : [];
 
   const doc = new Document({
     sections: [
@@ -81,7 +86,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
           h("QBR / EBR — executive value story"),
           p(qbr?.executiveStory ?? "—"),
-          ...(qbr?.nextBestActions ?? []).map((a) => bullet(`Next best action: ${a}`)),
+          ...nextBestActions.map((a) => bullet(`Next best action: ${a}`)),
           ...(qbr?.expansion ? [bullet(`Expansion opportunity: ${qbr.expansion}`)] : []),
         ],
       },

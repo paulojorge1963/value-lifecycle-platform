@@ -274,7 +274,7 @@ async function importVR(wb: ExcelJS.Workbook) {
     // QBR notes → a value report (optional)
     const qbr = wb.getWorksheet("8. QBR notes");
     const summary = str(kv(qbr, "Realized vs planned (summary)"));
-    if (summary) await tx.valueReport.create({ data: { trackId: track.id, kind: "QUARTERLY_QBR" as any, title: "QBR — imported", content: { executiveStory: summary, wins: str(kv(qbr, "Wins")), risks: str(kv(qbr, "Risks / blockers")), expansion: str(kv(qbr, "Renewal / expansion signal")), nextBestActions: str(kv(qbr, "Actions & owners")) } as Prisma.InputJsonValue } });
+    if (summary) { const actions = str(kv(qbr, "Actions & owners")); await tx.valueReport.create({ data: { trackId: track.id, kind: "QUARTERLY_QBR" as any, title: "QBR — imported", content: { executiveStory: summary, wins: str(kv(qbr, "Wins")), risks: str(kv(qbr, "Risks / blockers")), expansion: str(kv(qbr, "Renewal / expansion signal")), nextBestActions: actions ? actions.split(/\s*;\s*/).filter(Boolean) : [] } as Prisma.InputJsonValue } }); }
     await tx.auditEvent.create({ data: { action: "track.imported", entityType: "RealizationTrack", entityId: track.id, trackId: track.id, actorId: ownerId, metadata: { source: "workbook-import", origin: isHandover ? "VE_HANDOVER" : "STANDALONE" } } });
     console.log(`\n✓ Imported track ${code} (${track.id}).`);
   }, { timeout: 60000 });
