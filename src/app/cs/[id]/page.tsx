@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
-import { CsStageControl, CsHealthControl, LinkPicker, UnlinkButton } from "@/components/CsControls";
+import { CsStageControl, CsHealthControl, LinkPicker, UnlinkButton, DeleteEngagementButton } from "@/components/CsControls";
 import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPlanForm, SuccessPlanForm, ReportsPanel } from "@/components/CsPanels";
 import { CS_STAGES, CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
 import { computeSignals } from "@/lib/cs-signals";
@@ -45,6 +45,7 @@ export default async function EngagementPage({
   if (!e) notFound();
 
   const canEdit = can(user.role, "cs.edit");
+  const canDelete = can(user.role, "cs.delete");
 
   // Unlinked studies/tracks in this org, available to attach.
   const [freeStudies, freeTracks] = await Promise.all([
@@ -100,6 +101,7 @@ export default async function EngagementPage({
         <div className="flex items-center gap-2">
           <a href={`/api/export/cs/${e.id}`} className="btn-ghost">Export account review ↓</a>
           <CsHealthControl engagementId={e.id} health={e.healthOverall} canEdit={canEdit} />
+          <DeleteEngagementButton engagementId={e.id} code={e.code} canDelete={canDelete} />
         </div>
       </div>
 

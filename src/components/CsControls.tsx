@@ -5,7 +5,30 @@ import { useRouter } from "next/navigation";
 import {
   setEngagementStageStatus, updateEngagementHealth,
   linkTrackToEngagement, linkStudyToEngagement, unlinkTrack, unlinkStudy,
+  deleteEngagement,
 } from "@/lib/cs-actions";
+
+export function DeleteEngagementButton({ engagementId, code, canDelete }: { engagementId: string; code: string; canDelete: boolean }) {
+  const [pending, start] = useTransition();
+  const router = useRouter();
+  if (!canDelete) return null;
+  return (
+    <button
+      className="btn-ghost text-red-600 hover:bg-red-50"
+      disabled={pending}
+      onClick={() => {
+        if (!window.confirm(`Delete engagement ${code}?\n\nThis permanently removes its stages, stakeholders, actions, health history, renewal/growth plans and reports. Any linked VE studies and VR tracks are kept (they are simply unlinked). This cannot be undone.`)) return;
+        start(async () => {
+          await deleteEngagement(engagementId);
+          router.push("/cs");
+          router.refresh();
+        });
+      }}
+    >
+      {pending ? "Deleting…" : "Delete engagement"}
+    </button>
+  );
+}
 
 export function CsStageControl({ engagementId, stage, status, canEdit }: { engagementId: string; stage: string; status: string; canEdit: boolean }) {
   const [pending, start] = useTransition();

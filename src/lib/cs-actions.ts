@@ -64,6 +64,29 @@ export async function createEngagement(formData: FormData) {
   return engagement.id;
 }
 
+export async function deleteEngagement(id: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.delete")) throw new Error("Not permitted");
+
+  const e = await prisma.customerSuccessEngagement.findFirst({
+    where: { id, organizationId: user.organizationId },
+    select: { id: true, code: true, accountName: true },
+  });
+  if (!e) throw new Error("Engagement not found");
+
+  // The engagement only *references* VE studies and VR tracks — they are the source
+  // of truth and must never be deleted with it, only unlinked.
+  await prisma.study.updateMany({ where: { engagementId: id }, data: { engagementId: null } });
+  await prisma.realizationTrack.updateMany({ where: { engagementId: id }, data: { engagementId: null } });
+
+  // Stages, stakeholders, actions, health scores, renewal/growth plans and reports
+  // cascade-delete with the engagement.
+  await prisma.customerSuccessEngagement.delete({ where: { id } });
+
+  await audit("engagement.deleted", id, { code: e.code, accountName: e.accountName });
+  revalidatePath("/cs");
+}
+
 export async function setEngagementStageStatus(engagementId: string, stage: string, status: string) {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
