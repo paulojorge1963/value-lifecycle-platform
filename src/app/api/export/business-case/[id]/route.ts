@@ -28,30 +28,32 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const p = (text: string) => new Paragraph({ children: [new TextRun(text)], spacing: { after: 80 } });
   const bullet = (text: string) => new Paragraph({ text, bullet: { level: 0 } });
 
-  const cell = (text: string, opts: { bold?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
-    new TableCell({
-      width: { size: 25, type: WidthType.PERCENTAGE },
-      children: [new Paragraph({ alignment: opts.align, children: [new TextRun({ text, bold: opts.bold })] })],
-    });
+  // Fixed DXA column widths so tables render with real proportions (not squished).
+  const R = AlignmentType.RIGHT;
+  const FW = [3000, 6000];
+  const CWID = [4000, 2200, 1000, 1800];
+  const gcell = (text: string, w: number, opts: { bold?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
+    new TableCell({ width: { size: w, type: WidthType.DXA }, children: [new Paragraph({ alignment: opts.align, children: [new TextRun({ text, bold: opts.bold })] })] });
+  const gtable = (widths: number[], rows: TableRow[]) =>
+    new Table({ columnWidths: widths, width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA }, rows });
+  const finRow = (label: string, value: string) => new TableRow({ children: [gcell(label, FW[0]), gcell(value, FW[1], { align: R })] });
 
-  const finTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      new TableRow({ children: [cell("Metric", { bold: true }), cell("Value", { bold: true, align: AlignmentType.RIGHT })] }),
-      new TableRow({ children: [cell("Total investment"), cell(fmtMoney(fin.totalInvestment, cur), { align: AlignmentType.RIGHT })] }),
-      new TableRow({ children: [cell("Annual net benefit"), cell(fmtMoney(fin.annualNetBenefit, cur), { align: AlignmentType.RIGHT })] }),
-      new TableRow({ children: [cell("ROI"), cell(fmtPct(fin.roiPct), { align: AlignmentType.RIGHT })] }),
-      new TableRow({ children: [cell("Payback"), cell(fin.paybackMonths != null ? `${fin.paybackMonths.toFixed(1)} months` : "—", { align: AlignmentType.RIGHT })] }),
-      new TableRow({ children: [cell(`NPV @ ${bc?.discountRatePct ?? 10}%`), cell(fmtMoney(fin.npv, cur), { align: AlignmentType.RIGHT })] }),
-      new TableRow({ children: [cell("IRR"), cell(fmtPct(fin.irrPct), { align: AlignmentType.RIGHT })] }),
-    ],
-  });
+  const finTable = gtable(FW, [
+    new TableRow({ children: [gcell("Metric", FW[0], { bold: true }), gcell("Value", FW[1], { bold: true, align: R })] }),
+    finRow("Total investment", fmtMoney(fin.totalInvestment, cur)),
+    finRow("Annual net benefit", fmtMoney(fin.annualNetBenefit, cur)),
+    finRow("ROI", fmtPct(fin.roiPct)),
+    finRow("Payback", fin.paybackMonths != null ? `${fin.paybackMonths.toFixed(1)} months` : "—"),
+    finRow(`NPV @ ${bc?.discountRatePct ?? 10}%`, fmtMoney(fin.npv, cur)),
+    finRow("IRR", fmtPct(fin.irrPct)),
+  ]);
 
   const costRows = [
-    new TableRow({ children: [cell("Line item", { bold: true }), cell("Type", { bold: true }), cell("Year", { bold: true }), cell("Amount", { bold: true, align: AlignmentType.RIGHT })] }),
-    ...(bc?.costItems ?? []).map((c) =>
-      new TableRow({ children: [cell(c.label), cell(c.kind.toLowerCase() + (c.recurring ? " (recurring)" : "")), cell(String(c.year ?? "—")), cell(`${c.kind === "BENEFIT" ? "+" : "−"}${fmtMoney(c.amount, cur)}`, { align: AlignmentType.RIGHT })] })
-    ),
+    new TableRow({ children: ["Line item", "Type", "Year", "Amount"].map((t, i) => gcell(t, CWID[i], { bold: true, align: i === 3 ? R : undefined })) }),
+    ...(bc?.costItems ?? []).map((c) => {
+      const vals = [c.label, c.kind.toLowerCase() + (c.recurring ? " (recurring)" : ""), String(c.year ?? "—"), `${c.kind === "BENEFIT" ? "+" : "−"}${fmtMoney(c.amount, cur)}`];
+      return new TableRow({ children: vals.map((v, i) => gcell(v, CWID[i], i === 3 ? { align: R } : {})) });
+    }),
   ];
 
   const doc = new Document({
@@ -76,7 +78,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           ...(bc?.scenarios ?? []).map((s) => bullet(`${s.isBaseline ? "Baseline" : "Proposed"}: ${s.name}${s.description ? " — " + s.description : ""}`)),
 
           h("Cost / benefit"),
-          new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: costRows }),
+          gtable(CWID, costRows),
 
           h("Financials"),
           finTable,

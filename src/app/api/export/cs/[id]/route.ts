@@ -25,7 +25,10 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const h = (t: string) => new Paragraph({ text: t, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 80 } });
   const p = (t: string) => new Paragraph({ children: [new TextRun(t)], spacing: { after: 80 } });
   const bullet = (t: string) => new Paragraph({ text: t, bullet: { level: 0 } });
-  const cell = (t: string, bold = false) => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: t, bold })] })] });
+  // Fixed DXA column widths so tables render with real proportions (not squished).
+  const SW = [3400, 2200, 1400, 2000];
+  const gcell = (t: string, w: number, bold = false) => new TableCell({ width: { size: w, type: WidthType.DXA }, children: [new Paragraph({ children: [new TextRun({ text: t, bold })] })] });
+  const gtable = (widths: number[], rows: TableRow[]) => new Table({ columnWidths: widths, width: { size: widths.reduce((a, b) => a + b, 0), type: WidthType.DXA }, rows });
 
   const planned = e.tracks.reduce((s, t) => s + (t.plannedValue ?? 0), 0);
   const realized = e.tracks.reduce((s, t) => s + (t.realizedValue ?? 0), 0);
@@ -35,8 +38,11 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const sp = (e.successPlan as { commitments?: string; successCriteria?: string; notes?: string } | null) ?? null;
 
   const stakeRows = [
-    new TableRow({ children: [cell("Name", true), cell("Role", true), cell("Influence", true), cell("Sentiment", true)] }),
-    ...e.stakeholders.map((s) => new TableRow({ children: [cell([s.name, s.title].filter(Boolean).join(" — ")), cell(s.role ?? "—"), cell(s.influence ? `${s.influence}/5` : "—"), cell(s.sentiment.toLowerCase())] })),
+    new TableRow({ children: ["Name", "Role", "Influence", "Sentiment"].map((t, i) => gcell(t, SW[i], true)) }),
+    ...e.stakeholders.map((s) => {
+      const vals = [[s.name, s.title].filter(Boolean).join(" — "), s.role ?? "—", s.influence ? `${s.influence}/5` : "—", s.sentiment.toLowerCase()];
+      return new TableRow({ children: vals.map((v, i) => gcell(v, SW[i])) });
+    }),
   ];
 
   const doc = new Document({
@@ -63,7 +69,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         ...factors.map((f) => bullet(`${f.label}: ${f.score}/100`)),
 
         h("Stakeholder map"),
-        ...(e.stakeholders.length ? [new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: stakeRows })] : [p("—")]),
+        ...(e.stakeholders.length ? [gtable(SW, stakeRows)] : [p("—")]),
 
         h("Action log"),
         ...(e.actions.length ? e.actions.map((a) => bullet(`[${a.status.toLowerCase()}] ${a.title}${a.owner ? ` — ${a.owner}` : ""}${a.dueDate ? ` (due ${new Date(a.dueDate).toLocaleDateString()})` : ""}`)) : [p("—")]),
