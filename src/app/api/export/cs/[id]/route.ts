@@ -32,7 +32,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const planned = e.tracks.reduce((s, t) => s + (t.plannedValue ?? 0), 0);
   const realized = e.tracks.reduce((s, t) => s + (t.realizedValue ?? 0), 0);
-  const doneStages = e.stages.filter((s) => s.status === "COMPLETE").length;
+  // Current stage = where the engagement is now (mirrors the CS detail page):
+  // first IN_PROGRESS stage, else the first not-yet-complete stage, else stage 1.
+  const stagesByOrder = [...e.stages].sort((a, b) => a.order - b.order);
+  const currentStage =
+    stagesByOrder.find((s) => s.status === "IN_PROGRESS") ??
+    stagesByOrder.find((s) => s.status !== "COMPLETE") ??
+    stagesByOrder[0];
+  const currentStageNo = currentStage?.order ?? 1;
   const latestHealth = e.healthScores[e.healthScores.length - 1];
   const factors = (latestHealth?.factors as unknown as { label: string; score: number }[]) ?? [];
   const sp = (e.successPlan as { commitments?: string; successCriteria?: string; notes?: string } | null) ?? null;
@@ -50,7 +57,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       children: [
         new Paragraph({ text: "Account Success Review", heading: HeadingLevel.TITLE }),
         new Paragraph({ children: [new TextRun({ text: `${e.code} · ${e.accountName}`, bold: true })] }),
-        p(`Solution: ${e.industry.name} · CSM: ${e.owner.name} · Status: ${e.status} · Health: ${e.healthOverall} · Lifecycle stage ${doneStages}/8`),
+        p(`Solution: ${e.industry.name} · CSM: ${e.owner.name} · Status: ${e.status} · Health: ${e.healthOverall} · Lifecycle stage ${currentStageNo}/8`),
         p(e.arr ? `ARR: ${fmtMoney(e.arr, cur)}${e.renewalDate ? ` · Renewal: ${new Date(e.renewalDate).toLocaleDateString()}` : ""}` : ""),
 
         h("Objectives & success plan"),
