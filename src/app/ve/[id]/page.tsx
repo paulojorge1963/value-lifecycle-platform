@@ -44,6 +44,7 @@ export default async function StudyPage({
       businessCase: { include: { scenarios: true, costItems: true } },
       handover: { orderBy: { order: "asc" } },
       infoItems: { orderBy: { createdAt: "asc" } },
+      engagement: { select: { id: true, code: true, accountName: true } },
       risks: true,
       tracks: true,
       kpiTargets: { include: { definition: true } },
@@ -89,6 +90,11 @@ export default async function StudyPage({
             <span className="badge bg-ve-50 text-ve-700">{study.industry.name}</span>
             {study.studyType && <span className="badge bg-ink-100 text-ink-600">{study.studyType}</span>}
             <span>· Owner {study.owner.name}</span>
+            {study.engagement && (
+              <span>· Referenced by{" "}
+                <Link href={`/cs/${study.engagement.id}`} className="font-medium text-ink-700 hover:underline" title={study.engagement.accountName}>{study.engagement.code}</Link>
+              </span>
+            )}
           </div>
         </div>
         <div className="text-right">

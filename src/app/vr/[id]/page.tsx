@@ -31,6 +31,7 @@ export default async function TrackPage({
       industry: true,
       owner: true,
       study: { include: { businessCase: true } },
+      engagement: { select: { id: true, code: true, accountName: true } },
       phases: true,
       workPackages: { orderBy: { order: "asc" }, include: { recommendation: true } },
       adoptionPlan: { include: { activities: { orderBy: { order: "asc" } } } },
@@ -88,6 +89,11 @@ export default async function TrackPage({
               </span>
             ) : (
               <span>· Standalone (existing software)</span>
+            )}
+            {track.engagement && (
+              <span>· Referenced by{" "}
+                <Link href={`/cs/${track.engagement.id}`} className="font-medium text-ink-700 hover:underline" title={track.engagement.accountName}>{track.engagement.code}</Link>
+              </span>
             )}
           </div>
         </div>
