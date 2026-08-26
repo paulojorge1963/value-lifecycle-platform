@@ -43,6 +43,7 @@ export default async function StudyPage({
       recommendations: { orderBy: { order: "asc" } },
       businessCase: { include: { scenarios: true, costItems: true } },
       handover: { orderBy: { order: "asc" } },
+      infoItems: { orderBy: { createdAt: "asc" } },
       risks: true,
       tracks: true,
       kpiTargets: { include: { definition: true } },
@@ -64,6 +65,8 @@ export default async function StudyPage({
   const tmplContent = tmpl?.content as { requiredInputs: string[]; tasks: string[]; artifacts: string[]; exitCriteria: string[] } | undefined;
 
   const acceptedCount = study.recommendations.filter((r) => r.status === "ACCEPTED").length;
+  const baselineItems = study.infoItems.filter((i) => i.category !== "stakeholder");
+  const infoStakeholders = study.infoItems.filter((i) => i.category === "stakeholder");
   const canEdit = can(user.role, "study.edit");
   const canDelete = can(user.role, "study.delete");
   const canDecide = can(user.role, "recommendation.accept");
@@ -207,6 +210,55 @@ export default async function StudyPage({
             canDecide={canDecide}
             currency={study.currency}
           />
+
+          {/* Study baseline — information-phase measures & stakeholders captured at discovery */}
+          {study.infoItems.length > 0 && (
+            <div className="card card-pad">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-ink-900">Study baseline</h2>
+                <span className="label">Information phase</span>
+              </div>
+              <p className="mt-1 text-sm text-ink-500">
+                Baseline measures and stakeholders captured during discovery — the reference the business case and value handover are built on.
+              </p>
+              {baselineItems.length > 0 && (
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-ink-400">
+                        <th className="pb-2 pr-3 font-medium">Measure</th>
+                        <th className="pb-2 pr-3 font-medium">Value</th>
+                        <th className="pb-2 font-medium">Source</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {baselineItems.map((it) => (
+                        <tr key={it.id} className="border-t border-ink-100 align-top">
+                          <td className="py-1.5 pr-3 text-ink-700">{it.label}</td>
+                          <td className="py-1.5 pr-3 font-medium text-ink-900 whitespace-nowrap">{it.value}</td>
+                          <td className="py-1.5 text-ink-400">{it.source}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {infoStakeholders.length > 0 && (
+                <div className="mt-4">
+                  <div className="label">Stakeholders</div>
+                  <ul className="mt-1.5 space-y-1.5 text-sm">
+                    {infoStakeholders.map((it) => (
+                      <li key={it.id} className="flex flex-wrap gap-x-2 border-t border-ink-100 pt-1.5">
+                        <span className="font-medium text-ink-900">{it.label}</span>
+                        <span className="text-ink-600">{it.value}</span>
+                        {it.source && <span className="text-ink-400">· {it.source}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Discussion */}
           <CommentThread
