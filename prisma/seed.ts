@@ -95,11 +95,11 @@ async function seedDemo() {
   });
 
   const users = [
-    { id: "u_ve", email: "ve@demo.app", name: "Dana Okafor", title: "Value Engineer", role: "VALUE_ENGINEER" },
-    { id: "u_vrm", email: "vrm@demo.app", name: "Marco Ruiz", title: "Value Realization Manager", role: "VALUE_REALIZATION_MANAGER" },
-    { id: "u_rev", email: "reviewer@demo.app", name: "Priya Nair", title: "Portfolio Reviewer", role: "REVIEWER" },
-    { id: "u_view", email: "viewer@demo.app", name: "Sam Lee", title: "Stakeholder", role: "VIEWER" },
-    { id: "u_csm", email: "cs@demo.app", name: "Thabo Nkosi", title: "Customer Success Manager", role: "CUSTOMER_SUCCESS_MANAGER" },
+    { id: "u_ve", email: "ve@demo.app", name: "Paul Goncalves", title: "Value Engineer", role: "VALUE_ENGINEER" },
+    { id: "u_vrm", email: "vrm@demo.app", name: "Zanele Kanjere", title: "Value Realization Manager", role: "VALUE_REALIZATION_MANAGER" },
+    { id: "u_rev", email: "reviewer@demo.app", name: "Simin Shaw", title: "Portfolio Reviewer", role: "REVIEWER" },
+    { id: "u_view", email: "viewer@demo.app", name: "Geoff Van Den Bosch", title: "Stakeholder", role: "VIEWER" },
+    { id: "u_csm", email: "cs@demo.app", name: "Kefilwe Sesupeng", title: "Customer Success Manager", role: "CUSTOMER_SUCCESS_MANAGER" },
     { id: "u_admin", email: "admin@demo.app", name: "Admin", title: "Administrator", role: "ADMIN" },
   ] as const;
 
@@ -247,7 +247,7 @@ async function seedDemo() {
   // Handover artifacts for study 1
   const handoverData = [
     { type: "EXPECTED_BENEFIT", title: "Automation & consolidation saving", detail: "R1.25M annual saving from licence takeout + failure reduction", data: { plannedValue: 1250000, category: "COST_SAVING" }, order: 0 },
-    { type: "KPI", title: "SLA attainment", detail: "Overnight batch SLA attainment", data: { kpiKey: "sla_attainment", baselineValue: 82, targetValue: 98, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Marco Ruiz" }, order: 1 },
+    { type: "KPI", title: "SLA attainment", detail: "Overnight batch SLA attainment", data: { kpiKey: "sla_attainment", baselineValue: 82, targetValue: 98, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Zanele Kanjere" }, order: 1 },
     { type: "KPI", title: "Job success rate", detail: "First-time job completion rate", data: { kpiKey: "job_success_rate", baselineValue: 94, targetValue: 99.5, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Ops" }, order: 2 },
     { type: "BASELINE", title: "Baseline annual scheduling cost", detail: "R3.2M legacy scheduler + rerun cost", data: { value: 3200000 }, order: 3 },
     { type: "SUCCESS_CRITERION", title: "No missed regulatory SLAs", detail: "Zero missed regulatory-reporting SLAs post-cutover", order: 4 },
@@ -261,7 +261,7 @@ async function seedDemo() {
 
   // KPI targets on the study (VE planned)
   await prisma.kpiTarget.create({
-    data: { kpiKey: "cost_savings", studyId: s1.id, baselineValue: 3200000, targetValue: 1250000, unit: "USD", frequency: "once", dataSource: "Cost model", ownerName: "Dana Okafor" },
+    data: { kpiKey: "cost_savings", studyId: s1.id, baselineValue: 3200000, targetValue: 1250000, unit: "USD", frequency: "once", dataSource: "Cost model", ownerName: "Paul Goncalves" },
   });
 
   // Discussion on study 1
@@ -356,7 +356,7 @@ async function seedDemo() {
 
   // KPI targets + actuals on the track (VR realized)
   await prisma.kpiTarget.create({
-    data: { kpiKey: "sla_attainment", trackId: t1.id, baselineValue: 82, targetValue: 98, unit: "%", frequency: "monthly", dataSource: "Control-M", ownerName: "Marco Ruiz",
+    data: { kpiKey: "sla_attainment", trackId: t1.id, baselineValue: 82, targetValue: 98, unit: "%", frequency: "monthly", dataSource: "Control-M", ownerName: "Zanele Kanjere",
       actuals: { create: [
         { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 90 },
         { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 94 },
@@ -365,7 +365,7 @@ async function seedDemo() {
     },
   });
   await prisma.kpiTarget.create({
-    data: { kpiKey: "on_time_implementation", trackId: t1.id, baselineValue: 0, targetValue: 90, unit: "%", frequency: "monthly", dataSource: "Plan", ownerName: "Marco Ruiz",
+    data: { kpiKey: "on_time_implementation", trackId: t1.id, baselineValue: 0, targetValue: 90, unit: "%", frequency: "monthly", dataSource: "Plan", ownerName: "Zanele Kanjere",
       actuals: { create: [
         { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 100 },
         { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 95 },
@@ -448,7 +448,7 @@ async function seedDemo() {
   });
 
   await prisma.kpiTarget.create({
-    data: { kpiKey: "roi_pct", studyId: s2.id, baselineValue: 0, targetValue: 71, unit: "%", frequency: "once", dataSource: "Business case", ownerName: "Dana Okafor" },
+    data: { kpiKey: "roi_pct", studyId: s2.id, baselineValue: 0, targetValue: 71, unit: "%", frequency: "once", dataSource: "Business case", ownerName: "Paul Goncalves" },
   });
 
   // --- Standalone realization track: existing BMC Helix estate, no VE study ---
@@ -520,7 +520,7 @@ async function seedDemo() {
 
   // KPI targets + actuals baselined from the live deployment (no study to inherit from)
   await prisma.kpiTarget.create({
-    data: { kpiKey: "mttr", trackId: t2.id, baselineValue: 6.5, targetValue: 3.0, unit: "hours", frequency: "monthly", dataSource: "BMC Helix", ownerName: "Marco Ruiz",
+    data: { kpiKey: "mttr", trackId: t2.id, baselineValue: 6.5, targetValue: 3.0, unit: "hours", frequency: "monthly", dataSource: "BMC Helix", ownerName: "Zanele Kanjere",
       actuals: { create: [
         { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 6.2 },
         { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 5.1, note: "AIOps correlation cutting event noise." },
@@ -529,7 +529,7 @@ async function seedDemo() {
     },
   });
   await prisma.kpiTarget.create({
-    data: { kpiKey: "ticket_deflection", trackId: t2.id, baselineValue: 12, targetValue: 35, unit: "%", frequency: "monthly", dataSource: "BMC Helix", ownerName: "Marco Ruiz",
+    data: { kpiKey: "ticket_deflection", trackId: t2.id, baselineValue: 12, targetValue: 35, unit: "%", frequency: "monthly", dataSource: "BMC Helix", ownerName: "Zanele Kanjere",
       actuals: { create: [
         { periodLabel: "2026-07", periodDate: new Date("2026-07-31"), value: 14 },
         { periodLabel: "2026-08", periodDate: new Date("2026-08-31"), value: 21 },
@@ -581,9 +581,9 @@ async function seedDemo() {
     { engagementId: eng1.id, name: "Batch operations lead", title: "Operations", role: "User lead", influence: 3, sentiment: "PROMOTER" },
   ] });
   await prisma.actionItem.createMany({ data: [
-    { engagementId: eng1.id, title: "Confirm Q4 renewal stakeholders", owner: "Thabo Nkosi", status: "IN_PROGRESS", dueDate: new Date("2026-10-15") },
-    { engagementId: eng1.id, title: "Decommission last legacy scheduler", owner: "Marco Ruiz", status: "IN_PROGRESS", dueDate: new Date("2026-09-30") },
-    { engagementId: eng1.id, title: "Draft expansion case (Control-M for Data)", owner: "Thabo Nkosi", status: "OPEN" },
+    { engagementId: eng1.id, title: "Confirm Q4 renewal stakeholders", owner: "Kefilwe Sesupeng", status: "IN_PROGRESS", dueDate: new Date("2026-10-15") },
+    { engagementId: eng1.id, title: "Decommission last legacy scheduler", owner: "Zanele Kanjere", status: "IN_PROGRESS", dueDate: new Date("2026-09-30") },
+    { engagementId: eng1.id, title: "Draft expansion case (Control-M for Data)", owner: "Kefilwe Sesupeng", status: "OPEN" },
   ] });
   await prisma.renewalPlan.create({ data: { engagementId: eng1.id, renewalDate: new Date("2026-12-15"), stage: "3 months out", valueSummary: "R690k realized of R1.25M; overnight SLAs restored.", risks: "One legacy scheduler still live.", procurementStatus: "Not yet engaged", plannedActions: "Book renewal EBR; finalise the value story." } });
   await prisma.growthPlan.create({ data: { engagementId: eng1.id, triggers: "Data-pipeline growth; MFT consolidation", targetValue: 900000, narrative: "Expand Control-M into data workflows and managed file transfer." } });
@@ -603,8 +603,8 @@ async function seedDemo() {
     { engagementId: eng2.id, name: "CIO office", title: "Economic buyer", role: "Sponsor", influence: 5, sentiment: "DETRACTOR" },
   ] });
   await prisma.actionItem.createMany({ data: [
-    { engagementId: eng2.id, title: "Accelerate self-service deflection", owner: "Thabo Nkosi", status: "IN_PROGRESS", dueDate: new Date("2026-10-10") },
-    { engagementId: eng2.id, title: "Executive alignment call with CIO", owner: "Thabo Nkosi", status: "OPEN", dueDate: new Date("2026-10-05") },
+    { engagementId: eng2.id, title: "Accelerate self-service deflection", owner: "Kefilwe Sesupeng", status: "IN_PROGRESS", dueDate: new Date("2026-10-10") },
+    { engagementId: eng2.id, title: "Executive alignment call with CIO", owner: "Kefilwe Sesupeng", status: "OPEN", dueDate: new Date("2026-10-05") },
   ] });
   await prisma.renewalPlan.create({ data: { engagementId: eng2.id, renewalDate: new Date("2026-10-30"), stage: "1 month out", valueSummary: "Value behind plan; deflection ramp slow.", risks: "CIO sentiment negative; deflection below target.", procurementStatus: "In progress", plannedActions: "EBR with value story; deflection remediation plan." } });
   await prisma.growthPlan.create({ data: { engagementId: eng2.id, triggers: "AIOps expansion; Discovery", targetValue: 600000, narrative: "Expand into AIOps and Discovery once deflection stabilises." } });
