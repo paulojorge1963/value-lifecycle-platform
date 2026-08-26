@@ -145,6 +145,17 @@ export const KPI_CATALOG: KpiDef[] = [
     scope: "track",
   },
   {
+    key: "task_utilization",
+    name: "Licence / capacity utilization",
+    description: "Share of licensed capacity (e.g. tasks, seats, units) actually used — proves value from what was purchased and flags right-sizing headroom.",
+    discipline: "VR",
+    category: "COST_SAVING",
+    unit: "%",
+    direction: "HIGHER_IS_BETTER",
+    formula: "(capacity_used / capacity_licensed) * 100",
+    scope: "track",
+  },
+  {
     key: "time_to_value",
     name: "Time-to-value",
     description: "Time from approval to first measurable benefit.",
