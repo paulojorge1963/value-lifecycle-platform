@@ -165,7 +165,7 @@ export default async function StudyPage({
           )}
 
           {/* Function model — inline editable */}
-          <FunctionEditor studyId={study.id} functions={study.functions} canEdit={canEdit} />
+          <FunctionEditor studyId={study.id} functions={study.functions} canEdit={canEdit} currency={study.currency} />
 
           {/* FAST diagram — how/why logic tree from the function chain */}
           <FastDiagram functions={study.functions} />
@@ -205,6 +205,7 @@ export default async function StudyPage({
             aiEnabled={aiEnabled}
             canEdit={canEdit}
             canDecide={canDecide}
+            currency={study.currency}
           />
 
           {/* Discussion */}
@@ -228,7 +229,7 @@ export default async function StudyPage({
               <dl className="space-y-2 text-sm">
                 <Row k="ROI" v={study.businessCase.roiPct != null ? `${study.businessCase.roiPct.toFixed(0)}%` : "—"} />
                 <Row k="Payback" v={study.businessCase.paybackMonths != null ? `${study.businessCase.paybackMonths} mo` : "—"} />
-                <Row k="NPV" v={fmtMoney(study.businessCase.npv)} />
+                <Row k="NPV" v={fmtMoney(study.businessCase.npv, study.currency)} />
                 <Row k="IRR" v={study.businessCase.irrPct != null ? `${study.businessCase.irrPct.toFixed(0)}%` : "—"} />
                 <div className="pt-2">
                   <Link href={`/ve/${study.id}/business-case`} className="btn-ve w-full justify-center">Open builder</Link>

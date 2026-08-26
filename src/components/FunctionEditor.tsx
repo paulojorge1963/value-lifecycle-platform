@@ -24,7 +24,7 @@ function numOrNull(v: string): number | null {
   return v.trim() === "" ? null : Number(v);
 }
 
-export function FunctionEditor({ studyId, functions, canEdit }: { studyId: string; functions: Fn[]; canEdit: boolean }) {
+export function FunctionEditor({ studyId, functions, canEdit, currency }: { studyId: string; functions: Fn[]; canEdit: boolean; currency?: string }) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>({ verb: "", noun: "", kind: "SECONDARY", cost: null, worth: null, parentId: null });
@@ -157,8 +157,8 @@ export function FunctionEditor({ studyId, functions, canEdit }: { studyId: strin
                     )}
                   </td>
                   <td className="td"><span className={`badge ${f.kind === "BASIC" ? "bg-ve-100 text-ve-700" : "bg-ink-100 text-ink-600"}`}>{f.kind.toLowerCase()}</span></td>
-                  <td className="td text-right">{fmtMoney(f.cost)}</td>
-                  <td className="td text-right">{fmtMoney(f.worth)}</td>
+                  <td className="td text-right">{fmtMoney(f.cost, currency)}</td>
+                  <td className="td text-right">{fmtMoney(f.worth, currency)}</td>
                   <td className={`td text-right font-medium ${poor ? "text-amber-700" : "text-ink-600"}`}>{idx ? idx.toFixed(2) : "—"}</td>
                   {canEdit && (
                     <td className="td">

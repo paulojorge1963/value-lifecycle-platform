@@ -38,6 +38,7 @@ export function RecommendationEditor({
   aiEnabled = false,
   canEdit,
   canDecide,
+  currency,
 }: {
   studyId: string;
   recommendations: Rec[];
@@ -45,6 +46,7 @@ export function RecommendationEditor({
   aiEnabled?: boolean;
   canEdit: boolean;
   canDecide: boolean;
+  currency?: string;
 }) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -206,7 +208,7 @@ export function RecommendationEditor({
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="text-sm text-ink-500">
-                  Value <b className="text-ink-800">{fmtMoney(r.estimatedValue)}</b> · Cost {fmtMoney(r.estimatedCost)}
+                  Value <b className="text-ink-800">{fmtMoney(r.estimatedValue, currency)}</b> · Cost {fmtMoney(r.estimatedCost, currency)}
                 </div>
                 <div className="flex items-center gap-2">
                   <RecommendationStatusControl id={r.id} studyId={studyId} status={r.status} canDecide={canDecide} />

@@ -56,7 +56,7 @@ export default async function VrWorkspace() {
               <div className="mt-4">
                 <div className="mb-1 flex justify-between text-xs text-ink-500">
                   <span>Realized vs planned</span>
-                  <span>{fmtMoney(t.realizedValue)} / {fmtMoney(t.plannedValue)}</span>
+                  <span>{fmtMoney(t.realizedValue, t.currency)} / {fmtMoney(t.plannedValue, t.currency)}</span>
                 </div>
                 <ProgressBar pct={pct} accent="vr" />
               </div>

@@ -267,7 +267,7 @@ export default async function TrackPage({
                 <div key={b.id}>
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-ink-800">{b.label}</span>
-                    <span className="text-ink-500">{fmtMoney(b.realizedValue)} / {fmtMoney(b.plannedValue)}</span>
+                    <span className="text-ink-500">{fmtMoney(b.realizedValue, track.currency)} / {fmtMoney(b.plannedValue, track.currency)}</span>
                   </div>
                   <div className="mt-1.5"><BenefitInput id={b.id} trackId={track.id} planned={b.plannedValue} realized={b.realizedValue} canEdit={canKpi} /></div>
                 </div>
