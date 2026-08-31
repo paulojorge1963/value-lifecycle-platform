@@ -166,6 +166,28 @@ export const KPI_CATALOG: KpiDef[] = [
     formula: "first_benefit_date - approval_date",
     scope: "track",
   },
+  {
+    key: "dev_productivity",
+    name: "Developer productivity",
+    description: "Developer output relative to a baseline (index, baseline = 100) — higher is better. Captures uplift from modern tooling, GenAI code assistance and reduced toil.",
+    discipline: "VR",
+    category: "TIME_SAVING",
+    unit: "index",
+    direction: "HIGHER_IS_BETTER",
+    formula: "(output_per_developer / baseline_output) * 100",
+    scope: "track",
+  },
+  {
+    key: "onboarding_time",
+    name: "New-developer onboarding time",
+    description: "Time for a new developer to reach full productivity — lower is better. Shrinks with modern developer experience, familiar IDEs and GenAI code understanding.",
+    discipline: "VR",
+    category: "TIME_SAVING",
+    unit: "months",
+    direction: "LOWER_IS_BETTER",
+    formula: "months_to_full_productivity",
+    scope: "track",
+  },
 
   // ---- VR outcome-level ----
   {
