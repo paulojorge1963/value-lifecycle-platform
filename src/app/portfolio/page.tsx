@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, can } from "@/lib/session";
 import { StatTile, StatusBadge, HealthPill, Money, SectionHeader, ProgressBar } from "@/components/ui";
+import { ImportWorkbook } from "@/components/ImportWorkbook";
 import { fmtMoney, fmtPct, fmtDate } from "@/lib/finance";
 import { computeSignals, attentionScore } from "@/lib/cs-signals";
 
@@ -73,6 +74,11 @@ export default async function PortfolioPage() {
       <SectionHeader
         title="Value Portfolio"
         desc="Combined view for leaders — planned value from VE studies, realized value from VR tracks."
+        action={
+          can(user.role, "study.create") || can(user.role, "track.create") || can(user.role, "cs.create") ? (
+            <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+          ) : null
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
