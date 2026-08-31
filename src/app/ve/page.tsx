@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, Money, SectionHeader, ProgressBar } from "@/components/ui";
 import { NewStudyForm } from "@/components/NewStudyForm";
+import { ImportWorkbook } from "@/components/ImportWorkbook";
 import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
 
 export const dynamic = "force-dynamic";
@@ -28,10 +29,13 @@ export default async function VeWorkspace() {
         desc="Run structured VE studies through the 8-phase Job Plan and build the business case."
         action={
           can(user.role, "study.create") ? (
-            <NewStudyForm
-              industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))}
-              studyTypesByIndustry={studyTypesByIndustry}
-            />
+            <div className="flex items-center gap-2">
+              <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+              <NewStudyForm
+                industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))}
+                studyTypesByIndustry={studyTypesByIndustry}
+              />
+            </div>
           ) : null
         }
       />

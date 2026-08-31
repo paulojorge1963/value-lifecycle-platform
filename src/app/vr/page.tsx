@@ -5,6 +5,7 @@ import { StatusBadge, HealthPill, SectionHeader, ProgressBar } from "@/component
 import { fmtMoney } from "@/lib/finance";
 import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
 import { NewTrackForm } from "@/components/NewTrackForm";
+import { ImportWorkbook } from "@/components/ImportWorkbook";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,10 @@ export default async function VrWorkspace() {
         desc="Implement approved recommendations, drive adoption, and prove realized value against the business case."
         action={
           can(user.role, "track.create") ? (
-            <NewTrackForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+            <div className="flex items-center gap-2">
+              <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+              <NewTrackForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+            </div>
           ) : null
         }
       />

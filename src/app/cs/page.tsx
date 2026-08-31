@@ -5,6 +5,7 @@ import { StatusBadge, HealthPill, SectionHeader, ProgressBar } from "@/component
 import { fmtMoney, fmtDate } from "@/lib/finance";
 import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
 import { NewEngagementForm } from "@/components/NewEngagementForm";
+import { ImportWorkbook } from "@/components/ImportWorkbook";
 import { computeSignals } from "@/lib/cs-signals";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +34,10 @@ export default async function CsWorkspace() {
         title="Customer Success workspace"
         desc="Run the continuous, whole-relationship lifecycle — onboarding through renewal and expansion — linking each account's studies and tracks."
         action={can(user.role, "cs.create") ? (
-          <NewEngagementForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+          <div className="flex items-center gap-2">
+            <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+            <NewEngagementForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+          </div>
         ) : null}
       />
 
