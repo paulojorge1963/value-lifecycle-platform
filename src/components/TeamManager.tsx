@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useActionState, useState, useTransition } from "react";
-import { addTeamMember, changeMemberRole, removeTeamMember, resetMemberPassword } from "@/app/settings/team/actions";
+import { useActionState, useEffect, useState, useTransition } from "react";
+import { addTeamMember, attachExistingMember, changeMemberRole, removeTeamMember, resetMemberPassword, type AddResult } from "@/app/settings/team/actions";
 
 interface Member {
   id: string;
@@ -33,11 +33,18 @@ const ROLE_OPTIONS: { value: string; label: string }[] = [
 
 export function TeamManager({ members }: { members: Member[] }) {
   const router = useRouter();
-  const [addError, addAction, adding] = useActionState(addTeamMember, undefined);
+  const [addState, addAction, adding] = useActionState(addTeamMember, undefined);
   const [pending, start] = useTransition();
+  const [attaching, startAttach] = useTransition();
+  const [attachErr, setAttachErr] = useState<string | null>(null);
   const [rowErr, setRowErr] = useState<{ id: string; msg: string } | null>(null);
   const [pwFor, setPwFor] = useState<string | null>(null);
   const [reassignFor, setReassignFor] = useState<string | null>(null);
+
+  // When a member is created, refresh so the new row shows immediately.
+  useEffect(() => {
+    if (addState?.status === "ok") router.refresh();
+  }, [addState, router]);
 
   function setRole(userId: string, role: string) {
     start(async () => {
@@ -109,7 +116,26 @@ export function TeamManager({ members }: { members: Member[] }) {
             </button>
           </div>
         </form>
-        {addError && <p className="mt-2 text-sm text-red-600">{addError}</p>}
+        {addState?.status === "error" && <p className="mt-2 text-sm text-red-600">{addState.message}</p>}
+        {addState?.status === "ok" && <p className="mt-2 text-sm text-emerald-600">Member added.</p>}
+        {addState?.status === "exists" && (
+          <AttachOffer
+            info={addState}
+            pending={attaching}
+            error={attachErr}
+            onConfirm={(role) => {
+              setAttachErr(null);
+              startAttach(async () => {
+                try {
+                  await attachExistingMember(addState.email, role);
+                  router.refresh();
+                } catch (e) {
+                  setAttachErr(e instanceof Error ? e.message : "Couldn't add them.");
+                }
+              });
+            }}
+          />
+        )}
       </div>
 
       {/* Members */}
@@ -172,6 +198,54 @@ export function TeamManager({ members }: { members: Member[] }) {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function AttachOffer({
+  info,
+  pending,
+  error,
+  onConfirm,
+}: {
+  info: Extract<AddResult, { status: "exists" }>;
+  pending: boolean;
+  error: string | null;
+  onConfirm: (role: string) => void;
+}) {
+  const [role, setRole] = useState<string>(info.role);
+  const blocked = info.ownsWork > 0;
+  return (
+    <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+      <p className="text-sm text-ink-800">
+        An account for <span className="font-medium">{info.email}</span> already exists —{" "}
+        <span className="font-medium">{info.name}</span>, currently in{" "}
+        <span className="font-medium">{info.currentOrg}</span>.
+      </p>
+      {blocked ? (
+        <p className="mt-2 text-xs text-red-600">
+          It owns {info.ownsWork} {info.ownsWork === 1 ? "item" : "items"} in {info.currentOrg}, so it can&apos;t be moved
+          until that work is reassigned there. Ask an administrator of that workspace to reassign it first.
+        </p>
+      ) : (
+        <>
+          <p className="mt-1 text-xs text-ink-600">
+            Add them to this workspace? They&apos;ll move here and keep their existing password.
+          </p>
+          <div className="mt-2 flex flex-wrap items-end gap-2">
+            <div>
+              <label className="label">Role here</label>
+              <select value={role} onChange={(e) => setRole(e.target.value)} className="input mt-1 text-sm">
+                {ROLE_OPTIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+            </div>
+            <button className="btn-ve px-3 py-1.5 text-sm" disabled={pending} onClick={() => onConfirm(role)}>
+              {pending ? "Adding…" : "Add to workspace"}
+            </button>
+          </div>
+        </>
+      )}
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </div>
   );
 }
