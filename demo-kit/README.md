@@ -1,5 +1,7 @@
 # Value Lifecycle Platform — Demo Kit
 
+**Platform version:** v0.2.3 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+
 Deliverables for demoing and explaining the **Value Lifecycle Platform** — one workspace across three roles: the **Value Engineer** (8-phase VE Job Plan), the **Value Realization Manager** (7-phase realization lifecycle) with a first-class handover between them, and the **Customer Success Manager** (continuous 8-stage engagement that references — never duplicates — the account's studies and tracks).
 
 | File | What it is | Use it to… |
@@ -84,8 +86,21 @@ PDFs were produced by printing the styled Markdown to PDF with headless Chrome (
 
 > `pptxgenjs` is **not** a committed dependency — it pulls a vulnerable transitive `image-size` (a dev-only image-parsing DoS, irrelevant to generating a deck). Install it ad-hoc only when regenerating the deck, as shown above, so it stays out of the shipped dependency tree.
 
+## Release history
+
+The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform](https://github.com/paulojorge1963/value-lifecycle-platform/releases). Recent releases:
+
+| Version | What changed |
+|---|---|
+| **[v0.2.3](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.3)** | Per-workspace opt-out to hide a workspace's members from the login picker — admin toggle on the Team page. |
+| **[v0.2.2](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.2)** | Login screen: **pick a workspace, then a member** to sign in. The demo workspace stays one-click; real workspaces prefill the member's email and require their own password. |
+| **[v0.2.1](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.1)** | Login screen shows the demo workspace name *(superseded by v0.2.2)*. |
+| **[v0.2.0](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.0)** | Team management: bring an **existing account** into a workspace instead of erroring on a duplicate email. (Also since 0.1.0: in-app workbook import, and the `dev_productivity` / `onboarding_time` KPIs.) |
+
+> Some releases add database columns — deploying a new version may need `prisma db push` (or a migration). Each release note flags this.
+
 ## Notes
 
 - All deliverables were validated to open cleanly and were spot-checked as rendered pages. Give them a quick look in Word / PowerPoint on your fonts before presenting — the Word docs use the platform's **VE-blue** accent for headings; the deck uses the full **VE-blue / VR-emerald** brand.
-- Demo logins (password `demo1234`): `ve@demo.app`, `reviewer@demo.app`, `vrm@demo.app`, `admin@demo.app`. Hero example: study `VE-2026-014` → track `VR-2026-014`.
+- Demo logins (password `demo1234`): on the sign-in screen, choose the **Meridian Value Advisory · demo** workspace and click a role to sign in one-click — Value Engineer, Value Realization Manager, Customer Success Manager, Reviewer, Stakeholder/Viewer or Administrator (`ve@demo.app`, `vrm@demo.app`, `cs@demo.app`, `admin@demo.app`, …). Hero example: study `VE-2026-014` → track `VR-2026-014`.
 - See the repo root for [`README.md`](../README.md), [`ARCHITECTURE.md`](../ARCHITECTURE.md) and [`USER_GUIDE.md`](../USER_GUIDE.md).
