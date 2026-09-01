@@ -1,8 +1,13 @@
+import { prisma } from "@/lib/db";
 import { LoginForm } from "@/components/LoginForm";
 
 export const dynamic = "force-dynamic";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  // The demo-role quick sign-ins all belong to the seeded demo workspace —
+  // surface its name so it's clear which workspace those buttons enter.
+  const demoOrg = await prisma.organization.findUnique({ where: { id: "org_demo" }, select: { name: true } });
+
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center">
       <div className="mb-6 text-center">
@@ -11,7 +16,7 @@ export default function LoginPage() {
         <p className="mt-1 text-sm text-ink-500">Sign in to your value-engineering &amp; realization workspace.</p>
       </div>
       <div className="card card-pad">
-        <LoginForm />
+        <LoginForm demoWorkspace={demoOrg?.name ?? null} />
       </div>
     </div>
   );

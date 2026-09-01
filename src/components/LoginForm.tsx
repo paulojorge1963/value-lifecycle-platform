@@ -14,7 +14,7 @@ const DEMO_USERS = [
   { email: "admin@demo.app", name: "Admin", role: "Administrator" },
 ];
 
-export function LoginForm() {
+export function LoginForm({ demoWorkspace }: { demoWorkspace?: string | null }) {
   const [error, action, pending] = useActionState(authenticate, undefined);
 
   return (
@@ -38,6 +38,13 @@ export function LoginForm() {
         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-ink-200" /></div>
         <div className="relative flex justify-center"><span className="bg-white px-2 text-xs text-ink-400">or sign in as a demo role</span></div>
       </div>
+
+      {demoWorkspace && (
+        <div className="-mt-2 flex items-center justify-center gap-1.5 text-xs text-ink-500">
+          <span>Workspace:</span>
+          <span className="rounded-full bg-ink-100 px-2.5 py-0.5 font-medium text-ink-700">{demoWorkspace}</span>
+        </div>
+      )}
 
       <div className="grid gap-2">
         {DEMO_USERS.map((u) => (
