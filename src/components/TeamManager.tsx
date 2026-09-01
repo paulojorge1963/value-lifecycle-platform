@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { addTeamMember, attachExistingMember, changeMemberRole, removeTeamMember, resetMemberPassword, type AddResult } from "@/app/settings/team/actions";
+import { addTeamMember, attachExistingMember, changeMemberRole, removeTeamMember, resetMemberPassword, setShowMembersOnLogin, type AddResult } from "@/app/settings/team/actions";
 
 interface Member {
   id: string;
@@ -31,8 +31,10 @@ const ROLE_OPTIONS: { value: string; label: string }[] = [
   { value: "ADMIN", label: "Administrator" },
 ];
 
-export function TeamManager({ members }: { members: Member[] }) {
+export function TeamManager({ members, showMembersOnLogin }: { members: Member[]; showMembersOnLogin: boolean }) {
   const router = useRouter();
+  const [showOnLogin, setShowOnLogin] = useState(showMembersOnLogin);
+  const [loginPending, startLogin] = useTransition();
   const [addState, addAction, adding] = useActionState(addTeamMember, undefined);
   const [pending, start] = useTransition();
   const [attaching, startAttach] = useTransition();
@@ -82,8 +84,42 @@ export function TeamManager({ members }: { members: Member[] }) {
     doRemove(m.id);
   }
 
+  function toggleLogin(next: boolean) {
+    setShowOnLogin(next);
+    startLogin(async () => {
+      try {
+        await setShowMembersOnLogin(next);
+        router.refresh();
+      } catch {
+        setShowOnLogin(!next); // revert on failure
+      }
+    });
+  }
+
   return (
     <div className="space-y-6">
+      {/* Sign-in visibility */}
+      <div className="card card-pad flex items-start justify-between gap-4">
+        <div>
+          <h2 className="font-semibold text-ink-900">Sign-in screen</h2>
+          <p className="mt-1 text-sm text-ink-500">
+            {showOnLogin
+              ? "This workspace's members are listed on the login page for quick sign-in."
+              : "Members are hidden from the login page — people here sign in by typing their email and password."}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={showOnLogin}
+          disabled={loginPending}
+          onClick={() => toggleLogin(!showOnLogin)}
+          className={`relative mt-1 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${showOnLogin ? "bg-ve-600" : "bg-ink-300"} ${loginPending ? "opacity-60" : ""}`}
+        >
+          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${showOnLogin ? "translate-x-6" : "translate-x-1"}`} />
+        </button>
+      </div>
+
       {/* Add member */}
       <div className="card card-pad">
         <h2 className="mb-3 font-semibold text-ink-900">Add a teammate</h2>

@@ -130,6 +130,17 @@ export async function attachExistingMember(email: string, role: string): Promise
   revalidatePath("/settings/team");
 }
 
+/** Toggle whether this workspace's members are listed on the public login picker. */
+export async function setShowMembersOnLogin(show: boolean): Promise<void> {
+  const admin = await requireAdmin();
+  await prisma.organization.update({ where: { id: admin.organizationId }, data: { showMembersOnLogin: show } });
+  await prisma.auditEvent.create({
+    data: { actorId: admin.id, action: "team.login_visibility_changed", entityType: "Organization", entityId: admin.organizationId, metadata: { showMembersOnLogin: show } },
+  });
+  revalidatePath("/settings/team");
+  revalidatePath("/login");
+}
+
 /** Change a member's role. Guards against removing the last administrator. */
 export async function changeMemberRole(userId: string, role: string) {
   const admin = await requireAdmin();

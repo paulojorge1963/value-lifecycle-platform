@@ -17,6 +17,7 @@ export default async function LoginPage() {
   // "pick a workspace → pick a member". The demo workspace keeps one-click
   // sign-in (shared demo password); real workspaces prefill the email only.
   const orgs = await prisma.organization.findMany({
+    where: { showMembersOnLogin: true },
     include: { users: { include: { memberships: true }, orderBy: { createdAt: "asc" } } },
     orderBy: { createdAt: "asc" },
   });

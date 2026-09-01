@@ -197,6 +197,10 @@ model Organization {
   name      String
   createdAt DateTime @default(now())
 
+  // When false, this workspace's members are not listed on the public login
+  // picker; its users sign in by typing their email + password instead.
+  showMembersOnLogin Boolean @default(true)
+
   teams       Team[]
   memberships Membership[]
   users       User[]

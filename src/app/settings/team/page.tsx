@@ -45,7 +45,7 @@ export default async function TeamPage() {
         title="Team"
         desc={`Manage members and roles for ${org.name}. As an administrator you can add teammates, change their roles, reset passwords, and remove access.`}
       />
-      <TeamManager members={members} />
+      <TeamManager members={members} showMembersOnLogin={org.showMembersOnLogin} />
     </div>
   );
 }
