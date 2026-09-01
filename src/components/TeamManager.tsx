@@ -37,6 +37,7 @@ export function TeamManager({ members }: { members: Member[] }) {
   const [pending, start] = useTransition();
   const [attaching, startAttach] = useTransition();
   const [attachErr, setAttachErr] = useState<string | null>(null);
+  const [attachedEmail, setAttachedEmail] = useState<string | null>(null);
   const [rowErr, setRowErr] = useState<{ id: string; msg: string } | null>(null);
   const [pwFor, setPwFor] = useState<string | null>(null);
   const [reassignFor, setReassignFor] = useState<string | null>(null);
@@ -118,7 +119,10 @@ export function TeamManager({ members }: { members: Member[] }) {
         </form>
         {addState?.status === "error" && <p className="mt-2 text-sm text-red-600">{addState.message}</p>}
         {addState?.status === "ok" && <p className="mt-2 text-sm text-emerald-600">Member added.</p>}
-        {addState?.status === "exists" && (
+        {addState?.status === "exists" && addState.email === attachedEmail && (
+          <p className="mt-2 text-sm text-emerald-600">Added {addState.name} to this workspace.</p>
+        )}
+        {addState?.status === "exists" && addState.email !== attachedEmail && (
           <AttachOffer
             info={addState}
             pending={attaching}
@@ -128,6 +132,7 @@ export function TeamManager({ members }: { members: Member[] }) {
               startAttach(async () => {
                 try {
                   await attachExistingMember(addState.email, role);
+                  setAttachedEmail(addState.email);
                   router.refresh();
                 } catch (e) {
                   setAttachErr(e instanceof Error ? e.message : "Couldn't add them.");
