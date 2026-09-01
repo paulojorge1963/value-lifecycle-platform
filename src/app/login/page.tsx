@@ -3,10 +3,32 @@ import { LoginForm } from "@/components/LoginForm";
 
 export const dynamic = "force-dynamic";
 
+const ROLE_LABEL: Record<string, string> = {
+  VALUE_ENGINEER: "Value Engineer",
+  VALUE_REALIZATION_MANAGER: "Value Realization Manager",
+  CUSTOMER_SUCCESS_MANAGER: "Customer Success Manager",
+  REVIEWER: "Reviewer",
+  VIEWER: "Stakeholder / Viewer",
+  ADMIN: "Administrator",
+};
+
 export default async function LoginPage() {
-  // The demo-role quick sign-ins all belong to the seeded demo workspace —
-  // surface its name so it's clear which workspace those buttons enter.
-  const demoOrg = await prisma.organization.findUnique({ where: { id: "org_demo" }, select: { name: true } });
+  // Build a per-workspace member list so the sign-in screen can offer
+  // "pick a workspace → pick a member". The demo workspace keeps one-click
+  // sign-in (shared demo password); real workspaces prefill the email only.
+  const orgs = await prisma.organization.findMany({
+    include: { users: { include: { memberships: true }, orderBy: { createdAt: "asc" } } },
+    orderBy: { createdAt: "asc" },
+  });
+  const workspaces = orgs.map((o) => ({
+    id: o.id,
+    name: o.name,
+    isDemo: o.id === "org_demo",
+    members: o.users.map((u) => {
+      const m = u.memberships.find((x) => x.organizationId === o.id) ?? u.memberships[0];
+      return { name: u.name, email: u.email, role: ROLE_LABEL[(m?.role as string) ?? "VIEWER"] ?? "Member" };
+    }),
+  }));
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center">
@@ -16,7 +38,7 @@ export default async function LoginPage() {
         <p className="mt-1 text-sm text-ink-500">Sign in to your value-engineering &amp; realization workspace.</p>
       </div>
       <div className="card card-pad">
-        <LoginForm demoWorkspace={demoOrg?.name ?? null} />
+        <LoginForm workspaces={workspaces} />
       </div>
     </div>
   );
