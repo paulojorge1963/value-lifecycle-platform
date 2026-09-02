@@ -108,6 +108,13 @@ The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform
 
 > Some releases add database columns — deploying a new version may need `prisma db push` (or a migration). Each release note flags this.
 
+The [companion packs](#companion-packs) are versioned separately:
+
+| Pack | Recent releases |
+|---|---|
+| **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack/releases)** | **v1.2.0** value-provenance cheat-sheet · **v1.1.0** 12-workshop agendas · **v1.0.0** workbook, Metric Owners checklist & filled sample |
+| **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks/releases)** | **v1.1.0** method & accuracy slides · **v1.0.0** reusable template deck + a tailored client deck |
+
 ## Notes
 
 - All deliverables were validated to open cleanly and were spot-checked as rendered pages. Give them a quick look in Word / PowerPoint on your fonts before presenting — the Word docs use the platform's **VE-blue** accent for headings; the deck uses the full **VE-blue / VR-emerald** brand.
