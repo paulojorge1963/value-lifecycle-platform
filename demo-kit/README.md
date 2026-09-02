@@ -86,6 +86,15 @@ PDFs were produced by printing the styled Markdown to PDF with headless Chrome (
 
 > `pptxgenjs` is **not** a committed dependency — it pulls a vulnerable transitive `image-size` (a dev-only image-parsing DoS, irrelevant to generating a deck). Install it ad-hoc only when regenerating the deck, as shown above, so it stays out of the shipped dependency tree.
 
+## Companion packs
+
+Two private Blue Turtle packs complement this kit (access-controlled; links resolve only for authorised accounts):
+
+| Pack | What it is |
+|---|---|
+| **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack)** *(private)* | The capture workbook, the per-metric "who owns this number" checklist, and an agenda for each of the 12 VE / VR / CS discovery workshops — for running discovery and securing baselines before the templates are filled. |
+| **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks)** *(private)* | Client-facing decks (and matching emails) to win buy-in for a Value Lifecycle study, plus a reusable template. |
+
 ## Release history
 
 The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform](https://github.com/paulojorge1963/value-lifecycle-platform/releases). Recent releases:
