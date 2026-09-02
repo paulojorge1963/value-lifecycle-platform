@@ -92,7 +92,7 @@ Two private Blue Turtle packs complement this kit (access-controlled; links reso
 
 | Pack | What it is |
 |---|---|
-| **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack)** *(private)* | The capture workbook, the per-metric "who owns this number" checklist, and an agenda for each of the 12 VE / VR / CS discovery workshops — for running discovery and securing baselines before the templates are filled. |
+| **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack)** *(private)* | The workshop-guide workbook, the per-metric "who owns this number" checklist, agendas for the 12 VE / VR / CS discovery workshops, a value-provenance cheat-sheet + facilitator question bank, and **field-and-column dictionaries for the VE / VR / CS capture workbooks** — for running discovery and securing baselines before the templates are filled. |
 | **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks)** *(private)* | Client-facing decks (and matching emails) to win buy-in for a Value Lifecycle study, plus a reusable template. |
 
 ## Release history
