@@ -112,7 +112,7 @@ The [companion packs](#companion-packs) are versioned separately:
 
 | Pack | Recent releases |
 |---|---|
-| **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack/releases)** | **v1.4.0** VE Discovery Workbook dictionary · **v1.3.0** facilitator question bank · **v1.2.0** value-provenance cheat-sheet · **v1.1.0** 12-workshop agendas · **v1.0.0** workbook, Metric Owners checklist & filled sample |
+| **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack/releases)** | **v1.5.0** VR & CS Intake workbook dictionaries · **v1.4.0** VE Discovery Workbook dictionary · **v1.3.0** facilitator question bank · **v1.2.0** value-provenance cheat-sheet · **v1.1.0** 12-workshop agendas · **v1.0.0** workbook, Metric Owners checklist & filled sample |
 | **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks/releases)** | **v1.1.0** method & accuracy slides · **v1.0.0** reusable template deck + a tailored client deck |
 
 ## Notes
