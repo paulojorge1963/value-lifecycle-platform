@@ -10,6 +10,10 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform)
+
+> **Before it works**, create a Postgres database (a free [Neon](https://neon.tech) DB is recommended) and run `prisma db push` + seed against it — the button asks for `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET` and `AUTH_TRUST_HOST` during import. Full walkthrough: **[DEPLOYMENT.md](DEPLOYMENT.md)**.
+
 An end-to-end web app for three complementary roles across the full value lifecycle:
 
 - **Value Engineer (VE)** — runs structured value studies (8-phase VE Job Plan), analyses functions/cost/performance, generates alternatives, and builds a quantified business case.
