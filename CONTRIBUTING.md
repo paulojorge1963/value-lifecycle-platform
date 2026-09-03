@@ -23,7 +23,7 @@ npm run db:seed               # industries, phases, KPIs, templates + demo data
 npm run dev                   # http://localhost:3200
 ```
 
-Sign in at `/login` with a demo account — e.g. `ve@demo.app`, `vrm@demo.app`, `reviewer@demo.app`, `viewer@demo.app`.
+Sign in at `/login` with a demo account — e.g. `ve@demo.app`, `vrm@demo.app`, `reviewer@demo.app`, `viewer@demo.app`. The shared demo password comes from the `DEMO_PASSWORD` env var (if unset, `npm run db:seed` generates a random one and prints it). In local dev the demo workspace also offers one-click sign-in; the member picker is off in production.
 
 ## Project layout
 

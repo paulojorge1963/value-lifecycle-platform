@@ -10,7 +10,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)
 
-**🔗 Live demo:** [value-lifecycle-platform.vercel.app](https://value-lifecycle-platform.vercel.app) — running on Vercel + Neon; pick a demo role on the sign-in screen.
+**🔗 Live demo:** [value-lifecycle-platform.vercel.app](https://value-lifecycle-platform.vercel.app) — running on Vercel + Neon. The demo-account picker is **off in production** (accounts aren't listed publicly), so sign in with a demo email + password. To show the one-click role picker on a deployment, set `SHOW_LOGIN_MEMBER_PICKER=true`.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform)
 
@@ -70,7 +70,7 @@ npm run dev   # http://localhost:3200
 - **Study VE-2026-014** (construction) — fully handed over to a live realization track **VR-2026-014** with work packages, benefits, KPI actuals and a QBR.
 - **Study VE-2026-021** (SaaS) — in review, with a business case, ready to hand over.
 
-**Sign in** at `/login` (unauthenticated requests are redirected there by middleware). Use the demo quick-login buttons to sign in as Value Engineer, Value Realization Manager, Reviewer or Stakeholder — navigation and permissions adapt. Demo password: *(seeded — rotate in production)*.
+**Sign in** at `/login` (unauthenticated requests are redirected there by middleware). In local dev the sign-in screen lists the demo workspace's members, so you can jump straight in as **Value Engineer, Value Realization Manager, Customer Success Manager, Reviewer, Stakeholder/Viewer** or **Admin** — navigation and permissions adapt. The demo workspace signs in **one-click when `DEMO_PASSWORD` is set** (otherwise pick a member to prefill their email and type the password). The member picker is **off in production** by default (`SHOW_LOGIN_MEMBER_PICKER=true` re-enables it); demo accounts share the `DEMO_PASSWORD` password — see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 **Create your own workspace** at `/register` — each sign-up creates a new, isolated organization with the signer as **Admin**. Admins get a **Team** page (`/settings/team`) to add members, assign roles, reset passwords, and remove access. No email server needed (admins set an initial password to share).
 

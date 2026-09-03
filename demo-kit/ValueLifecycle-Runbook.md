@@ -52,6 +52,8 @@ Sign in with any demo account:
 | `reviewer@demo.app` | Reviewer |
 | `admin@demo.app` | Administrator |
 
+All demo accounts share the `DEMO_PASSWORD` password (see §8). When it's set in `.env`, the demo workspace signs in **one-click** from the sign-in screen; otherwise pick a member and type the password. The member picker is off in production by default.
+
 Stop with `Ctrl-C`. Keep the terminal open while using the app.
 
 ---
@@ -136,7 +138,7 @@ Each run creates a **new** study/track/engagement — always `--dry-run` first.
 |---|---|
 | App URL | `http://localhost:3200` |
 | Database | `value_consultancy` on `localhost:5432` |
-| Demo password (all accounts) | *(seeded — rotate in production)* |
+| Demo password (all accounts) | from `DEMO_PASSWORD` env var (unset → a random one is printed at seed; set it in `.env` for one-click sign-in) |
 | Start the app | `npm run dev` |
 | Re-seed demo data | `npm run db:seed` |
 | Import a workbook | `npx tsx scripts/import-workbook.ts "<file>.xlsx" --dry-run` |

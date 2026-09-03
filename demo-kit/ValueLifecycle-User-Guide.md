@@ -33,7 +33,7 @@ It maps to three complementary roles and their structured methods. The links are
 
 ## 2 · Signing in & who does what
 
-Open the app and you land on the sign-in page. Enter your email and password, or use a **demo quick-login** button to jump in as a specific role. To experience the separation of duties, sign out and sign back in as a different person — the navigation and the buttons you see change with your role.
+Open the app and you land on the sign-in page. Enter your email and password. In a local demo the sign-in screen also lists the demo workspace's members, so you can jump straight in as a specific role — **one-click when `DEMO_PASSWORD` is set**, otherwise pick a member to prefill their email and type the password. (This member list is **off in production** by default.) To experience the separation of duties, sign out and sign back in as a different person — the navigation and the buttons you see change with your role.
 
 > **Demo logins.** Demo accounts share a password from the `DEMO_PASSWORD` env var — set it in `.env` before you seed (a random one is generated and printed if it's unset), and rotate it in production. Try `ve@demo.app` (Value Engineer), `vrm@demo.app` (Realization Manager), `cs@demo.app` (Customer Success Manager), `reviewer@demo.app` (approver) and `viewer@demo.app` (read-only stakeholder).
 
