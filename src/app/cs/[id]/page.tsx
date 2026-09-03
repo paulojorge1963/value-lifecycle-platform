@@ -242,7 +242,7 @@ export default async function EngagementPage({
             </dl>
           </div>
           <div className="card card-pad text-xs text-ink-400">
-            Customer Success is the continuous, whole-relationship layer. Value data lives on the linked VR tracks — this view surfaces it, it doesn't duplicate it.
+            Customer Success is the continuous, whole-relationship layer. Value data lives on the linked VR tracks — this view surfaces it, it doesn’t duplicate it.
           </div>
         </div>
       </div>

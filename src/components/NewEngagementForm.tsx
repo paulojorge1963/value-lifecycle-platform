@@ -29,7 +29,7 @@ export function NewEngagementForm({ industries }: { industries: { key: string; n
       <form action={submit} onClick={(e) => e.stopPropagation()} className="w-full max-w-lg space-y-4 rounded-2xl bg-white p-6 shadow-xl">
         <div>
           <h3 className="text-lg font-semibold text-ink-900">New Customer Success engagement</h3>
-          <p className="mt-1 text-sm text-ink-500">A continuous, whole-relationship engagement for one account — it runs the 8-stage CS lifecycle and links to that account's studies and tracks.</p>
+          <p className="mt-1 text-sm text-ink-500">A continuous, whole-relationship engagement for one account — it runs the 8-stage CS lifecycle and links to that account’s studies and tracks.</p>
         </div>
         <div>
           <label className="label">Account / customer</label>
