@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Demo Kit
 
-**Platform version:** v0.3.0 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.1.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+**Platform version:** v0.3.1 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.1.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
 
 **Deploy your own:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform) &nbsp; needs a Postgres DB (Neon) created and seeded first — see [DEPLOYMENT.md](../DEPLOYMENT.md).
 
@@ -103,6 +103,7 @@ The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform
 
 | Version | What changed |
 |---|---|
+| **[v0.3.1](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.3.1)** | **Now live on Vercel + Neon.** Login hardened for public deploys — the member picker is **off in production** by default and the demo password moved to the `DEMO_PASSWORD` env var (no literal in the repo). Modernized UI palette — **indigo** (VE) · **teal** (VR) on a **zinc** neutral. Deploy + login docs aligned across the README, `DEPLOYMENT.md` and the demo kit. |
 | **[v0.3.0](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.3.0)** | Advanced UI polish (Inter typography, layered shadows, accent-aware active nav, focus rings) and Vercel deploy-readiness (Prisma `directUrl`, `DEPLOYMENT.md`, production-build fix). |
 | **[v0.2.3](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.3)** | Per-workspace opt-out to hide a workspace's members from the login picker — admin toggle on the Team page. |
 | **[v0.2.2](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.2)** | Login screen: **pick a workspace, then a member** to sign in. The demo workspace stays one-click; real workspaces prefill the member's email and require their own password. |
