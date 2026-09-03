@@ -81,6 +81,16 @@ the member picker is off in production by default; see **After going live**).
   also hide a single workspace's members via the Team page (**Sign-in screen** switch).
 - **Custom domain**: add it in Vercel → Domains.
 
+> **Locked vs. open demo — a deliberate trade-off.** By default a production deployment is
+> **locked**: the member picker is off (no accounts are listed) and the demo password isn't
+> published anywhere, so a visitor who lands on the URL can't sign in — which is what you want
+> for a private or client-gated demo. To make the live demo **openly explorable** instead, set
+> both `SHOW_LOGIN_MEMBER_PICKER=true` and a known `DEMO_PASSWORD` in Vercel (so the one-click
+> role picker works) — accepting that demo member names and emails are then visible to anyone
+> with the link. There's no middle setting: either the accounts are discoverable on the sign-in
+> screen, or visitors need credentials shared out of band. The public deployment at
+> `value-lifecycle-platform.vercel.app` is intentionally left **locked**.
+
 ## Troubleshooting
 
 - **`prisma generate` errors on build** → ensure `DATABASE_URL` + `DIRECT_URL` are set (both).
