@@ -23,7 +23,7 @@ npm run db:seed               # industries, phases, KPIs, templates + demo data
 npm run dev                   # http://localhost:3200
 ```
 
-Sign in at `/login` with a demo account (password `demo1234`) — e.g. `ve@demo.app`, `vrm@demo.app`, `reviewer@demo.app`, `viewer@demo.app`.
+Sign in at `/login` with a demo account — e.g. `ve@demo.app`, `vrm@demo.app`, `reviewer@demo.app`, `viewer@demo.app`.
 
 ## Project layout
 

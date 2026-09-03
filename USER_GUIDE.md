@@ -35,7 +35,7 @@ It maps to three complementary roles and their structured methods. The links are
 
 Open the app and you land on the sign-in page. Enter your email and password, or use a **demo quick-login** button to jump in as a specific role. To experience the separation of duties, sign out and sign back in as a different person — the navigation and the buttons you see change with your role.
 
-> **Demo logins.** Password for every demo account is `demo1234`. Try `ve@demo.app` (Value Engineer), `vrm@demo.app` (Realization Manager), `cs@demo.app` (Customer Success Manager), `reviewer@demo.app` (approver) and `viewer@demo.app` (read-only stakeholder).
+> **Demo logins.** Demo accounts are seeded with a shared password (set in `prisma/seed.ts`); rotate it in production. Try `ve@demo.app` (Value Engineer), `vrm@demo.app` (Realization Manager), `cs@demo.app` (Customer Success Manager), `reviewer@demo.app` (approver) and `viewer@demo.app` (read-only stakeholder).
 
 ### Creating your own workspace
 
@@ -149,7 +149,7 @@ Value Realization proves *one* initiative and then ends; **Customer Success** is
 
 | Screen | Path |
 |---|---|
-| Sign in | `/login` — demo password `demo1234` |
+| Sign in | `/login` — set a demo password when you seed |
 | Portfolio (planned vs realized) | `/portfolio` |
 | VE workspace (studies, "New VE study") | `/ve` |
 | VR workspace (realization tracks) | `/vr` |

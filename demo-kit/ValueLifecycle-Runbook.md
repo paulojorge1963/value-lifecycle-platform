@@ -42,7 +42,7 @@ npm run db:seed                   # config + demo data
 npm run dev      # http://localhost:3200
 ```
 
-Sign in with any demo account (password `demo1234`):
+Sign in with any demo account:
 
 | Email | Role |
 |---|---|
@@ -136,7 +136,7 @@ Each run creates a **new** study/track/engagement — always `--dry-run` first.
 |---|---|
 | App URL | `http://localhost:3200` |
 | Database | `value_consultancy` on `localhost:5432` |
-| Demo password (all accounts) | `demo1234` |
+| Demo password (all accounts) | *(seeded — rotate in production)* |
 | Start the app | `npm run dev` |
 | Re-seed demo data | `npm run db:seed` |
 | Import a workbook | `npx tsx scripts/import-workbook.ts "<file>.xlsx" --dry-run` |

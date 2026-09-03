@@ -2,7 +2,7 @@
 
 A timed, click-by-click script for a **20–25 minute** live demo. It tells one story: a value engineer frames a problem and builds a business case, a reviewer approves it, and — in one click — it becomes an owned, measured realization track that proves the money was saved.
 
-> **Before you start.** Have the app running (`npm run dev` → http://localhost:3200) with demo data seeded (`npm run db:seed`). Sign-in is at `/login`; every demo account's password is `demo1234`. Keep this script on a second screen. Timings are a guide, not a metronome.
+> **Before you start.** Have the app running (`npm run dev` → http://localhost:3200) with demo data seeded (`npm run db:seed`). Sign-in is at `/login`; every demo account uses the shared seeded password (set in `prisma/seed.ts`). Keep this script on a second screen. Timings are a guide, not a metronome.
 
 **The through-line to keep repeating:** *"One workspace carries a piece of work through its whole value lifecycle — and the handover between the two roles is the point of the tool."*
 
@@ -13,11 +13,11 @@ A timed, click-by-click script for a **20–25 minute** live demo. It tells one 
 | Item | Value |
 |---|---|
 | URL | `http://localhost:3200` |
-| Value Engineer login | `ve@demo.app` · `demo1234` |
-| Reviewer login | `reviewer@demo.app` · `demo1234` |
-| Realization Manager login | `vrm@demo.app` · `demo1234` |
-| Customer Success login | `cs@demo.app` · `demo1234` |
-| Admin login | `admin@demo.app` · `demo1234` |
+| Value Engineer login | `ve@demo.app` |
+| Reviewer login | `reviewer@demo.app` |
+| Realization Manager login | `vrm@demo.app` |
+| Customer Success login | `cs@demo.app` |
+| Admin login | `admin@demo.app` |
 | Hero study (construction, handed over) | `VE-2026-014` → track `VR-2026-014` |
 | Ready-to-hand-over study (SaaS) | `VE-2026-021` |
 

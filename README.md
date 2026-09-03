@@ -70,7 +70,7 @@ npm run dev   # http://localhost:3200
 - **Study VE-2026-014** (construction) — fully handed over to a live realization track **VR-2026-014** with work packages, benefits, KPI actuals and a QBR.
 - **Study VE-2026-021** (SaaS) — in review, with a business case, ready to hand over.
 
-**Sign in** at `/login` (unauthenticated requests are redirected there by middleware). Use the demo quick-login buttons to sign in as Value Engineer, Value Realization Manager, Reviewer or Stakeholder — navigation and permissions adapt. Demo password: `demo1234`.
+**Sign in** at `/login` (unauthenticated requests are redirected there by middleware). Use the demo quick-login buttons to sign in as Value Engineer, Value Realization Manager, Reviewer or Stakeholder — navigation and permissions adapt. Demo password: *(seeded — rotate in production)*.
 
 **Create your own workspace** at `/register` — each sign-up creates a new, isolated organization with the signer as **Admin**. Admins get a **Team** page (`/settings/team`) to add members, assign roles, reset passwords, and remove access. No email server needed (admins set an initial password to share).
 

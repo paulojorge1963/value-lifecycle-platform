@@ -66,12 +66,13 @@ required — `AUTH_TRUST_HOST=true` is what matters behind the proxy.
 ## Step 5 — Deploy
 
 Trigger a deploy (push to `main`, or **Redeploy**). Vercel installs (→ `prisma generate`),
-builds, and serves. Open the URL and sign in with a demo role (password `demo1234`).
+builds, and serves. Open the URL and sign in with a demo role.
 
 ## After going live
 
-- **Change the demo passwords** (or remove demo users) before sharing widely — the demo
-  password is public in the README. Use the Team page (**Set password**) or re-seed.
+- **Change the demo passwords** (or remove demo users) before sharing widely — the seed
+  sets a shared demo password (in `prisma/seed.ts`), so rotate it. Use the Team page
+  (**Set password**) or re-seed.
 - **Lock down the login picker** if the workspace shouldn't list members publicly — toggle
   it off on the Team page (**Sign-in screen** switch).
 - **Custom domain**: add it in Vercel → Domains.

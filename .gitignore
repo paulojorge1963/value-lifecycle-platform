@@ -11,3 +11,6 @@ next-env.d.ts
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Office lock/temp files
+~$*
