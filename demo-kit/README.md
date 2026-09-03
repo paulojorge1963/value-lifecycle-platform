@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Demo Kit
 
-**Platform version:** v0.2.3 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.1.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+**Platform version:** v0.3.0 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.1.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
 
 Deliverables for demoing and explaining the **Value Lifecycle Platform** — one workspace across three roles: the **Value Engineer** (8-phase VE Job Plan), the **Value Realization Manager** (7-phase realization lifecycle) with a first-class handover between them, and the **Customer Success Manager** (continuous 8-stage engagement that references — never duplicates — the account's studies and tracks).
 
@@ -101,6 +101,7 @@ The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform
 
 | Version | What changed |
 |---|---|
+| **[v0.3.0](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.3.0)** | Advanced UI polish (Inter typography, layered shadows, accent-aware active nav, focus rings) and Vercel deploy-readiness (Prisma `directUrl`, `DEPLOYMENT.md`, production-build fix). |
 | **[v0.2.3](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.3)** | Per-workspace opt-out to hide a workspace's members from the login picker — admin toggle on the Team page. |
 | **[v0.2.2](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.2)** | Login screen: **pick a workspace, then a member** to sign in. The demo workspace stays one-click; real workspaces prefill the member's email and require their own password. |
 | **[v0.2.1](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.2.1)** | Login screen shows the demo workspace name *(superseded by v0.2.2)*. |
