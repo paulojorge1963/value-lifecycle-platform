@@ -13,14 +13,19 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 export default async function LoginPage() {
-  // Build a per-workspace member list so the sign-in screen can offer
-  // "pick a workspace → pick a member". The demo workspace keeps one-click
-  // sign-in (shared demo password); real workspaces prefill the email only.
-  const orgs = await prisma.organization.findMany({
-    where: { showMembersOnLogin: true },
-    include: { users: { include: { memberships: true }, orderBy: { createdAt: "asc" } } },
-    orderBy: { createdAt: "asc" },
-  });
+  // The sign-in screen can offer "pick a workspace → pick a member". That lists
+  // member names/emails (and one-click demo sign-in), which is convenient for a
+  // local demo but exposes accounts on a public deployment — so it's OFF in
+  // production by default. Set SHOW_LOGIN_MEMBER_PICKER=true to re-enable it.
+  const pickerEnabled =
+    process.env.SHOW_LOGIN_MEMBER_PICKER === "true" || process.env.NODE_ENV !== "production";
+  const orgs = pickerEnabled
+    ? await prisma.organization.findMany({
+        where: { showMembersOnLogin: true },
+        include: { users: { include: { memberships: true }, orderBy: { createdAt: "asc" } } },
+        orderBy: { createdAt: "asc" },
+      })
+    : [];
   const workspaces = orgs.map((o) => ({
     id: o.id,
     name: o.name,
