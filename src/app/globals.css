@@ -9,8 +9,8 @@
 body {
   @apply text-ink-800 antialiased;
   background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(37, 99, 235, 0.05), transparent 60%),
-    radial-gradient(1000px 500px at -10% 0%, rgba(5, 150, 105, 0.05), transparent 55%),
+    radial-gradient(1200px 600px at 100% -10%, rgba(79, 70, 229, 0.05), transparent 60%),
+    radial-gradient(1000px 500px at -10% 0%, rgba(13, 148, 136, 0.05), transparent 55%),
     theme("colors.ink.50");
   background-attachment: fixed;
   font-feature-settings: "cv02", "cv03", "cv04", "ss01";
@@ -91,7 +91,7 @@ body {
   /* Flatten cards for print — borders read better than shadows on paper */
   .card {
     box-shadow: none !important;
-    border-color: #e2e8f0 !important;
+    border-color: #e4e4e7 !important;
   }
   /* Keep report blocks from splitting awkwardly across pages */
   .report-block {

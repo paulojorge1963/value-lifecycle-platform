@@ -92,7 +92,7 @@ export function FastDiagram({ functions }: { functions: Fn[] }) {
         <div className="relative" style={{ width, height, minWidth: "100%" }}>
           <svg width={width} height={height} className="absolute inset-0" style={{ pointerEvents: "none" }}>
             {edges.map((e) => (
-              <path key={e.key} d={e.d} fill="none" stroke="#cbd5e1" strokeWidth={1.5} />
+              <path key={e.key} d={e.d} fill="none" stroke="#d4d4d8" strokeWidth={1.5} />
             ))}
           </svg>
           {functions.map((f) => {
