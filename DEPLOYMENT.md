@@ -59,6 +59,7 @@ Set these for **Production** (and Preview if you want branch deploys):
 | `AUTH_SECRET` | `openssl rand -base64 32` |
 | `AUTH_TRUST_HOST` | `true` |
 | `ANTHROPIC_API_KEY` | *(optional)* your Anthropic key for AI assist |
+| `DEMO_PASSWORD` | *(optional)* password the seed gives the demo accounts; unset → a random one is generated and printed at seed time |
 
 Auth.js v5 auto-detects the deployment URL on Vercel, so `AUTH_URL`/`NEXTAUTH_URL` are not
 required — `AUTH_TRUST_HOST=true` is what matters behind the proxy.
@@ -71,8 +72,8 @@ builds, and serves. Open the URL and sign in with a demo role.
 ## After going live
 
 - **Change the demo passwords** (or remove demo users) before sharing widely — the seed
-  sets a shared demo password (in `prisma/seed.ts`), so rotate it. Use the Team page
-  (**Set password**) or re-seed.
+  sets a shared demo password from the `DEMO_PASSWORD` env var, so rotate it. Use the
+  Team page (**Set password**) or re-seed with a new `DEMO_PASSWORD`.
 - **Lock down the login picker** if the workspace shouldn't list members publicly — toggle
   it off on the Team page (**Sign-in screen** switch).
 - **Custom domain**: add it in Vercel → Domains.

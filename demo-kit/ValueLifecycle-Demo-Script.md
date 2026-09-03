@@ -2,7 +2,7 @@
 
 A timed, click-by-click script for a **20–25 minute** live demo. It tells one story: a value engineer frames a problem and builds a business case, a reviewer approves it, and — in one click — it becomes an owned, measured realization track that proves the money was saved.
 
-> **Before you start.** Have the app running (`npm run dev` → http://localhost:3200) with demo data seeded (`npm run db:seed`). Sign-in is at `/login`; every demo account uses the shared seeded password (set in `prisma/seed.ts`). Keep this script on a second screen. Timings are a guide, not a metronome.
+> **Before you start.** Have the app running (`npm run dev` → http://localhost:3200) with demo data seeded (`npm run db:seed`). Sign-in is at `/login`; every demo account uses the shared password from the `DEMO_PASSWORD` env var (set it in `.env` before seeding to enable one-click sign-in). Keep this script on a second screen. Timings are a guide, not a metronome.
 
 **The through-line to keep repeating:** *"One workspace carries a piece of work through its whole value lifecycle — and the handover between the two roles is the point of the tool."*
 

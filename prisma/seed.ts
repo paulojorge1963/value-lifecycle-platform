@@ -8,9 +8,26 @@ import { KPI_CATALOG } from "../src/lib/domain/kpis";
 import { CONTENT_TEMPLATES } from "../src/lib/domain/templates";
 import { DEFAULT_CRITERIA, weightedScore } from "../src/lib/evaluation";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const prisma = new PrismaClient();
-const DEMO_PASSWORD = "demo1234";
+
+// The shared password for the seeded demo accounts. Read it from DEMO_PASSWORD
+// so nothing is hard-coded in the (public) source. If it's unset, generate a
+// random one and print it — set DEMO_PASSWORD in your .env to choose a stable
+// password (that's also what one-click demo sign-in needs, since the login
+// page reads the same variable).
+function resolveDemoPassword(): string {
+  const fromEnv = process.env.DEMO_PASSWORD?.trim();
+  if (fromEnv) return fromEnv;
+  const generated = crypto.randomBytes(9).toString("base64url"); // ~12 chars
+  console.log(
+    `\n⚠  DEMO_PASSWORD not set — generated a random demo password: ${generated}\n` +
+      `   Set DEMO_PASSWORD in .env to pick your own (and to enable one-click demo sign-in).\n`,
+  );
+  return generated;
+}
+const DEMO_PASSWORD = resolveDemoPassword();
 
 async function seedConfig() {
   console.log("→ Seeding solution profiles…");

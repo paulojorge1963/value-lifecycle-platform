@@ -4,12 +4,20 @@ import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { authenticate } from "@/app/login/actions";
 
-const DEMO_PASSWORD = "demo1234";
-
 type Member = { name: string; email: string; role: string };
 type Workspace = { id: string; name: string; isDemo: boolean; members: Member[] };
 
-export function LoginForm({ workspaces }: { workspaces: Workspace[] }) {
+export function LoginForm({
+  workspaces,
+  demoPassword,
+}: {
+  workspaces: Workspace[];
+  demoPassword?: string | null;
+}) {
+  // One-click demo sign-in is only offered when the demo password is available
+  // (DEMO_PASSWORD is set). Otherwise the demo workspace behaves like any other:
+  // pick a member to prefill the email, then type the password.
+  const oneClickDemo = Boolean(demoPassword);
   const [error, action, pending] = useActionState(authenticate, undefined);
 
   // Default to the demo workspace if present, else the first one.
@@ -61,11 +69,11 @@ export function LoginForm({ workspaces }: { workspaces: Workspace[] }) {
 
           <div className="grid gap-2">
             {ws?.members.map((m) =>
-              ws.isDemo ? (
+              ws.isDemo && oneClickDemo ? (
                 // demo workspace: one-click sign-in with the shared demo password
                 <form key={m.email} action={action}>
                   <input type="hidden" name="email" value={m.email} />
-                  <input type="hidden" name="password" value={DEMO_PASSWORD} />
+                  <input type="hidden" name="password" value={demoPassword ?? ""} />
                   <button type="submit" disabled={pending} className="flex w-full items-center justify-between rounded-lg border border-ink-200 px-3 py-2 text-left text-sm hover:bg-ink-50">
                     <span className="font-medium text-ink-900">{m.name}</span>
                     <span className="text-xs text-ink-500">{m.role}</span>
@@ -90,8 +98,8 @@ export function LoginForm({ workspaces }: { workspaces: Workspace[] }) {
             )}
           </div>
 
-          {ws?.isDemo ? (
-            <p className="text-center text-xs text-ink-400">Demo password: <code className="rounded bg-ink-100 px-1">{DEMO_PASSWORD}</code></p>
+          {ws?.isDemo && oneClickDemo ? (
+            <p className="text-center text-xs text-ink-400">Demo password: <code className="rounded bg-ink-100 px-1">{demoPassword}</code></p>
           ) : (
             <p className="text-center text-xs text-ink-400">Pick a member to fill their email, then enter your password above.</p>
           )}

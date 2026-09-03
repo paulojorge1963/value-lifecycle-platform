@@ -26,6 +26,11 @@ export default async function LoginPage() {
         orderBy: { createdAt: "asc" },
       })
     : [];
+  // The demo workspace offers one-click sign-in, which needs the shared demo
+  // password on the client. It comes from DEMO_PASSWORD (the same variable the
+  // seed uses) and is only sent when the picker is on — i.e. never in
+  // production, where the picker is off by default.
+  const demoPassword = pickerEnabled ? (process.env.DEMO_PASSWORD?.trim() || null) : null;
   const workspaces = orgs.map((o) => ({
     id: o.id,
     name: o.name,
@@ -44,7 +49,7 @@ export default async function LoginPage() {
         <p className="mt-1 text-sm text-ink-500">Sign in to your value-engineering &amp; realization workspace.</p>
       </div>
       <div className="card card-pad">
-        <LoginForm workspaces={workspaces} />
+        <LoginForm workspaces={workspaces} demoPassword={demoPassword} />
       </div>
     </div>
   );
