@@ -14,8 +14,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // App runtime uses the POOLED connection (serverless-safe); schema pushes /
+  // migrations use the DIRECT connection. Locally, set both to the same value.
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // -----------------------------------------------------------------------------
