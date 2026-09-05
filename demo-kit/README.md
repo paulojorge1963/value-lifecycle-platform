@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Demo Kit
 
-**Platform version:** v0.3.1 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.1.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+**Platform version:** v0.3.1 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
 
 **Deploy your own:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform) &nbsp; needs a Postgres DB (Neon) created and seeded first — see [DEPLOYMENT.md](../DEPLOYMENT.md).
 
@@ -95,7 +95,7 @@ Two private Blue Turtle packs complement this kit (access-controlled; links reso
 | Pack | What it is |
 |---|---|
 | **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack)** *(private)* | The workshop-guide workbook, the per-metric "who owns this number" checklist, agendas for the 12 VE / VR / CS discovery workshops, a value-provenance cheat-sheet + facilitator question bank, and **field-and-column dictionaries for the VE / VR / CS capture workbooks** — for running discovery and securing baselines before the templates are filled. |
-| **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks)** *(private)* | Client-facing decks (and matching emails) to win buy-in for a Value Lifecycle study, plus a reusable template. |
+| **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks)** *(private)* | Client-facing decks (and matching emails) to win buy-in for a Value Lifecycle study, plus a reusable template — and **VE→VR→CS sample demo kits** (Investec, Nedbank ×2, Sasol) for demoing the sample data end to end. |
 
 ## Release history
 
@@ -117,7 +117,7 @@ The [companion packs](#companion-packs) are versioned separately:
 | Pack | Recent releases |
 |---|---|
 | **[Discovery Workshop Guide pack](https://github.com/paulojorge1963/blueturtle-workshop-guide-pack/releases)** | **v1.5.0** VR & CS Intake workbook dictionaries · **v1.4.0** VE Discovery Workbook dictionary · **v1.3.0** facilitator question bank · **v1.2.0** value-provenance cheat-sheet · **v1.1.0** 12-workshop agendas · **v1.0.0** workbook, Metric Owners checklist & filled sample |
-| **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks/releases)** | **v1.1.0** method & accuracy slides · **v1.0.0** reusable template deck + a tailored client deck |
+| **[Value Study intro decks](https://github.com/paulojorge1963/blueturtle-value-study-decks/releases)** | **v1.2.0** VE→VR→CS sample demo kits · **v1.1.0** method & accuracy slides · **v1.0.0** reusable template deck + a tailored client deck |
 
 ## Notes
 
