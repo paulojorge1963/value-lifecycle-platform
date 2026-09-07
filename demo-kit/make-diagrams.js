@@ -1,5 +1,5 @@
 // Generate the design-doc diagrams as SVG, rasterise to PNG with sharp.
-// Value Lifecycle Platform — VE = blue, VR = emerald.
+// Value Lifecycle Platform — MP072 palette: VE = Blue Fantastic, VR = Truffle Trouble, CS = Burning Flame.
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
@@ -7,11 +7,12 @@ const sharp = require("sharp");
 const OUT = "demo-kit/diagrams";
 fs.mkdirSync(OUT, { recursive: true });
 
-// Palette
-const VE = "#2563EB", VE_D = "#1E40AF", VE_MIST = "#EFF6FF";
-const VR = "#059669", VR_D = "#047857", VR_MIST = "#ECFDF5";
-const DARK = "#0B1220", INK = "#0F172A", MUTED = "#64748B", HAIR = "#CBD5E1", WHITE = "#FFFFFF";
-const AMBER = "#D97706", AMBER_MIST = "#FFF7ED";
+// Palette (MP072) — mirrors the app's design-system tokens.
+const VE = "#2C3B4D", VE_D = "#1D2733", VE_MIST = "#EEF1F4";      // Blue Fantastic
+const VR = "#A35139", VR_D = "#6A3323", VR_MIST = "#FBF0EC";      // Truffle Trouble
+const DARK = "#1B2632", INK = "#26303B", MUTED = "#6E685C", HAIR = "#C3BBAB", WHITE = "#FFFFFF";
+const BG = "#F5F2EA";                                            // warm greige canvas (Palladian family)
+const AMBER = "#B45E1C", AMBER_MIST = "#FFF6EC";                  // Burning Flame (legible end)
 const FONT = "Arial, Helvetica, sans-serif";
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -57,7 +58,7 @@ function svg(w, h, body) {
     <marker id="arwVE" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="${VE}"/></marker>
     <marker id="arwVR" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="${VR}"/></marker>
   </defs>
-  <rect width="${w}" height="${h}" fill="${WHITE}"/>
+  <rect width="${w}" height="${h}" fill="${BG}"/>
   ${body}
   </svg>`;
 }
@@ -122,9 +123,9 @@ function industryConfig() {
   let b = rrect(40, 140, 340, 150, { fill: VE });
   b += boxText(210, 215, [
     { t: "Core engine", b: true, s: 19 },
-    { t: "8 VE + 7 VR phases", s: 13, c: "#DBEAFE" },
-    { t: "deliverables · finance engine", s: 13, c: "#DBEAFE" },
-    { t: "KPI catalogue · templates", s: 13, c: "#DBEAFE" },
+    { t: "8 VE + 7 VR phases", s: 13, c: "#D9DFE5" },
+    { t: "deliverables · finance engine", s: 13, c: "#D9DFE5" },
+    { t: "KPI catalogue · templates", s: 13, c: "#D9DFE5" },
   ]);
   b += label(210, 320, "never changes per industry", { s: 12.5, c: MUTED });
   const profiles = [
@@ -151,7 +152,7 @@ function dataToDocs() {
   b += boxText(710, 78, [{ t: "Realization data", b: true, s: 15, c: INK }, { t: "work packages · benefits", s: 11.5, c: MUTED }, { t: "KPI targets & actuals · reports", s: 11.5, c: MUTED }]);
   // generator
   b += rrect(310, 195, 320, 74, { fill: INK, stroke: DARK });
-  b += boxText(470, 232, [{ t: "Finance & export engine", b: true, s: 16 }, { t: "ROI · payback · NPV · IRR · LCC", s: 12, c: "#CBD5E1" }]);
+  b += boxText(470, 232, [{ t: "Finance & export engine", b: true, s: 16 }, { t: "ROI · payback · NPV · IRR · LCC", s: 12, c: "#C9C1B1" }]);
   b += arrow(230, 126, 400, 193, { c: MUTED });
   b += arrow(710, 126, 540, 193, { c: MUTED });
   // documents row
@@ -170,7 +171,7 @@ function dataToDocs() {
   });
   // export
   b += rrect(300, 490, 340, 72, { fill: INK });
-  b += boxText(470, 526, [{ t: "Export", b: true, s: 17 }, { t: "Word · Excel", s: 13, c: "#CBD5E1" }]);
+  b += boxText(470, 526, [{ t: "Export", b: true, s: 17 }, { t: "Word · Excel", s: 13, c: "#C9C1B1" }]);
   b += label(470, 610, "Documents assemble from live data — always current, never a blank template.", { s: 12.5, c: MUTED });
   return svg(w, h, b);
 }
@@ -188,7 +189,7 @@ function architecture() {
   ];
   layers.forEach(([t, d, y, fill, col], i) => {
     b += rrect(x, y, bw, bh, { fill, stroke: fill === VE_MIST ? VE : VE_D });
-    b += boxText(cx, y + bh / 2, [{ t, b: true, s: 17, c: col }, { t: d, s: 11.5, c: fill === VE_MIST ? MUTED : "#DBEAFE" }]);
+    b += boxText(cx, y + bh / 2, [{ t, b: true, s: 17, c: col }, { t: d, s: 11.5, c: fill === VE_MIST ? MUTED : "#D9DFE5" }]);
     if (i < layers.length - 1) b += arrow(cx, y + bh + 2, cx, layers[i + 1][2] - 2, { c: MUTED });
   });
   b += label(cx + 14, 170, "/portfolio · /ve · /vr · /kpis · /templates", { s: 11.5, c: MUTED, anchor: "start" });
@@ -245,7 +246,7 @@ function handover() {
 
 function customerSuccess() {
   const w = 1160, h = 470;
-  const CS = "#0891B2", CS_D = "#0E7490", CS_MIST = "#ECFEFF";
+  const CS = "#E07E2A", CS_D = "#B45E1C", CS_MIST = "#FFF6EC";
   let b = "";
   b += label(w / 2, 40, "Customer Success — the continuous, per-account relationship layer", { s: 15, c: CS_D, b: true });
   b += rrect(30, 62, w - 60, 258, { fill: CS_MIST, stroke: CS, sw: 2 });

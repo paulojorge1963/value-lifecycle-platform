@@ -1,18 +1,18 @@
 const pptxgen = require("pptxgenjs");
 
-// ── Palette (Value Lifecycle Platform — VE blue, VR emerald) ──────────────
-const INK = "0F172A";
-const BLUE = "2563EB";      // VE
-const BLUEB = "60A5FA";     // light blue accent (on dark)
-const BLUE_MIST = "EFF6FF"; // light blue card tint
-const EMER = "059669";      // VR
-const EMERB = "34D399";     // light emerald accent (on dark)
-const EMER_MIST = "ECFDF5"; // light emerald card tint
-const MUTED = "64748B";
-const DARK = "0B1220";      // deep ink for dark slides
-const CARD_DK = "16233B";   // card on dark
+// ── Palette (Value Lifecycle Platform — MP072: VE Blue Fantastic, VR Truffle Trouble, Burning Flame accent) ──────────────
+const INK = "26303B";
+const BLUE = "2C3B4D";      // VE
+const BLUEB = "B7C2CD";     // light blue accent (on dark)
+const BLUE_MIST = "EEF1F4"; // light blue card tint
+const EMER = "A35139";      // VR
+const EMERB = "D98E74";     // light emerald accent (on dark)
+const EMER_MIST = "FBF0EC"; // light emerald card tint
+const MUTED = "6E685C";
+const DARK = "1B2632";      // deep ink for dark slides
+const CARD_DK = "26303B";   // card on dark
 const WHITE = "FFFFFF";
-const LIGHT = "CBD5E1";     // muted light for dark-slide subtext
+const LIGHT = "AEB7BF";     // muted light for dark-slide subtext
 
 const HFONT = "Cambria";
 const BFONT = "Calibri";
@@ -27,7 +27,7 @@ const MX = 0.7;
 const CW = W - MX * 2;
 
 function shadow() {
-  return { type: "outer", color: "0F172A", opacity: 0.16, blur: 6, offset: 2, angle: 90 };
+  return { type: "outer", color: "26303B", opacity: 0.16, blur: 6, offset: 2, angle: 90 };
 }
 function sectionLabel(slide, text, color = BLUE) {
   slide.addText(text.toUpperCase(), {
@@ -45,7 +45,7 @@ function heading(slide, text, opts = {}) {
 function card(slide, x, y, w, h, fill = WHITE, radius = 0.12) {
   slide.addShape(pres.ShapeType.roundRect, {
     x, y, w, h, rectRadius: radius,
-    fill: { color: fill }, line: { color: fill === WHITE ? "E5E7EB" : fill, width: 1 },
+    fill: { color: fill }, line: { color: fill === WHITE ? "DAD3C6" : fill, width: 1 },
     shadow: shadow(),
   });
 }
@@ -135,8 +135,8 @@ function bg(slide, color) { slide.background = { color }; }
     { x: MX + 0.3, y: 3.35, w: 4.8, h: 2.7, margin: 0, fontFace: BFONT, fontSize: 13.5 }
   );
   // handover chip
-  s.addShape(pres.ShapeType.roundRect, { x: 6.35, y: 4.0, w: 0.63, h: 0.7, rectRadius: 0.1, fill: { color: WHITE }, line: { color: "D97706", width: 1.5 } });
-  s.addText("→", { x: 6.35, y: 4.0, w: 0.63, h: 0.7, margin: 0, align: "center", valign: "middle", fontFace: BFONT, fontSize: 22, bold: true, color: "D97706" });
+  s.addShape(pres.ShapeType.roundRect, { x: 6.35, y: 4.0, w: 0.63, h: 0.7, rectRadius: 0.1, fill: { color: WHITE }, line: { color: "E07E2A", width: 1.5 } });
+  s.addText("→", { x: 6.35, y: 4.0, w: 0.63, h: 0.7, margin: 0, align: "center", valign: "middle", fontFace: BFONT, fontSize: 22, bold: true, color: "E07E2A" });
   // VR card
   card(s, 7.28, 2.5, 5.35, 3.7, EMER_MIST);
   s.addShape(pres.ShapeType.roundRect, { x: 7.28, y: 2.5, w: 5.35, h: 0.6, rectRadius: 0.12, fill: { color: EMER } });
