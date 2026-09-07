@@ -7,6 +7,11 @@ import { TrackPhaseControl, WorkPackageControl, KpiActualForm, BenefitInput } fr
 import { TrackActions } from "@/components/TrackActions";
 import { CommentThread } from "@/components/CommentThread";
 import { VR_PHASES } from "@/lib/domain/phases";
+import { PlaybookBar } from "@/components/PlaybookBar";
+import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
+import { exitCriteriaFor } from "@/lib/gates";
+import { StarterTextPanel } from "@/components/StarterTextPanel";
+import { ActivityFeed } from "@/components/ActivityFeed";
 import { fmtMoney, fmtPct } from "@/lib/finance";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +49,13 @@ export default async function TrackPage({
     },
   });
   if (!track) notFound();
+
+  const events = await prisma.auditEvent.findMany({
+    where: { OR: [{ trackId: track.id }, { entityType: "RealizationTrack", entityId: track.id }] },
+    include: { actor: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 12,
+  });
 
   const templates = await prisma.phaseTemplate.findMany({ where: { discipline: "VR" } });
   const tmplByPhase = Object.fromEntries(templates.map((t) => [t.vrPhase as string, t]));
@@ -116,30 +128,13 @@ export default async function TrackPage({
         <StatTile label="On-time implementation" value={fmtPct(onTime)} sub={`${wpDone}/${track.workPackages.length} work pkgs`} accent="vr" />
       </div>
 
-      {/* Phase stepper */}
-      <div className="card card-pad">
-        <div className="mb-3 label">Value Realization lifecycle</div>
-        <div className="flex flex-wrap gap-2">
-          {track.phases.sort((a, b) => a.order - b.order).map((p) => {
-            const done = p.status === "COMPLETE";
-            const active = p.phase === activePhaseKey;
-            return (
-              <Link
-                key={p.phase}
-                href={`/vr/${track.id}?phase=${p.phase}`}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
-                  active ? "border-vr-400 bg-vr-50 text-vr-700 ring-1 ring-vr-300" : done ? "border-transparent bg-vr-50 text-vr-700" : "border-ink-200 bg-white text-ink-500"
-                }`}
-              >
-                <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white ${done ? "bg-vr-600" : p.status === "IN_PROGRESS" ? "bg-amber-500" : "bg-ink-300"}`}>
-                  {p.order}
-                </span>
-                {PHASE_TITLE[p.phase]}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      {/* Phase playbook */}
+      <PlaybookBar
+        title="Value Realization lifecycle"
+        phases={track.phases.map((p) => ({ key: p.phase, name: PHASE_TITLE[p.phase], order: p.order, status: p.status }))}
+        activeKey={activePhaseKey ?? ""}
+        basePath={`/vr/${track.id}`}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
@@ -161,14 +156,17 @@ export default async function TrackPage({
                 <GuidanceList title="Key questions" items={(tmpl.keyQuestions as string[]) ?? []} />
                 <GuidanceList title="Tasks" items={tmplContent?.tasks ?? []} />
               </div>
-              <div className="mt-4 rounded-lg bg-ink-50 p-4">
-                <div className="label">Exit criteria</div>
-                <ul className="mt-2 space-y-1 text-sm text-ink-700">
-                  {(tmplContent?.exitCriteria ?? []).map((c, i) => (
-                    <li key={i} className="flex gap-2"><span className="text-vr-500">✓</span>{c}</li>
-                  ))}
-                </ul>
+              <div className="mt-4">
+                <ExitCriteriaChecklist
+                  kind="VR"
+                  id={track.id}
+                  phaseKey={activePhase.phase}
+                  criteria={exitCriteriaFor("VR", activePhase.phase)}
+                  checklist={activePhase.checklist as Record<string, boolean> | null}
+                  canEdit={canEdit}
+                />
               </div>
+              <StarterTextPanel kind="VR" phaseKey={activePhase.phase} industryKey={track.industryKey} />
             </div>
           )}
 
@@ -265,6 +263,7 @@ export default async function TrackPage({
 
         {/* Sidebar */}
         <div className="space-y-6">
+          <ActivityFeed events={events.map((e) => ({ id: e.id, action: e.action, actor: e.actor?.name ?? null, at: e.createdAt, meta: e.metadata as Record<string, unknown> | null }))} />
           {/* Benefits realization */}
           <div className="card card-pad">
             <h2 className="mb-3 font-semibold text-ink-900">Benefits realization</h2>

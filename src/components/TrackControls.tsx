@@ -18,12 +18,31 @@ export function TrackPhaseControl({ trackId, phase, status, canEdit }: { trackId
     COMPLETE: { label: "Reopen", value: "IN_PROGRESS", cls: "btn-ghost" },
     BLOCKED: { label: "Unblock", value: "IN_PROGRESS", cls: "btn-ghost" },
   };
+  const [blocked, setBlocked] = useState<string[] | null>(null);
   const next = map[status];
   if (!canEdit || !next) return null;
   return (
-    <button className={next.cls} disabled={pending} onClick={() => start(() => setTrackPhaseStatus(trackId, phase, next.value))}>
-      {pending ? "…" : next.label}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        className={next.cls}
+        disabled={pending}
+        onClick={() => {
+          setBlocked(null);
+          start(async () => {
+            const r = await setTrackPhaseStatus(trackId, phase, next.value);
+            if (r && !r.ok) setBlocked(r.unmet);
+          });
+        }}
+      >
+        {pending ? "…" : next.label}
+      </button>
+      {blocked && blocked.length > 0 && (
+        <div className="max-w-xs rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-left text-[11px] text-amber-800">
+          <b>Can’t complete yet</b> — tick these exit criteria first:
+          <ul className="mt-1 list-disc pl-4">{blocked.map((c) => <li key={c}>{c}</li>)}</ul>
+        </div>
+      )}
+    </div>
   );
 }
 

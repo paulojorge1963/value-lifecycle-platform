@@ -13,16 +13,31 @@ const NEXT_STATUS: Record<string, { label: string; value: string; cls: string }>
 
 export function PhaseStatusControl({ studyId, phase, status, canEdit }: { studyId: string; phase: string; status: string; canEdit: boolean }) {
   const [pending, start] = useTransition();
+  const [blocked, setBlocked] = useState<string[] | null>(null);
   const next = NEXT_STATUS[status];
   if (!canEdit || !next) return null;
   return (
-    <button
-      className={next.cls}
-      disabled={pending}
-      onClick={() => start(() => setStudyPhaseStatus(studyId, phase, next.value).then(() => {}))}
-    >
-      {pending ? "…" : next.label}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        className={next.cls}
+        disabled={pending}
+        onClick={() => {
+          setBlocked(null);
+          start(async () => {
+            const r = await setStudyPhaseStatus(studyId, phase, next.value);
+            if (r && !r.ok) setBlocked(r.unmet);
+          });
+        }}
+      >
+        {pending ? "…" : next.label}
+      </button>
+      {blocked && blocked.length > 0 && (
+        <div className="max-w-xs rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-left text-[11px] text-amber-800">
+          <b>Can’t complete yet</b> — tick these exit criteria first:
+          <ul className="mt-1 list-disc pl-4">{blocked.map((c) => <li key={c}>{c}</li>)}</ul>
+        </div>
+      )}
+    </div>
   );
 }
 

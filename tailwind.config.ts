@@ -42,6 +42,18 @@ const config: Config = {
           700: "#b45309",
           800: "#92400e",
         },
+        // BMC Helix accent + graphite-navy rail (borrowed from the SN Edition shell).
+        bmc: {
+          50: "#fff4ed",
+          100: "#ffe6d5",
+          200: "#feccae",
+          400: "#fb7b3c",
+          500: "#fe5000",
+          600: "#e2440a",
+          700: "#bd3a10",
+        },
+        rail: "#0f1e2b",
+        railfg: "#c7d3de",
         // Neutral: zinc (true grey, no blue cast).
         ink: {
           50: "#fafafa",

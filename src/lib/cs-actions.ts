@@ -8,6 +8,7 @@
 
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
+import { exitCriteriaFor, unmetCriteria, type GateResult } from "@/lib/gates";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { CS_STAGES } from "@/lib/domain/cs-stages";
@@ -87,9 +88,14 @@ export async function deleteEngagement(id: string) {
   revalidatePath("/cs");
 }
 
-export async function setEngagementStageStatus(engagementId: string, stage: string, status: string) {
+export async function setEngagementStageStatus(engagementId: string, stage: string, status: string): Promise<GateResult> {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  if (status === "COMPLETE") {
+    const inst = await prisma.csStageInstance.findUnique({ where: { engagementId_stage: { engagementId, stage: stage as never } }, select: { checklist: true } });
+    const unmet = unmetCriteria(exitCriteriaFor("CS", stage), inst?.checklist);
+    if (unmet.length) return { ok: false, unmet };
+  }
   await prisma.csStageInstance.update({
     where: { engagementId_stage: { engagementId, stage: stage as never } },
     data: {
@@ -99,6 +105,17 @@ export async function setEngagementStageStatus(engagementId: string, stage: stri
     },
   });
   await audit("engagement.stage", engagementId, { stage, status });
+  revalidatePath(`/cs/${engagementId}`);
+  return { ok: true };
+}
+
+// ---- Toggle a CS stage exit-criterion (completeness gate) ------------------
+export async function setEngagementStageChecklist(engagementId: string, stage: string, index: number, done: boolean) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const inst = await prisma.csStageInstance.findUnique({ where: { engagementId_stage: { engagementId, stage: stage as never } }, select: { checklist: true } });
+  const cl = { ...((inst?.checklist as Record<string, boolean>) ?? {}), [String(index)]: done };
+  await prisma.csStageInstance.update({ where: { engagementId_stage: { engagementId, stage: stage as never } }, data: { checklist: cl } });
   revalidatePath(`/cs/${engagementId}`);
 }
 
