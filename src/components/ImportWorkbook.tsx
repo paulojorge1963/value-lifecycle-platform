@@ -90,9 +90,14 @@ export function ImportWorkbook({ label = "Import workbook", variant = "btn-prima
 
         <div className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2">
           <div className="label mb-1">Need a blank template?</div>
+          {/* Real <a> (not next/link): these hit an API route that streams an
+              .xlsx via Content-Disposition — a download, not client-side page nav. */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/import/template/VE" className="font-medium text-ve-700 hover:underline">VE Discovery ↓</a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/import/template/VR" className="font-medium text-vr-700 hover:underline">VR Intake ↓</a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/import/template/CS" className="font-medium text-cs-700 hover:underline">CS Intake ↓</a>
           </div>
         </div>

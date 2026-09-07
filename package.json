@@ -3,7 +3,7 @@
   "version": "0.3.1",
   "private": true,
   "license": "MIT",
-  "description": "Value Lifecycle Platform \u2014 end-to-end workspace for Value Engineers (VE) and Value Realization Managers (VRM).",
+  "description": "Value Lifecycle Platform — end-to-end workspace for Value Engineers (VE) and Value Realization Managers (VRM).",
   "scripts": {
     "dev": "next dev -p 3200",
     "build": "prisma generate && next build",
@@ -20,7 +20,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.116.0",
+    "@anthropic-ai/sdk": "^0.122.0",
     "@prisma/client": "^6.2.1",
     "bcryptjs": "^3.0.3",
     "docx": "^9.1.0",
@@ -35,7 +35,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.4",
-    "@types/react-dom": "^19.0.2",
+    "@types/react-dom": "^19.2.7",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.23",
