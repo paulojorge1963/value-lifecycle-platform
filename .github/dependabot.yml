@@ -22,6 +22,14 @@ updates:
       # Revisit when migrating to the ESLint CLI (Next 16).
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
+      # Next 15→16 is a deliberate, tested framework migration, not an
+      # auto-merge — don't reopen the major PR until we schedule it.
+      # eslint-config-next is version-locked to the Next major, so ignore
+      # its major bump too (it must move together with next).
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-config-next"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used in workflows (actions/checkout, actions/setup-node, …)
   - package-ecosystem: "github-actions"
