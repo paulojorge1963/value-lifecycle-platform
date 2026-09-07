@@ -6,6 +6,11 @@ import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
 import { CsStageControl, CsHealthControl, LinkPicker, UnlinkButton, DeleteEngagementButton } from "@/components/CsControls";
 import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPlanForm, SuccessPlanForm, ReportsPanel } from "@/components/CsPanels";
 import { CS_STAGES, CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
+import { PlaybookBar } from "@/components/PlaybookBar";
+import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
+import { exitCriteriaFor } from "@/lib/gates";
+import { StarterTextPanel } from "@/components/StarterTextPanel";
+import { ActivityFeed } from "@/components/ActivityFeed";
 import { computeSignals } from "@/lib/cs-signals";
 import { isAiEnabled } from "@/lib/ai";
 import { fmtMoney, fmtPct, fmtDate } from "@/lib/finance";
@@ -45,6 +50,13 @@ export default async function EngagementPage({
   if (!e) notFound();
 
   const canEdit = can(user.role, "cs.edit");
+
+  const events = await prisma.auditEvent.findMany({
+    where: { entityType: "CustomerSuccessEngagement", entityId: e.id },
+    include: { actor: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 12,
+  });
   const canDelete = can(user.role, "cs.delete");
 
   // Unlinked studies/tracks in this org, available to attach.
@@ -123,30 +135,14 @@ export default async function EngagementPage({
         <StatTile label="Renewal" value={rd !== null ? `${rd} days` : "—"} sub={e.renewalDate ? fmtDate(e.renewalDate) : "not set"} accent={rd !== null && rd < 90 ? "ink" : "vr"} />
       </div>
 
-      {/* Stage stepper */}
-      <div className="card card-pad">
-        <div className="mb-3 label">Customer Success lifecycle</div>
-        <div className="flex flex-wrap gap-2">
-          {e.stages.sort((a, b) => a.order - b.order).map((s) => {
-            const done = s.status === "COMPLETE";
-            const active = s.stage === activeKey;
-            return (
-              <Link
-                key={s.stage}
-                href={`/cs/${e.id}?stage=${s.stage}`}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
-                  active ? "border-vr-400 bg-vr-50 text-vr-700 ring-1 ring-vr-300" : done ? "border-transparent bg-vr-50 text-vr-700" : "border-ink-200 bg-white text-ink-500"
-                }`}
-              >
-                <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white ${done ? "bg-vr-600" : s.status === "IN_PROGRESS" ? "bg-amber-500" : "bg-ink-300"}`}>
-                  {s.order}
-                </span>
-                {CS_STAGE_TITLE[s.stage]}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      {/* Stage playbook */}
+      <PlaybookBar
+        title="Customer Success lifecycle"
+        phases={e.stages.map((s) => ({ key: s.stage, name: CS_STAGE_TITLE[s.stage], order: s.order, status: s.status }))}
+        activeKey={activeKey ?? ""}
+        basePath={`/cs/${e.id}`}
+        param="stage"
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
@@ -167,12 +163,17 @@ export default async function EngagementPage({
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <GuidanceList title="Key activities" items={activeDef.keyActivities} />
                 <div>
-                  <div className="label">Exit criteria</div>
-                  <ul className="mt-1.5 space-y-1 text-sm text-ink-700">
-                    {activeDef.exitCriteria.map((c, i) => <li key={i} className="flex gap-2"><span className="text-vr-500">✓</span>{c}</li>)}
-                  </ul>
+                  <ExitCriteriaChecklist
+                    kind="CS"
+                    id={e.id}
+                    phaseKey={activeInst.stage}
+                    criteria={exitCriteriaFor("CS", activeInst.stage)}
+                    checklist={activeInst.checklist as Record<string, boolean> | null}
+                    canEdit={canEdit}
+                  />
                   <div className="mt-3 label">Primary output</div>
                   <p className="mt-1 text-sm text-ink-700">{activeDef.output}</p>
+                  <StarterTextPanel kind="CS" phaseKey={activeInst.stage} industryKey={e.industryKey} />
                 </div>
               </div>
             </div>
@@ -226,6 +227,15 @@ export default async function EngagementPage({
 
         {/* Sidebar */}
         <div className="space-y-6">
+          <ActivityFeed
+            events={events.map((ev) => ({
+              id: ev.id,
+              action: ev.action,
+              actor: ev.actor?.name ?? null,
+              at: ev.createdAt,
+              meta: ev.metadata as Record<string, unknown> | null,
+            }))}
+          />
           <StakeholderPanel engagementId={e.id} stakeholders={stakeholders} canEdit={canEdit} />
           <RenewalPlanForm engagementId={e.id} plan={renewal} canEdit={canEdit} />
           <GrowthPlanForm engagementId={e.id} plan={growth} canEdit={canEdit} />

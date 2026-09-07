@@ -17,6 +17,17 @@ export default async function TemplatesPage() {
     <div className="space-y-8">
       <SectionHeader title="Template & content library" desc="Reusable starter text, phase guidance and solution profiles — the reuse layer that feeds guided workflows." />
 
+      {/* Capture workbooks — download, fill offline, import */}
+      <div>
+        <h3 className="mb-1 font-semibold text-ink-900">Capture workbooks</h3>
+        <p className="mb-3 text-sm text-ink-500">Download a blank workbook, fill it offline (dropdowns and example rows guide you), then use <span className="font-medium text-ink-700">Import workbook</span> — the type is detected and previewed before anything is created.</p>
+        <div className="grid gap-4 md:grid-cols-3">
+          <CaptureCard href="/api/import/template/VE" accent="ve" title="VE Discovery" desc="Engagement, functions, alternatives, business case, handover pack." />
+          <CaptureCard href="/api/import/template/VR" accent="vr" title="VR Intake" desc="Track, baselines, work packages, KPI tracker, benefits, QBR." />
+          <CaptureCard href="/api/import/template/CS" accent="cs" title="CS Intake" desc="Account, success plan, lifecycle, health, renewal & growth." />
+        </div>
+      </div>
+
       {/* Solution profiles */}
       <div>
         <h3 className="mb-3 font-semibold text-ink-900">Solution profiles</h3>
@@ -61,6 +72,21 @@ export default async function TemplatesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function CaptureCard({ href, accent, title, desc }: { href: string; accent: "ve" | "vr" | "cs"; title: string; desc: string }) {
+  const dot = accent === "ve" ? "bg-ve-500" : accent === "vr" ? "bg-vr-500" : "bg-cs-500";
+  const link = accent === "ve" ? "text-ve-700" : accent === "vr" ? "text-vr-700" : "text-cs-700";
+  return (
+    <a href={href} className="card card-pad transition hover:shadow-card">
+      <div className="flex items-center gap-2">
+        <span className={`h-2.5 w-2.5 rounded-full ${dot}`} />
+        <span className="font-medium text-ink-900">{title}</span>
+      </div>
+      <p className="mt-1 text-xs text-ink-500">{desc}</p>
+      <span className={`mt-3 inline-block text-sm font-medium ${link}`}>Download .xlsx ↓</span>
+    </a>
   );
 }
 

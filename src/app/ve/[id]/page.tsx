@@ -12,6 +12,11 @@ import { AlternativeEditor } from "@/components/AlternativeEditor";
 import { EvaluationMatrix } from "@/components/EvaluationMatrix";
 import { RecommendationEditor } from "@/components/RecommendationEditor";
 import { VE_PHASES } from "@/lib/domain/phases";
+import { PlaybookBar } from "@/components/PlaybookBar";
+import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
+import { exitCriteriaFor } from "@/lib/gates";
+import { StarterTextPanel } from "@/components/StarterTextPanel";
+import { ActivityFeed } from "@/components/ActivityFeed";
 import { asCriteria, asScores } from "@/lib/evaluation";
 import { isAiEnabled } from "@/lib/ai";
 import { fmtMoney } from "@/lib/finance";
@@ -52,6 +57,13 @@ export default async function StudyPage({
     },
   });
   if (!study) notFound();
+
+  const events = await prisma.auditEvent.findMany({
+    where: { OR: [{ studyId: study.id }, { entityType: "Study", entityId: study.id }] },
+    include: { actor: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 12,
+  });
 
   const templates = await prisma.phaseTemplate.findMany({ where: { discipline: "VE" } });
   const tmplByPhase = Object.fromEntries(templates.map((t) => [t.vePhase as string, t]));
@@ -111,32 +123,13 @@ export default async function StudyPage({
         </div>
       </div>
 
-      {/* Phase stepper */}
-      <div className="card card-pad">
-        <div className="mb-3 label">VE Job Plan</div>
-        <div className="flex flex-wrap gap-2">
-          {study.phases
-            .sort((a, b) => a.order - b.order)
-            .map((p) => {
-              const done = p.status === "COMPLETE";
-              const active = p.phase === activePhaseKey;
-              return (
-                <Link
-                  key={p.phase}
-                  href={`/ve/${study.id}?phase=${p.phase}`}
-                  className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
-                    active ? "border-ve-400 bg-ve-50 text-ve-700 ring-1 ring-ve-300" : done ? "border-transparent bg-ve-50 text-ve-700" : "border-ink-200 bg-white text-ink-500"
-                  }`}
-                >
-                  <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold text-white ${done ? "bg-ve-600" : p.status === "IN_PROGRESS" ? "bg-amber-500" : "bg-ink-300"}`}>
-                    {p.order}
-                  </span>
-                  {PHASE_TITLE[p.phase]}
-                </Link>
-              );
-            })}
-        </div>
-      </div>
+      {/* Phase playbook */}
+      <PlaybookBar
+        title="VE Job Plan"
+        phases={study.phases.map((p) => ({ key: p.phase, name: PHASE_TITLE[p.phase], order: p.order, status: p.status }))}
+        activeKey={activePhaseKey ?? ""}
+        basePath={`/ve/${study.id}`}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Phase guidance panel */}
@@ -162,14 +155,17 @@ export default async function StudyPage({
                 <GuidanceList title="Artifacts to produce" items={tmplContent?.artifacts ?? []} />
               </div>
 
-              <div className="mt-4 rounded-lg bg-ink-50 p-4">
-                <div className="label">Exit criteria (quality checks to advance)</div>
-                <ul className="mt-2 space-y-1 text-sm text-ink-700">
-                  {(tmplContent?.exitCriteria ?? []).map((c, i) => (
-                    <li key={i} className="flex gap-2"><span className="text-ve-500">✓</span>{c}</li>
-                  ))}
-                </ul>
+              <div className="mt-4">
+                <ExitCriteriaChecklist
+                  kind="VE"
+                  id={study.id}
+                  phaseKey={activePhase.phase}
+                  criteria={exitCriteriaFor("VE", activePhase.phase)}
+                  checklist={activePhase.checklist as Record<string, boolean> | null}
+                  canEdit={canEdit}
+                />
               </div>
+              <StarterTextPanel kind="VE" phaseKey={activePhase.phase} industryKey={study.industryKey} />
             </div>
           )}
 
@@ -281,6 +277,7 @@ export default async function StudyPage({
 
         {/* Sidebar: business case + handover */}
         <div className="space-y-6">
+          <ActivityFeed events={events.map((e) => ({ id: e.id, action: e.action, actor: e.actor?.name ?? null, at: e.createdAt, meta: e.metadata as Record<string, unknown> | null }))} />
           <div className="card card-pad">
             <h2 className="mb-3 font-semibold text-ink-900">Business case</h2>
             {study.businessCase ? (

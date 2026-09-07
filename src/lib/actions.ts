@@ -6,6 +6,7 @@ import { getCurrentUser, can } from "@/lib/session";
 import { VE_PHASES, VR_PHASES } from "@/lib/domain/phases";
 import { weightedScore, asCriteria, asScores, type Criterion } from "@/lib/evaluation";
 import { isAiEnabled, generateJSON } from "@/lib/ai";
+import { exitCriteriaFor, unmetCriteria, type GateResult } from "@/lib/gates";
 
 async function nextCode(prefix: string) {
   const year = new Date().getFullYear();
@@ -94,9 +95,14 @@ export async function deleteStudy(studyId: string) {
 }
 
 // ---- Set a study phase status ---------------------------------------------
-export async function setStudyPhaseStatus(studyId: string, phase: string, status: string) {
+export async function setStudyPhaseStatus(studyId: string, phase: string, status: string): Promise<GateResult> {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  if (status === "COMPLETE") {
+    const inst = await prisma.studyPhase.findUnique({ where: { studyId_phase: { studyId, phase: phase as never } }, select: { checklist: true } });
+    const unmet = unmetCriteria(exitCriteriaFor("VE", phase), inst?.checklist);
+    if (unmet.length) return { ok: false, unmet };
+  }
   await prisma.studyPhase.update({
     where: { studyId_phase: { studyId, phase: phase as never } },
     data: {
@@ -106,6 +112,17 @@ export async function setStudyPhaseStatus(studyId: string, phase: string, status
     },
   });
   await audit("phase.updated", "StudyPhase", `${studyId}:${phase}`, { studyId, metadata: { phase, status } });
+  revalidatePath(`/ve/${studyId}`);
+  return { ok: true };
+}
+
+// ---- Toggle a phase exit-criterion (completeness gate) ---------------------
+export async function setStudyPhaseChecklist(studyId: string, phase: string, index: number, done: boolean) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  const inst = await prisma.studyPhase.findUnique({ where: { studyId_phase: { studyId, phase: phase as never } }, select: { checklist: true } });
+  const cl = { ...((inst?.checklist as Record<string, boolean>) ?? {}), [String(index)]: done };
+  await prisma.studyPhase.update({ where: { studyId_phase: { studyId, phase: phase as never } }, data: { checklist: cl } });
   revalidatePath(`/ve/${studyId}`);
 }
 
@@ -572,9 +589,14 @@ export async function deleteTrack(trackId: string) {
 }
 
 // ---- Set a VR phase status -------------------------------------------------
-export async function setTrackPhaseStatus(trackId: string, phase: string, status: string) {
+export async function setTrackPhaseStatus(trackId: string, phase: string, status: string): Promise<GateResult> {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  if (status === "COMPLETE") {
+    const inst = await prisma.vrPhaseInstance.findUnique({ where: { trackId_phase: { trackId, phase: phase as never } }, select: { checklist: true } });
+    const unmet = unmetCriteria(exitCriteriaFor("VR", phase), inst?.checklist);
+    if (unmet.length) return { ok: false, unmet };
+  }
   await prisma.vrPhaseInstance.update({
     where: { trackId_phase: { trackId, phase: phase as never } },
     data: {
@@ -584,6 +606,17 @@ export async function setTrackPhaseStatus(trackId: string, phase: string, status
     },
   });
   await audit("vrphase.updated", "VrPhaseInstance", `${trackId}:${phase}`, { trackId, metadata: { phase, status } });
+  revalidatePath(`/vr/${trackId}`);
+  return { ok: true };
+}
+
+// ---- Toggle a VR phase exit-criterion (completeness gate) ------------------
+export async function setTrackPhaseChecklist(trackId: string, phase: string, index: number, done: boolean) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const inst = await prisma.vrPhaseInstance.findUnique({ where: { trackId_phase: { trackId, phase: phase as never } }, select: { checklist: true } });
+  const cl = { ...((inst?.checklist as Record<string, boolean>) ?? {}), [String(index)]: done };
+  await prisma.vrPhaseInstance.update({ where: { trackId_phase: { trackId, phase: phase as never } }, data: { checklist: cl } });
   revalidatePath(`/vr/${trackId}`);
 }
 

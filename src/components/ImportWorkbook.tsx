@@ -88,6 +88,15 @@ export function ImportWorkbook({ label = "Import workbook", variant = "btn-prima
           <p className="mt-0.5 text-sm text-ink-500">Upload a filled VE Discovery, VR Intake or CS Intake workbook. The type is detected automatically.</p>
         </div>
 
+        <div className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2">
+          <div className="label mb-1">Need a blank template?</div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <a href="/api/import/template/VE" className="font-medium text-ve-700 hover:underline">VE Discovery ↓</a>
+            <a href="/api/import/template/VR" className="font-medium text-vr-700 hover:underline">VR Intake ↓</a>
+            <a href="/api/import/template/CS" className="font-medium text-cs-700 hover:underline">CS Intake ↓</a>
+          </div>
+        </div>
+
         <div>
           <label className="label">Workbook (.xlsx)</label>
           <input ref={fileRef} type="file" accept=".xlsx" className="input mt-1"
