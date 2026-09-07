@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev -p 3200",
     "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start -p 3200",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
