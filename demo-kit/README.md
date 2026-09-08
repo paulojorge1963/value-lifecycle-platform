@@ -15,6 +15,7 @@ Deliverables for demoing and explaining the **Value Lifecycle Platform** — one
 | **ValueLifecycle-Process-Guide.docx** | A practitioner's guide to the full VE → handover → VRM process, phase by phase, with six flow diagrams — including the standalone VRM path for software already in place | Train the team / learn the method end to end |
 | **ValueLifecycle-Runbook.md** | A step-by-step operator's runbook — run the app, fill in the capture workbooks, and import them | Set up / operate the app end to end |
 | **ValueLifecycle-Field-Guides.md** | One-page field guides for the three capture workbooks (VE Discovery, VR Intake, CS Intake) | Hand to a VE / VRM / CSM before a client meeting |
+| **ValueLifecycle-Sample-ITSM-Displacement-*.xlsx** | A filled, import-ready sample pair — a VE Discovery study for a competitive **ITSM-platform displacement / TCO case** and its matching VR Intake realization track (vendor-neutral, illustrative figures) | Import to see a worked study + track end to end |
 
 Each document is also provided as **Markdown source** (`*.md`) — the editable originals — and the demo script, user guide, design document and process guide each ship as a **PDF** for quick sharing. The solution overview ships as both **.pptx** (editable) and **.pdf**.
 
@@ -32,6 +33,8 @@ demo-kit/
 ├─ ValueLifecycle-Process-Guide.md / .docx / .pdf   ← end-to-end process (learning guide)
 ├─ ValueLifecycle-Runbook.md                        ← operator runbook (run + capture + import)
 ├─ ValueLifecycle-Field-Guides.md                   ← one-page guides for the capture workbooks
+├─ ValueLifecycle-Sample-ITSM-Displacement-VE-Discovery.xlsx  ← filled sample VE study
+├─ ValueLifecycle-Sample-ITSM-Displacement-VR-Intake.xlsx     ← matching sample VR track
 ├─ ValueLifecycle-Solution-Overview.pptx / .pdf     ← leadership deck
 ├─ diagrams/                                        ← 5 design diagrams (.svg + .png)
 ├─ guide-diagrams/                                  ← 6 process-guide diagrams (.svg + .png)
