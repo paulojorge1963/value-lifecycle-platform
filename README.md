@@ -28,7 +28,7 @@ Supports three configurable industry profiles out of the box — **Construction 
 
 📘 **New here?** Read the [**User Guide**](USER_GUIDE.md) — how to run a value study end-to-end, from a fresh problem through the handover to proven realized value.
 
-See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full design, data model and user flows.
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full design, data model and user flows, and [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md) for maintainer notes — migrations, the demo-kit regeneration chain, and build/deploy gotchas.
 
 🧭 **Proposed:** [`docs/CS-MODULE-DESIGN.md`](docs/CS-MODULE-DESIGN.md) — a draft design for a Customer Success pillar (continuous 8-stage lifecycle) alongside VE and VR. Not yet built.
 
