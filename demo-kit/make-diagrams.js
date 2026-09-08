@@ -127,18 +127,18 @@ function industryConfig() {
     { t: "deliverables · finance engine", s: 13, c: "#D9DFE5" },
     { t: "KPI catalogue · templates", s: 13, c: "#D9DFE5" },
   ]);
-  b += label(210, 320, "never changes per industry", { s: 12.5, c: MUTED });
+  b += label(210, 320, "never changes per profile", { s: 12.5, c: MUTED });
   const profiles = [
-    ["Construction & Infrastructure", "study types · cost drivers · value levers · default KPIs", 40],
-    ["Manufacturing & Product Dev", "study types · cost drivers · value levers · default KPIs", 165],
-    ["Enterprise Software / SaaS", "study types · cost drivers · value levers · default KPIs", 290],
+    ["Workload Automation", "study types · cost drivers · value levers · default KPIs", 40],
+    ["Service & Operations", "study types · cost drivers · value levers · default KPIs", 165],
+    ["Mainframe Optimization", "study types · cost drivers · value levers · default KPIs", 290],
   ];
   profiles.forEach(([t, d, py]) => {
     b += rrect(700, py, 420, 92, { fill: VE_MIST, stroke: VE });
     b += boxText(910, py + 46, [{ t, b: true, s: 16.5, c: VE_D }, { t: d, s: 12, c: INK }]);
     b += arrow(382, 215, 695, py + 46, { c: VE, id: "arwVE" });
   });
-  b += label(910, 30, "Industry = configuration, not code — add a profile in a TS file and re-seed.", { s: 13, c: MUTED });
+  b += label(910, 30, "Solution profile = configuration, not code — add a profile in a TS file and re-seed.", { s: 13, c: MUTED });
   return svg(w, h, b);
 }
 

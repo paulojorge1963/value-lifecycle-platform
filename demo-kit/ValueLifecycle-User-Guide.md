@@ -67,7 +67,7 @@ This is the everyday operating procedure. A study moves through the VE Job Plan,
 
 ### 🔵 Value Engineering — building the case
 
-**1. Create the study** — Go to **Value Engineering** and click **"New VE study"**. Give it a title, pick the **industry profile** (Construction, Manufacturing or SaaS — this tailors the study types, cost drivers, value levers and default KPIs), choose the **study type** and **currency** (defaults to ZAR), and write a one-line **problem statement**.
+**1. Create the study** — Go to **Value Engineering** and click **"New VE study"**. Give it a title, pick the **solution profile** (Workload Automation, Mainframe Optimization, Service & Operations or Software Reseller — this tailors the study types, cost drivers, value levers and default KPIs), choose the **study type** and **currency** (defaults to USD), and write a one-line **problem statement**.
 → *Result:* a study with all 8 VE phases created and ready, and its own code (e.g. `VE-2026-021`).
 
 **2. Orientation & Information (phases 1–2)** — Open the study. The phase stepper runs across the top; click a phase to load its guidance. In **Orientation** confirm scope, stakeholders and the target outcome; in **Information** assemble the cost and performance facts. Click **Start phase**, then **Mark complete** once the exit criteria are met.

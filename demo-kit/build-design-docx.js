@@ -90,7 +90,7 @@ function principlesTable() {
     H1("3. Industry as configuration"),
     P("The workflow is data-driven, not hard-coded. The core engine — the 8 VE and 7 VR phases, the deliverables, the finance engine and the KPI catalogue — is the same for everyone. An industry profile layers on the study types, cost drivers, value levers and default KPIs that make a study feel native to that sector."),
     await img("2-industry-config", 600),
-    P([new TextRun({ text: "Adding an industry means editing a TypeScript module in ", }), new TextRun({ text: "src/lib/domain/", font: "Consolas", color: "B91C1C" }), new TextRun(" and re-seeding — construction, manufacturing and SaaS ship out of the box. The engine never changes.")]),
+    P([new TextRun({ text: "Adding an industry means editing a TypeScript module in ", }), new TextRun({ text: "src/lib/domain/", font: "Consolas", color: "B91C1C" }), new TextRun(" and re-seeding — workload automation, mainframe optimization, service & operations and software reseller ship out of the box. The engine never changes.")]),
 
     H1("4. From data to documents"),
     P("Function analysis, the business case, work packages, benefits and KPIs are entered once. The finance and export engine turns that live data into the deliverables leadership actually asks for — a board-ready business case, a Value Realization Plan / QBR pack, and a KPI workbook."),

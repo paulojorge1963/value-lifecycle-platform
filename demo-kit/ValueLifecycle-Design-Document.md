@@ -26,7 +26,7 @@ The workflow is data-driven, not hard-coded. The core engine — the 8 VE and 7 
 
 ![Industry as configuration](diagrams/2-industry-config.png)
 
-Adding an industry means editing a TypeScript module in `src/lib/domain/` and re-seeding — construction, manufacturing and SaaS ship out of the box. The engine never changes.
+Adding a solution profile means editing a TypeScript module in `src/lib/domain/` and re-seeding — workload automation, mainframe optimization, service & operations and software reseller ship out of the box. The engine never changes.
 
 ## 4. From data to documents
 

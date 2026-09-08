@@ -299,11 +299,11 @@ function bg(slide, color) { slide.background = { color }; }
   const s = pres.addSlide();
   bg(s, WHITE);
   sectionLabel(s, "Configurable");
-  heading(s, "Three industries out of the box — configuration, not code.");
+  heading(s, "Solution profiles out of the box — configuration, not code.");
   const who = [
-    ["Construction & Infrastructure", "Capital projects, life-cycle cost, buildability — value engineering's home turf."],
-    ["Manufacturing & Product Dev", "Should-cost, DFMA, tooling and unit-cost levers across a product line."],
-    ["Enterprise Software / SaaS", "Adoption, cost-to-serve and efficiency benefits for digital initiatives."],
+    ["Workload Automation", "Job orchestration, SLA management and scheduler consolidation — reliability and licence take-out."],
+    ["Service & Operations", "ITSM, AIOps and self-service — MTTR, deflection and tool consolidation."],
+    ["Mainframe Optimization", "Cost-per-workload, throughput and resilience across the mainframe estate."],
   ];
   const cw = 3.85, gap = (CW - cw * 3) / 2;
   who.forEach(([h, d], i) => {
