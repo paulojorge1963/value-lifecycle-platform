@@ -23,6 +23,8 @@ A timed, click-by-click script for a **20–25 minute** live demo. It tells one 
 
 Open with `VE-2026-014` already loaded in a background tab so you can jump to a "finished" example if you run short on time.
 
+**Optional storyline — ITSM-platform displacement.** The kit ships a filled sample **VE + VR pair** (`ValueLifecycle-Sample-ITSM-Displacement-VE-Discovery.xlsx` / `-VR-Intake.xlsx`) for a competitive **displacement / TCO case**. Import them beforehand (Runbook §6a) if you want to run that storyline — a study landing **ROI ~385% · payback ~12 months** and a realization track proving **$630K/yr** (linked back to its source study) — instead of, or alongside, the seeded hero study. It makes the "quantify, then prove" arc land hard for a cost-out audience.
+
 ---
 
 ## 1 · The problem & the promise (2 min · talk, no clicks)
