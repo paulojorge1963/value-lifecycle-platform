@@ -18,8 +18,8 @@ A timed, click-by-click script for a **20–25 minute** live demo. It tells one 
 | Realization Manager login | `vrm@demo.app` |
 | Customer Success login | `cs@demo.app` |
 | Admin login | `admin@demo.app` |
-| Hero study (construction, handed over) | `VE-2026-014` → track `VR-2026-014` |
-| Ready-to-hand-over study (SaaS) | `VE-2026-021` |
+| Hero study (batch automation, handed over) | `VE-2026-014` → track `VR-2026-014` |
+| Second study (IT service management) | `VE-2026-021` |
 
 Open with `VE-2026-014` already loaded in a background tab so you can jump to a "finished" example if you run short on time.
 
@@ -46,13 +46,13 @@ Land the shape of it: **8-phase VE Job Plan → handover → 7-phase realization
 
 3. Point at the **by-industry** breakdown and the two tables — **VE studies** and **VR tracks**.
 
-> "Same platform, three industries out of the box — construction, manufacturing, SaaS — because industry here is *configuration, not code.*"
+> "Same platform, several solution profiles out of the box — workload automation, mainframe, service & operations — because the profile here is *configuration, not code.*"
 
 ---
 
 ## 3 · A value study, end to end (7 min) — the core of the demo
 
-Open study **`VE-2026-021`** (the SaaS study) from the VE workspace, or create a fresh one to show the wizard — your call on time.
+Open study **`VE-2026-021`** (the IT service management study) from the VE workspace, or create a fresh one to show the wizard — your call on time.
 
 ### The phase stepper
 1. Point at the **8-phase stepper** across the top: Orientation → Information → Function Analysis → Creative → Evaluation → Development → Presentation → Handover.
