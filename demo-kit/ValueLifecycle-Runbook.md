@@ -119,6 +119,32 @@ Each run creates a **new** study/track/engagement — always `--dry-run` first.
 
 ---
 
+## 6a · Worked example — the sample studies
+
+The kit ships a filled, import-ready **VE + VR pair** for a competitive **ITSM-platform displacement / TCO case** (vendor-neutral, illustrative figures) so you can see a complete study and its realization track without capturing anything first:
+
+- `ValueLifecycle-Sample-ITSM-Displacement-VE-Discovery.xlsx`
+- `ValueLifecycle-Sample-ITSM-Displacement-VR-Intake.xlsx`
+
+Import them as a linked chain (VE first, then link the track to it):
+
+```bash
+# 1 · Import the VE study with a known code
+npx tsx scripts/import-workbook.ts \
+  "demo-kit/ValueLifecycle-Sample-ITSM-Displacement-VE-Discovery.xlsx" \
+  --code VE-2026-060
+
+# 2 · Open the VR workbook, set "Source study code (if handover)" on the
+#     "1. Track" tab to VE-2026-060, save, then import it
+npx tsx scripts/import-workbook.ts \
+  "demo-kit/ValueLifecycle-Sample-ITSM-Displacement-VR-Intake.xlsx" \
+  --code VR-2026-060
+```
+
+You should get a study with **ROI ~385% · payback ~12 months · NPV ~$1.74M** and a realization track (**$630K planned / $160K realized**) that links back to the study — the full VE → handover → VR chain. (Leave `--code` off to let the app auto-number, or add `--dry-run` to preview.) Re-seeding (`npm run db:seed`) clears imported studies, so re-run these to restore the examples.
+
+---
+
 ## 7 · Troubleshooting
 
 | Symptom | Fix |
