@@ -224,8 +224,13 @@ export default async function StudyPage({
                 Baseline measures and stakeholders captured during discovery — the reference the business case and value handover are built on.
               </p>
               {baselineItems.length > 0 && (
-                <div className="mt-3 overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="mt-3">
+                  <table className="w-full table-fixed text-sm">
+                    <colgroup>
+                      <col className="w-[38%]" />
+                      <col className="w-[24%]" />
+                      <col className="w-[38%]" />
+                    </colgroup>
                     <thead>
                       <tr className="text-left text-ink-400">
                         <th className="pb-2 pr-3 font-medium">Measure</th>
@@ -236,9 +241,9 @@ export default async function StudyPage({
                     <tbody>
                       {baselineItems.map((it) => (
                         <tr key={it.id} className="border-t border-ink-100 align-top">
-                          <td className="py-1.5 pr-3 text-ink-700">{it.label}</td>
-                          <td className="py-1.5 pr-3 font-medium text-ink-900 whitespace-nowrap">{it.value}</td>
-                          <td className="py-1.5 text-ink-400">{it.source}</td>
+                          <td className="py-1.5 pr-3 text-ink-700 break-words">{it.label}</td>
+                          <td className="py-1.5 pr-3 font-medium text-ink-900 break-words">{it.value}</td>
+                          <td className="py-1.5 text-ink-400 break-words">{it.source}</td>
                         </tr>
                       ))}
                     </tbody>
