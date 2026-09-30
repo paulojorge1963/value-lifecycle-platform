@@ -202,6 +202,7 @@ export async function importWorkbook(data: ArrayBuffer | Buffer, opts: ImportOpt
       const study = await tx.study.create({ data: {
         code, title, industryKey, currency, ownerId, organizationId: ORG_ID, status: "DRAFT",
         studyType: str(kv(eng, "Study type")), problemStatement: str(kv(ori, "Problem statement (1–2 lines)")),
+        customerName: str(kv(eng, "Client / account")),
         scope, summary: str(kv(ori, "Value hypothesis (rough size & driver)")), estimatedValue: num(kv(eng, "Estimated value (optional)")),
         evaluationCriteria: (criteria.length ? criteria : DEFAULT_CRITERIA) as unknown as Prisma.InputJsonValue,
         startedAt: new Date(), targetDate: date(kv(eng, "Target decision date")),
