@@ -33,6 +33,7 @@ export async function createStudy(formData: FormData) {
   const industryKey = String(formData.get("industryKey") || "construction");
   const studyType = String(formData.get("studyType") || "") || null;
   const problemStatement = String(formData.get("problemStatement") || "") || null;
+  const customerName = String(formData.get("customerName") || "").trim() || null;
   const estimatedValue = formData.get("estimatedValue") ? Number(formData.get("estimatedValue")) : null;
   const currency = String(formData.get("currency") || "USD");
   if (!title) throw new Error("Title required");
@@ -48,6 +49,7 @@ export async function createStudy(formData: FormData) {
       ownerId: user.id,
       studyType,
       problemStatement,
+      customerName,
       estimatedValue,
       currency,
       startedAt: new Date(),

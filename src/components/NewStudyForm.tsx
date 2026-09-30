@@ -46,6 +46,10 @@ export function NewStudyForm({
           <label className="label">Title</label>
           <input name="title" required className="input mt-1" placeholder="e.g. Pump Station Civil VE" />
         </div>
+        <div>
+          <label className="label">Customer / account name (optional)</label>
+          <input name="customerName" className="input mt-1" placeholder="Used on client-facing exports (e.g. the CVR); defaults to the title" />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="label">Solution profile</label>

@@ -373,6 +373,7 @@ model Study {
   studyType      String? // from industry profile's studyTypes
   scope          String? // problem statement / scope document (markdown)
   problemStatement String?
+  customerName   String? // customer / account name for client-facing exports (e.g. the CVR)
 
   /// Evaluation-phase criteria & weights: [{ key, label, weight }]
   evaluationCriteria Json?
