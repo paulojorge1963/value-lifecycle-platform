@@ -116,6 +116,7 @@ export default async function StudyPage({
             <Link href={`/ve/${study.id}/business-case`} className="btn-ghost">Business case</Link>
             <Link href={`/ve/${study.id}/report`} className="btn-ghost">Status report</Link>
             <a href={`/api/export/business-case/${study.id}`} className="btn-ghost">Export ↓</a>
+            <a href={`/api/export/cvr/${study.id}`} className="btn-ghost">Export CVR (PowerPoint) ↓</a>
             {canEdit && (
               <StudyActions studyId={study.id} code={study.code} status={study.status} canDelete={canDelete} />
             )}
