@@ -57,6 +57,8 @@ export interface CvrData {
 }
 
 const or = (v: string | undefined | null, ph: string) => (v && v.trim() ? v.trim() : ph);
+// Clamp to n chars on a word boundary so long free-text fields can't overflow a fixed card.
+const clamp = (t: string, n: number) => (t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, "").trimEnd() + "…" : t);
 const orList = (a: string[] | undefined, ph: string[], n: number) => {
   const out = (a && a.length ? a : ph).slice(0, n);
   while (out.length < Math.min(ph.length, n)) out.push(ph[out.length]);
@@ -134,7 +136,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       card(s, x, y, cw, ch, WHITE);
       s.addShape(p.ShapeType.roundRect, { x, y, w: 0.13, h: ch, rectRadius: 0.06, fill: { color: c[2] }, line: { type: "none" } });
       s.addText(c[0], { x: x + 0.38, y: y + 0.2, w: cw - 0.7, h: 0.4, margin: 0, fontFace: HF, fontSize: 16, bold: true, color: c[2] });
-      s.addText(c[1], { x: x + 0.38, y: y + 0.66, w: cw - 0.7, h: 0.85, margin: 0, fontFace: BF, fontSize: 12.5, color: INK, lineSpacingMultiple: 1.05 });
+      s.addText(clamp(c[1] as string, 210), { x: x + 0.38, y: y + 0.66, w: cw - 0.7, h: 0.86, valign: "top", margin: 0, fontFace: BF, fontSize: 11.5, color: INK, lineSpacingMultiple: 1.02 });
     });
     s.addText(or(d.useCaseLine, "USE CASES:  <Enterprise Use Case Title> · <Use case description>"), { x: MX, y: 5.5, w: 12.0, h: 0.5, margin: 0, fontFace: BF, fontSize: 12, italic: true, color: MUTED });
   }
