@@ -60,6 +60,20 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     return c ? c.replaceAll("_", " ").toLowerCase().replace(/^\w/, (m) => m.toUpperCase()) : "Benefit";
   };
 
+  // Pull a short headline figure out of a baseline value string (e.g. "68.8 % of 30,000" -> "68.8%").
+  const headline = (raw: string | null | undefined) => {
+    const s = (raw ?? "").trim();
+    const m = s.match(/[R$£€]?\s?\d[\d.,]*\s?%?/);
+    return (m ? m[0].replace(/\s+/g, "") : s.slice(0, 8)) || "•";
+  };
+
+  // Participants: prefer CS-engagement stakeholders; otherwise fall back to the
+  // stakeholder rows captured as study info-items (how a VE kickoff stores them).
+  const engStakeholders = (study.engagement?.stakeholders ?? []).map((sk) => ({ name: sk.name, title: sk.title ?? sk.role }));
+  const infoStakeholders = study.infoItems
+    .filter((i) => i.category === "stakeholder")
+    .map((i) => ({ name: i.label, title: (i.value ?? "").split(" · ")[0]?.trim() || null }));
+
   return {
     customerName: study.customerName?.trim() || study.title,
     studyTitle: study.title,
@@ -70,8 +84,8 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     whyDoSomething: study.problemStatement ?? undefined,
     whatsNext: bc?.executiveSummary ?? undefined,
     useCaseLine: study.recommendations.length ? "USE CASES:  " + study.recommendations.slice(0, 4).map((r) => r.title).join("  ·  ") : undefined,
-    participants: (study.engagement?.stakeholders ?? []).map((sk) => ({ name: sk.name, title: sk.title ?? sk.role })),
-    proofPoints: study.infoItems.filter((i) => ["cost", "performance", "constraint"].includes(i.category ?? "")).slice(0, 4).map((i) => ({ value: (i.value ?? "•").slice(0, 10), label: i.label, description: i.source ?? undefined })),
+    participants: engStakeholders.length ? engStakeholders : infoStakeholders,
+    proofPoints: study.infoItems.filter((i) => ["cost", "performance", "constraint"].includes(i.category ?? "")).slice(0, 4).map((i) => ({ value: headline(i.value), label: i.label, description: i.source ?? undefined })),
     priorities: [],
     initiatives: study.recommendations.slice(0, 3).map((r) => ({ title: r.title, detail: r.summary ?? r.technicalDetail ?? undefined, quote: r.commercialDetail ?? undefined })),
     driversEnablers: study.functions.slice(0, 4).map((f) => ({ driver: "<Business driver>", enabler: `${f.verb} ${f.noun}` })),
