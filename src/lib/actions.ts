@@ -7,6 +7,7 @@ import { VE_PHASES, VR_PHASES } from "@/lib/domain/phases";
 import { weightedScore, asCriteria, asScores, type Criterion } from "@/lib/evaluation";
 import { isAiEnabled, generateJSON } from "@/lib/ai";
 import { exitCriteriaFor, unmetCriteria, type GateResult } from "@/lib/gates";
+import { assembleCvrData, cvrInclude } from "@/lib/export/cvr-data";
 
 async function nextCode(prefix: string) {
   const year = new Date().getFullYear();
@@ -910,4 +911,27 @@ export async function brainstormAlternatives(
   await audit("alternatives.brainstormed", "Study", studyId, { studyId, metadata: { count: ideas.length, source } });
   revalidatePath(`/ve/${studyId}`);
   return { created: ideas.length, source };
+}
+
+// ---- CVR snapshots (versioned, stored against the study) --------------------
+// Stores the assembled CvrData (small, deterministic) as a DocumentVersion so a
+// point-in-time CVR can be re-downloaded later. Download-only (no restore) — a
+// CVR is an export artifact, not editable study state.
+export async function saveCvrSnapshot(studyId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  const study = await prisma.study.findUnique({ where: { id: studyId }, include: cvrInclude });
+  if (!study) throw new Error("Study not found");
+  const last = await prisma.documentVersion.findFirst({
+    where: { entityType: "CVR", entityId: studyId },
+    orderBy: { version: "desc" },
+  });
+  const version = (last?.version ?? 0) + 1;
+  const snapshot = assembleCvrData(study);
+  await prisma.documentVersion.create({
+    data: { entityType: "CVR", entityId: studyId, version, authorId: user.id, studyId, snapshot: snapshot as unknown as object },
+  });
+  await audit("cvr.snapshot.saved", "Study", studyId, { studyId, metadata: { version } });
+  revalidatePath(`/ve/${studyId}`);
+  return version;
 }

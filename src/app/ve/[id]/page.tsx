@@ -5,6 +5,7 @@ import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, Money, PhaseStepper } from "@/components/ui";
 import { PhaseStatusControl, HandoverButton } from "@/components/StudyControls";
 import { StudyActions } from "@/components/StudyActions";
+import { CvrSnapshots } from "@/components/CvrSnapshots";
 import { FunctionEditor } from "@/components/FunctionEditor";
 import { FastDiagram } from "@/components/FastDiagram";
 import { CommentThread } from "@/components/CommentThread";
@@ -63,6 +64,12 @@ export default async function StudyPage({
     include: { actor: { select: { name: true } } },
     orderBy: { createdAt: "desc" },
     take: 12,
+  });
+
+  const cvrSnapshots = await prisma.documentVersion.findMany({
+    where: { entityType: "CVR", entityId: study.id },
+    include: { author: { select: { name: true } } },
+    orderBy: { version: "desc" },
   });
 
   const templates = await prisma.phaseTemplate.findMany({ where: { discipline: "VE" } });
@@ -300,6 +307,21 @@ export default async function StudyPage({
               <p className="text-sm text-ink-500">No business case yet.</p>
             )}
           </div>
+
+          <CvrSnapshots
+            studyId={study.id}
+            canEdit={canEdit}
+            snapshots={cvrSnapshots.map((v) => {
+              const snap = (v.snapshot ?? {}) as { customerName?: string; roiPct?: string; paybackMonths?: string; npv?: string };
+              return {
+                id: v.id,
+                version: v.version,
+                authorName: v.author?.name ?? "—",
+                createdAt: v.createdAt.toISOString(),
+                meta: { customerName: snap.customerName, roiPct: snap.roiPct, paybackMonths: snap.paybackMonths, npv: snap.npv },
+              };
+            })}
+          />
 
           {/* Handover / VE→VR bridge */}
           <div className="card card-pad ring-1 ring-vr-100">
