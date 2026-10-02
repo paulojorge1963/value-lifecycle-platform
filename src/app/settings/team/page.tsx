@@ -22,10 +22,11 @@ export default async function TeamPage() {
   const members = await Promise.all(
     org.users.map(async (u) => {
       const m = u.memberships.find((x) => x.organizationId === org.id) ?? u.memberships[0];
-      const [studies, tracks, comments] = await Promise.all([
+      const [studies, tracks, comments, engagements] = await Promise.all([
         prisma.study.count({ where: { ownerId: u.id } }),
         prisma.realizationTrack.count({ where: { ownerId: u.id } }),
         prisma.comment.count({ where: { authorId: u.id } }),
+        prisma.customerSuccessEngagement.count({ where: { ownerId: u.id } }),
       ]);
       return {
         id: u.id,
@@ -34,7 +35,7 @@ export default async function TeamPage() {
         title: u.title,
         role: (m?.role as string) ?? "VIEWER",
         self: u.id === user.id,
-        owned: { studies, tracks, comments, total: studies + tracks + comments },
+        owned: { studies, tracks, comments, engagements, total: studies + tracks + comments + engagements },
       };
     })
   );

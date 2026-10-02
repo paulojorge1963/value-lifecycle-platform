@@ -11,7 +11,7 @@ interface Member {
   title: string | null;
   role: string;
   self: boolean;
-  owned: { studies: number; tracks: number; comments: number; total: number };
+  owned: { studies: number; tracks: number; comments: number; engagements: number; total: number };
 }
 
 function ownedSummary(o: Member["owned"]): string {
@@ -19,6 +19,7 @@ function ownedSummary(o: Member["owned"]): string {
   if (o.studies) parts.push(`${o.studies} ${o.studies === 1 ? "study" : "studies"}`);
   if (o.tracks) parts.push(`${o.tracks} ${o.tracks === 1 ? "track" : "tracks"}`);
   if (o.comments) parts.push(`${o.comments} ${o.comments === 1 ? "comment" : "comments"}`);
+  if (o.engagements) parts.push(`${o.engagements} ${o.engagements === 1 ? "engagement" : "engagements"}`);
   if (parts.length <= 1) return parts.join("");
   return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }

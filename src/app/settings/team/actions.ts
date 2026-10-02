@@ -187,16 +187,17 @@ export async function removeTeamMember(userId: string, reassignToId?: string | n
     throw new Error("That's the last administrator — promote someone else first.");
   }
 
-  const [studies, tracks, comments] = await Promise.all([
+  const [studies, tracks, comments, engagements] = await Promise.all([
     prisma.study.count({ where: { ownerId: userId } }),
     prisma.realizationTrack.count({ where: { ownerId: userId } }),
     prisma.comment.count({ where: { authorId: userId } }),
+    prisma.customerSuccessEngagement.count({ where: { ownerId: userId } }),
   ]);
-  const ownsWork = studies || tracks || comments;
+  const ownsWork = studies || tracks || comments || engagements;
 
   if (ownsWork) {
     if (!reassignToId) {
-      throw new Error(`This person owns ${studies} studies, ${tracks} tracks and ${comments} comments — choose a member to reassign that work to.`);
+      throw new Error(`This person owns ${studies} studies, ${tracks} tracks, ${comments} comments and ${engagements} CS engagements — choose a member to reassign that work to.`);
     }
     if (reassignToId === userId) throw new Error("Reassign the work to a different member.");
     const target = await prisma.membership.findFirst({ where: { userId: reassignToId, organizationId: admin.organizationId } });
@@ -206,6 +207,7 @@ export async function removeTeamMember(userId: string, reassignToId?: string | n
       prisma.study.updateMany({ where: { ownerId: userId, organizationId: admin.organizationId }, data: { ownerId: reassignToId } }),
       prisma.realizationTrack.updateMany({ where: { ownerId: userId, organizationId: admin.organizationId }, data: { ownerId: reassignToId } }),
       prisma.comment.updateMany({ where: { authorId: userId }, data: { authorId: reassignToId } }),
+      prisma.customerSuccessEngagement.updateMany({ where: { ownerId: userId, organizationId: admin.organizationId }, data: { ownerId: reassignToId } }),
     ]);
   }
 
@@ -216,7 +218,7 @@ export async function removeTeamMember(userId: string, reassignToId?: string | n
       action: "team.member_removed",
       entityType: "User",
       entityId: userId,
-      metadata: ownsWork ? { reassignedTo: reassignToId, studies, tracks, comments } : undefined,
+      metadata: ownsWork ? { reassignedTo: reassignToId, studies, tracks, comments, engagements } : undefined,
     },
   });
   revalidatePath("/settings/team");
