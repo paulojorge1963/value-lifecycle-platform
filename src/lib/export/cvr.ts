@@ -5,7 +5,7 @@
 //  deck is always complete and fillable.
 // =============================================================================
 import pptxgen from "pptxgenjs";
-import { BG_CONTENT, BG_DARK, LOGO, HERO } from "./cvr-assets";
+import { BG_CONTENT, BG_CONTENT_NOLOGO, LOGO, HERO } from "./cvr-assets";
 
 // Brand palette (Blue Turtle).
 const DEEP = "0053B4", BLUE = "0284DD", TEAL = "0091A8", GREEN = "159E7A", AMBER = "E07C24";
@@ -71,12 +71,16 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
   p.author = "Blue Turtle Technologies"; p.title = `Collaborative Value Review — ${d.customerName}`;
   let PN = 0;
   const sh = () => ({ type: "outer" as const, color: "0B2540", opacity: 0.18, blur: 5, offset: 2, angle: 90 });
+  // Content canvas = One-Pager-Template (light-blue header band, turtle baked bottom-right).
+  // Logo-free twin for edge-to-edge slides whose own content fills that corner (e.g. the drivers table).
   const bg = (s: pptxgen.Slide) => s.addImage({ data: BG_CONTENT, x: 0, y: 0, w: W, h: H });
+  const bgNoLogo = (s: pptxgen.Slide) => s.addImage({ data: BG_CONTENT_NOLOGO, x: 0, y: 0, w: W, h: H });
   const pill = (s: pptxgen.Slide, eyebrow: string, title: string) => {
-    s.addText(eyebrow.toUpperCase(), { x: MX + 0.05, y: 0.16, w: 11.2, h: 0.28, margin: 0, fontFace: BF, fontSize: 12, bold: true, color: "DBF0FF", charSpacing: 2 });
-    s.addText(title, { x: MX + 0.05, y: 0.44, w: 11.9, h: 0.72, margin: 0, valign: "middle", fontFace: HF, fontSize: 23, bold: true, color: WHITE });
+    s.addText(eyebrow.toUpperCase(), { x: MX + 0.05, y: 0.14, w: 11.6, h: 0.26, margin: 0, fontFace: BF, fontSize: 11.5, bold: true, color: WHITE, charSpacing: 2 });
+    s.addText(title, { x: MX + 0.05, y: 0.38, w: 11.9, h: 0.52, margin: 0, valign: "middle", fontFace: HF, fontSize: 22, bold: true, color: WHITE });
   };
-  const pageNum = (s: pptxgen.Slide) => s.addText(String(PN), { x: W - 0.9, y: 7.05, w: 0.5, h: 0.3, margin: 0, align: "right", fontFace: BF, fontSize: 9, color: "9AB0BF" });
+  // Bottom-LEFT — the baked turtle occupies the bottom-right corner.
+  const pageNum = (s: pptxgen.Slide) => s.addText(String(PN), { x: MX, y: 7.08, w: 0.5, h: 0.3, margin: 0, align: "left", fontFace: BF, fontSize: 9, color: "9AB0BF" });
   const card = (s: pptxgen.Slide, x: number, y: number, w: number, h: number, fill?: string) => s.addShape(p.ShapeType.roundRect, { x, y, w, h, rectRadius: 0.09, fill: { color: fill || WHITE }, line: { color: fill && fill !== WHITE ? fill : LINE, width: 1 }, shadow: sh() });
   const dot = (s: pptxgen.Slide, x: number, y: number, dia: number, c: string, label: string) => { s.addShape(p.ShapeType.ellipse, { x, y, w: dia, h: dia, fill: { color: c } }); s.addText(label, { x, y, w: dia, h: dia, align: "center", valign: "middle", margin: 0, fontFace: HF, fontSize: dia > 0.7 ? 15 : 12, bold: true, color: WHITE }); };
   const bullets = (s: pptxgen.Slide, items: string[], o: { x: number; y: number; w: number; h: number; size?: number; gap?: number; ls?: number; color?: string }) => {
@@ -84,7 +88,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       { x: o.x, y: o.y, w: o.w, h: o.h, valign: "top", margin: 0, fontFace: BF, fontSize: o.size || 13, lineSpacingMultiple: o.ls || 1.03 });
   };
   const intro = (s: pptxgen.Slide, text: string) => s.addText(text, { x: MX, y: 1.28, w: 12.0, h: 0.5, margin: 0, fontFace: BF, fontSize: 14, italic: true, color: TEAL, lineSpacingMultiple: 1.05 });
-  const content = (eyebrow: string, title: string) => { PN++; const s = p.addSlide(); bg(s); pill(s, eyebrow, title); pageNum(s); return s; };
+  const content = (eyebrow: string, title: string, noLogo = false) => { PN++; const s = p.addSlide(); (noLogo ? bgNoLogo : bg)(s); pill(s, eyebrow, title); pageNum(s); return s; };
 
   /* 1 · TITLE */
   {
@@ -219,7 +223,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
 
   /* 8 · DRIVERS & ENABLERS */
   {
-    const s = content("Our Understanding", "Business drivers & enablers");
+    const s = content("Our Understanding", "Business drivers & enablers", true); // full-width table reaches the corner → no-logo canvas
     const de = d.driversEnablers.length ? d.driversEnablers.slice(0, 4) : Array.from({ length: 4 }, () => ({ driver: "<Business driver>\n<short description>", enabler: "<Digital use case / enabler>\n<short description>" }));
     const head = ["Business Driver", "Digital Use Case / Enabler"];
     const rows: pptxgen.TableRow[] = [head.map((t) => ({ text: t, options: { bold: true, color: WHITE, fill: { color: DEEP }, fontSize: 13, valign: "middle" } }))];
