@@ -55,6 +55,7 @@ export interface CvrData {
   paybackMonths?: string;
   npv?: string;
   financialRows: CvrFinRow[];
+  cashflow?: { years: string[]; cumBenefit: number[]; cumInvestment: number[] }; // for the cash-flow chart
   results: { label: string; value: string }[];
   nextSteps: CvrNextStep[];
 }
@@ -354,8 +355,20 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       s.addText(r.label, { x: 9.4, y, w: 2.1, h: 0.3, margin: 0, fontFace: BF, fontSize: 11, color: INK });
       s.addText(r.value, { x: 11.4, y, w: 1.2, h: 0.3, align: "right", margin: 0, fontFace: HF, fontSize: 11, bold: true, color: DEEP });
     });
-    s.addShape(p.ShapeType.roundRect, { x: 9.15, y: 4.1, w: 3.58, h: 2.05, rectRadius: 0.09, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
-    s.addText("[ Cash-flow chart:\ncumulative savings vs investment ]", { x: 9.15, y: 4.1, w: 3.58, h: 2.05, align: "center", valign: "middle", margin: 0, fontFace: BF, fontSize: 11, italic: true, color: "8AA6BC" });
+    s.addShape(p.ShapeType.roundRect, { x: 9.15, y: 4.0, w: 3.58, h: 2.15, rectRadius: 0.09, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
+    s.addText("CASH FLOW — CUMULATIVE", { x: 9.3, y: 4.08, w: 3.3, h: 0.24, margin: 0, fontFace: HF, fontSize: 9, bold: true, color: MUTED, charSpacing: 1 });
+    if (d.cashflow && d.cashflow.cumBenefit.some((v) => v)) {
+      s.addChart(p.ChartType.line, [
+        { name: "Cumulative benefit", labels: d.cashflow.years, values: d.cashflow.cumBenefit },
+        { name: "Cumulative investment", labels: d.cashflow.years, values: d.cashflow.cumInvestment },
+      ], {
+        x: 9.2, y: 4.28, w: 3.48, h: 1.82, chartColors: [GREEN, AMBER], showLegend: true, legendPos: "b", legendFontSize: 7,
+        showTitle: false, lineSize: 2, lineSmooth: true, showValue: false,
+        catAxisLabelFontSize: 7, valAxisLabelFontSize: 7, valAxisLabelFormatCode: "$#,##0,\"k\"", valGridLine: { style: "none" },
+      });
+    } else {
+      s.addText("[ Cash-flow chart ]", { x: 9.15, y: 4.3, w: 3.58, h: 1.6, align: "center", valign: "middle", margin: 0, fontFace: BF, fontSize: 11, italic: true, color: "8AA6BC" });
+    }
   }
 
   /* 15 · NEXT STEPS */

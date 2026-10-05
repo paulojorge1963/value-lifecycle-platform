@@ -13,6 +13,8 @@ interface Rec {
   summary: string | null;
   technicalDetail: string | null;
   commercialDetail: string | null;
+  currentState: string | null;
+  implications: string | null;
   estimatedValue: number | null;
   estimatedCost: number | null;
   status: string;
@@ -23,6 +25,8 @@ type Draft = {
   summary: string;
   technicalDetail: string;
   commercialDetail: string;
+  currentState: string;
+  implications: string;
   estimatedValue: number | null;
   estimatedCost: number | null;
 };
@@ -50,7 +54,7 @@ export function RecommendationEditor({
 }) {
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<Draft>({ title: "", summary: "", technicalDetail: "", commercialDetail: "", estimatedValue: null, estimatedCost: null });
+  const [draft, setDraft] = useState<Draft>({ title: "", summary: "", technicalDetail: "", commercialDetail: "", currentState: "", implications: "", estimatedValue: null, estimatedCost: null });
   const [pending, start] = useTransition();
   const [drafting, startDraft] = useTransition();
   const [err, setErr] = useState<string | null>(null);
@@ -75,6 +79,8 @@ export function RecommendationEditor({
       summary: r.summary ?? "",
       technicalDetail: r.technicalDetail ?? "",
       commercialDetail: r.commercialDetail ?? "",
+      currentState: r.currentState ?? "",
+      implications: r.implications ?? "",
       estimatedValue: r.estimatedValue,
       estimatedCost: r.estimatedCost,
     });
@@ -88,6 +94,8 @@ export function RecommendationEditor({
           summary: draft.summary || null,
           technicalDetail: draft.technicalDetail || null,
           commercialDetail: draft.commercialDetail || null,
+          currentState: draft.currentState || null,
+          implications: draft.implications || null,
           estimatedValue: draft.estimatedValue,
           estimatedCost: draft.estimatedCost,
         });
@@ -104,7 +112,7 @@ export function RecommendationEditor({
       try {
         const id = await addRecommendation(studyId);
         setEditingId(id);
-        setDraft({ title: "New recommendation", summary: "", technicalDetail: "", commercialDetail: "", estimatedValue: null, estimatedCost: null });
+        setDraft({ title: "New recommendation", summary: "", technicalDetail: "", commercialDetail: "", currentState: "", implications: "", estimatedValue: null, estimatedCost: null });
         router.refresh();
       } catch (e) {
         setErr(e instanceof Error ? e.message : "Add failed");
@@ -161,6 +169,16 @@ export function RecommendationEditor({
                   </div>
                   <div className="grid gap-2.5 sm:grid-cols-2">
                     <div>
+                      <label className="label">Current state <span className="font-normal text-ink-400">· CVR use-case slide</span></label>
+                      <textarea value={draft.currentState} onChange={(e) => setDraft({ ...draft, currentState: e.target.value })} rows={2} className="input mt-1" placeholder="The situation this recommendation addresses today" />
+                    </div>
+                    <div>
+                      <label className="label">Implications <span className="font-normal text-ink-400">· CVR use-case slide</span></label>
+                      <textarea value={draft.implications} onChange={(e) => setDraft({ ...draft, implications: e.target.value })} rows={2} className="input mt-1" placeholder="The business cost / risk of not acting" />
+                    </div>
+                  </div>
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    <div>
                       <label className="label">Estimated value</label>
                       <input type="number" value={draft.estimatedValue ?? ""} onChange={(e) => setDraft({ ...draft, estimatedValue: numOrNull(e.target.value) })} className="input mt-1" />
                     </div>
@@ -197,10 +215,12 @@ export function RecommendationEditor({
                     <p className="mt-0.5 text-xs text-vr-700">developed from: {sourceAlternatives[r.id].join(", ")}</p>
                   )}
                   {r.summary && <p className="mt-0.5 text-sm text-ink-600">{r.summary}</p>}
-                  {(r.technicalDetail || r.commercialDetail) && (
+                  {(r.technicalDetail || r.commercialDetail || r.currentState || r.implications) && (
                     <div className="mt-2 grid gap-2 text-xs text-ink-500 sm:grid-cols-2">
                       {r.technicalDetail && <div><span className="label">Technical</span><p className="mt-0.5">{r.technicalDetail}</p></div>}
                       {r.commercialDetail && <div><span className="label">Commercial</span><p className="mt-0.5">{r.commercialDetail}</p></div>}
+                      {r.currentState && <div><span className="label">Current state</span><p className="mt-0.5">{r.currentState}</p></div>}
+                      {r.implications && <div><span className="label">Implications</span><p className="mt-0.5">{r.implications}</p></div>}
                     </div>
                   )}
                 </div>
