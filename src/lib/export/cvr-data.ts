@@ -74,6 +74,18 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     .filter((i) => i.category === "stakeholder")
     .map((i) => ({ name: i.label, title: (i.value ?? "").split(" · ")[0]?.trim() || null }));
 
+  // Optional richer context captured as info-items (backward-safe: empty when absent).
+  const byCat = (cat: string) => study.infoItems.filter((i) => i.category === cat);
+  const baselineItems = study.infoItems.filter((i) => ["cost", "performance", "constraint"].includes(i.category ?? ""));
+  const priorityItems = byCat("priority");
+  const driverItems = byCat("driver");
+  const trigger = byCat("trigger")[0]?.value ?? undefined;
+  const rationale = byCat("rationale")[0]?.value ?? undefined;
+  const deliveryItems = byCat("delivery");
+  const collabStatItems = byCat("collab_stat");
+  const priorityQuoteItem = byCat("priority_quote")[0];
+  const ucField = (cat: string, title: string) => study.infoItems.find((i) => i.category === cat && i.label === title)?.value ?? undefined;
+
   return {
     customerName: study.customerName?.trim() || study.title,
     studyTitle: study.title,
@@ -82,19 +94,27 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     currency: cur,
     realized: false,
     whyDoSomething: study.problemStatement ?? undefined,
+    whyNow: trigger,
+    whyThisSolution: rationale,
     whatsNext: bc?.executiveSummary ?? undefined,
     useCaseLine: study.recommendations.length ? "USE CASES:  " + study.recommendations.slice(0, 4).map((r) => r.title).join("  ·  ") : undefined,
     participants: engStakeholders.length ? engStakeholders : infoStakeholders,
+    deliveryTeam: deliveryItems.length ? deliveryItems.map((i) => `${i.label}${i.value ? " — " + i.value : ""}`) : undefined,
+    collabStats: collabStatItems.length ? collabStatItems.slice(0, 4).map((i) => ({ value: i.value ?? "—", label: i.label })) : undefined,
     proofPoints: study.infoItems.filter((i) => ["cost", "performance", "constraint"].includes(i.category ?? "")).slice(0, 4).map((i) => ({ value: headline(i.value), label: i.label, description: i.source ?? undefined })),
-    priorities: [],
+    priorities: priorityItems.slice(0, 3).map((i) => (i.value ?? i.label).split(/\s*[;\n]\s*/).map((s) => s.trim()).filter(Boolean)),
+    priorityQuote: priorityQuoteItem?.value ?? undefined,
+    priorityQuoteBy: priorityQuoteItem?.source ?? undefined,
     initiatives: study.recommendations.slice(0, 3).map((r) => ({ title: r.title, detail: r.summary ?? r.technicalDetail ?? undefined, quote: r.commercialDetail ?? undefined })),
-    driversEnablers: study.functions.slice(0, 4).map((f) => ({ driver: "<Business driver>", enabler: `${f.verb} ${f.noun}` })),
+    driversEnablers: driverItems.length
+      ? driverItems.slice(0, 4).map((i) => ({ driver: i.label, enabler: i.value ?? "" }))
+      : study.functions.slice(0, 4).map((f) => ({ driver: "<Business driver>", enabler: `${f.verb} ${f.noun}` })),
     benefitRows: benefits.slice(0, 5).map((a) => ({ useCase: a.recommendation?.title ?? a.title, group: catLabel(a), benefits: a.detail ?? a.title })),
-    currentState: study.infoItems.slice(0, 6).map((i) => `${i.label}${i.value ? ": " + i.value : ""}`),
+    currentState: (baselineItems.length ? baselineItems : study.infoItems).slice(0, 6).map((i) => `${i.label}${i.value ? ": " + i.value : ""}`),
     implications: study.risks.slice(0, 6).map((r) => r.title),
     futureState: study.recommendations.slice(0, 6).map((r) => r.title),
     keyBenefits: benefits.slice(0, 6).map((a) => a.title),
-    useCases: useCaseRecs.map((r) => ({ title: r.title, future: r.summary ?? r.technicalDetail ?? undefined, benefits: r.commercialDetail ?? undefined })),
+    useCases: useCaseRecs.map((r) => ({ title: r.title, current: ucField("uc_current", r.title), implications: ucField("uc_impl", r.title), future: r.summary ?? r.technicalDetail ?? undefined, benefits: r.commercialDetail ?? undefined })),
     roiPct: fmtPct(fin.roiPct),
     paybackMonths: fin.paybackMonths != null ? `${fin.paybackMonths.toFixed(1)} months` : "—",
     npv: fmtMoney(fin.npv, cur),

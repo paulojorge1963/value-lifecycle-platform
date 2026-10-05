@@ -37,9 +37,12 @@ export interface CvrData {
   whatsNext?: string;
   useCaseLine?: string;
   participants: CvrParticipant[];
+  deliveryTeam?: string[];     // "Name — role" for the delivery-team column
+  collabStats?: { value: string; label: string }[]; // the 4 collaboration stat chips
   proofPoints: CvrProofPoint[];
   priorities: string[][];      // up to 3 columns of bullets
   priorityQuote?: string;
+  priorityQuoteBy?: string;    // attribution for the priority quote
   initiatives: CvrInitiative[];
   driversEnablers: CvrDriverEnabler[];
   benefitRows: CvrBenefitRow[];
@@ -149,7 +152,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
   {
     const s = content("Our collaboration", "Who we spoke to — and what we did");
     intro(s, `${d.customerName} and Blue Turtle identified the need to evolve the platform to improve productivity and user experience.`);
-    const stats = [["XX", "Total hours"], ["XX", "Technical workshops"], ["XX", "Interviews"], ["XX", "Analysis & documentation"]];
+    const stats = (d.collabStats?.length ? d.collabStats.map((c) => [c.value, c.label]) : [["XX", "Total hours"], ["XX", "Technical workshops"], ["XX", "Interviews"], ["XX", "Analysis & documentation"]]) as string[][];
     const sw = (CW - 3 * 0.3) / 4;
     stats.forEach((st, i) => {
       const x = MX + i * (sw + 0.3), y = 1.95;
@@ -159,7 +162,8 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
     });
     const cw = (CW - 0.5) / 2;
     const parts = d.participants.length ? d.participants.map((pp) => `${pp.name}${pp.title ? " — " + pp.title : ""}`) : ["<name> — <title>", "<name> — <title>", "<name> — <title>"];
-    [["Delivery team", DEEP, ["<name> — <title>", "<name> — <title>", "<name> — <title>"]], [`${d.customerName} participants`, TEAL, parts]].forEach((col, i) => {
+    const deliveryTeam = d.deliveryTeam?.length ? d.deliveryTeam : ["<name> — <title>", "<name> — <title>", "<name> — <title>"];
+    [["Delivery team", DEEP, deliveryTeam], [`${d.customerName} participants`, TEAL, parts]].forEach((col, i) => {
       const x = MX + i * (cw + 0.5), y = 3.2;
       card(s, x, y, cw, 3.1, WHITE);
       s.addText(col[0] as string, { x: x + 0.3, y: y + 0.18, w: cw - 0.6, h: 0.35, margin: 0, fontFace: HF, fontSize: 14, bold: true, color: col[1] as string });
@@ -200,7 +204,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
     }
     s.addShape(p.ShapeType.roundRect, { x: MX, y: 5.1, w: CW, h: 1.25, rectRadius: 0.09, fill: { color: MIST }, line: { type: "none" } });
     s.addText(or(d.priorityQuote, "“<Customer quote that captures their priority / ambition.>”"), { x: MX + 0.35, y: 5.25, w: CW - 0.7, h: 0.6, margin: 0, fontFace: HF, fontSize: 14, italic: true, color: DEEP });
-    s.addText("— <Add name here>", { x: MX + 0.35, y: 5.85, w: CW - 0.7, h: 0.35, margin: 0, fontFace: BF, fontSize: 12, color: MUTED });
+    s.addText(d.priorityQuoteBy ? `— ${d.priorityQuoteBy}` : "— <Add name here>", { x: MX + 0.35, y: 5.85, w: CW - 0.7, h: 0.35, margin: 0, fontFace: BF, fontSize: 12, color: MUTED });
   }
 
   /* 7 · INITIATIVES */

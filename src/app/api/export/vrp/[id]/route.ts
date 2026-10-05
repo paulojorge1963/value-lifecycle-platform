@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Document, Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType } from "docx";
+import { Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType } from "docx";
 import { prisma } from "@/lib/db";
 import { fmtMoney, fmtPct } from "@/lib/finance";
+import { brandedDoc } from "@/lib/export/doc-template";
 
 // VR deliverable export: Value Realization Plan + QBR pack as a Word document.
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -60,14 +61,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       ? String(qbr.nextBestActions).split(/\s*;\s*/).filter(Boolean)
       : [];
 
-  const doc = new Document({
-    sections: [
-      {
-        children: [
-          new Paragraph({ text: "Value Realization Plan & QBR Pack", heading: HeadingLevel.TITLE }),
-          new Paragraph({ children: [new TextRun({ text: `${track.code} · ${track.title}`, bold: true })] }),
-          p(`${track.study ? `Source study: ${track.study.code}` : "Standalone (existing software)"} · Solution: ${track.industry.name} · Owner: ${track.owner.name} · Health: ${track.health}`),
-
+  const doc = brandedDoc({
+    docTitle: "Value Realization Plan & QBR Pack",
+    code: track.code,
+    subtitle: track.title,
+    metaLine: `${track.study ? `Source study: ${track.study.code}` : "Standalone (existing software)"} · Solution: ${track.industry.name} · Owner: ${track.owner.name} · Health: ${track.health}`,
+    body: [
           h("Objectives & success criteria"),
           p(track.objectives ?? "—"),
           p(track.successCriteria ? `Success criteria: ${track.successCriteria}` : ""),
@@ -97,8 +96,6 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           p(qbr?.executiveStory ?? "—"),
           ...nextBestActions.map((a) => bullet(`Next best action: ${a}`)),
           ...(qbr?.expansion ? [bullet(`Expansion opportunity: ${qbr.expansion}`)] : []),
-        ],
-      },
     ],
   });
 
