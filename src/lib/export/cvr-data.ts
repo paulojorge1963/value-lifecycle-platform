@@ -34,6 +34,7 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
   const benefitBy = YRS.map((y) => (bc?.costItems ?? []).filter((c) => c.kind === "BENEFIT" && active(c, y)).reduce((s, c) => s + c.amount, 0));
   const costBy = YRS.map((y) => (bc?.costItems ?? []).filter((c) => c.kind !== "BENEFIT" && active(c, y)).reduce((s, c) => s + c.amount, 0));
   const cum: number[] = []; benefitBy.reduce((a, b, i) => (cum[i] = a + b), 0);
+  const cumInvest: number[] = []; costBy.reduce((a, b, i) => (cumInvest[i] = a + b), 0);
   const netBy = YRS.map((y) => benefitBy[y] - costBy[y]);
   const dcfBy = YRS.map((y) => netBy[y] / Math.pow(1 + dr / 100, y + 1));
   const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
@@ -86,6 +87,17 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
   const priorityQuoteItem = byCat("priority_quote")[0];
   const ucField = (cat: string, title: string) => study.infoItems.find((i) => i.category === cat && i.label === title)?.value ?? undefined;
 
+  // First-class value-story capture (preferred over the info-item conventions above).
+  type ValueStory = {
+    priorities?: { title: string; bullets: string[] }[];
+    priorityQuote?: string; priorityQuoteBy?: string;
+    drivers?: { driver: string; enabler: string }[];
+    collabStats?: { label: string; value: string }[];
+    deliveryTeam?: { name: string; role: string }[];
+  };
+  const vs = (study.valueStory ?? null) as ValueStory | null;
+  const nonEmpty = <T,>(a: T[] | undefined) => (a && a.length ? a : undefined);
+
   return {
     customerName: study.customerName?.trim() || study.title,
     studyTitle: study.title,
@@ -94,31 +106,36 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     currency: cur,
     realized: false,
     whyDoSomething: study.problemStatement ?? undefined,
-    whyNow: trigger,
-    whyThisSolution: rationale,
+    whyNow: study.whyNow ?? trigger,
+    whyThisSolution: study.whyThisSolution ?? rationale,
     whatsNext: bc?.executiveSummary ?? undefined,
     useCaseLine: study.recommendations.length ? "USE CASES:  " + study.recommendations.slice(0, 4).map((r) => r.title).join("  ·  ") : undefined,
     participants: engStakeholders.length ? engStakeholders : infoStakeholders,
-    deliveryTeam: deliveryItems.length ? deliveryItems.map((i) => `${i.label}${i.value ? " — " + i.value : ""}`) : undefined,
-    collabStats: collabStatItems.length ? collabStatItems.slice(0, 4).map((i) => ({ value: i.value ?? "—", label: i.label })) : undefined,
+    deliveryTeam: nonEmpty(vs?.deliveryTeam)?.map((d) => `${d.name}${d.role ? " — " + d.role : ""}`)
+      ?? (deliveryItems.length ? deliveryItems.map((i) => `${i.label}${i.value ? " — " + i.value : ""}`) : undefined),
+    collabStats: nonEmpty(vs?.collabStats)?.slice(0, 4)
+      ?? (collabStatItems.length ? collabStatItems.slice(0, 4).map((i) => ({ value: i.value ?? "—", label: i.label })) : undefined),
     proofPoints: study.infoItems.filter((i) => ["cost", "performance", "constraint"].includes(i.category ?? "")).slice(0, 4).map((i) => ({ value: headline(i.value), label: i.label, description: i.source ?? undefined })),
-    priorities: priorityItems.slice(0, 3).map((i) => (i.value ?? i.label).split(/\s*[;\n]\s*/).map((s) => s.trim()).filter(Boolean)),
-    priorityQuote: priorityQuoteItem?.value ?? undefined,
-    priorityQuoteBy: priorityQuoteItem?.source ?? undefined,
+    priorities: nonEmpty(vs?.priorities)?.slice(0, 3).map((p) => p.bullets.filter(Boolean))
+      ?? priorityItems.slice(0, 3).map((i) => (i.value ?? i.label).split(/\s*[;\n]\s*/).map((s) => s.trim()).filter(Boolean)),
+    priorityQuote: vs?.priorityQuote ?? priorityQuoteItem?.value ?? undefined,
+    priorityQuoteBy: vs?.priorityQuoteBy ?? priorityQuoteItem?.source ?? undefined,
     initiatives: study.recommendations.slice(0, 3).map((r) => ({ title: r.title, detail: r.summary ?? r.technicalDetail ?? undefined, quote: r.commercialDetail ?? undefined })),
-    driversEnablers: driverItems.length
-      ? driverItems.slice(0, 4).map((i) => ({ driver: i.label, enabler: i.value ?? "" }))
-      : study.functions.slice(0, 4).map((f) => ({ driver: "<Business driver>", enabler: `${f.verb} ${f.noun}` })),
+    driversEnablers: nonEmpty(vs?.drivers)?.slice(0, 4)
+      ?? (driverItems.length
+        ? driverItems.slice(0, 4).map((i) => ({ driver: i.label, enabler: i.value ?? "" }))
+        : study.functions.slice(0, 4).map((f) => ({ driver: "<Business driver>", enabler: `${f.verb} ${f.noun}` }))),
     benefitRows: benefits.slice(0, 5).map((a) => ({ useCase: a.recommendation?.title ?? a.title, group: catLabel(a), benefits: a.detail ?? a.title })),
     currentState: (baselineItems.length ? baselineItems : study.infoItems).slice(0, 6).map((i) => `${i.label}${i.value ? ": " + i.value : ""}`),
     implications: study.risks.slice(0, 6).map((r) => r.title),
     futureState: study.recommendations.slice(0, 6).map((r) => r.title),
     keyBenefits: benefits.slice(0, 6).map((a) => a.title),
-    useCases: useCaseRecs.map((r) => ({ title: r.title, current: ucField("uc_current", r.title), implications: ucField("uc_impl", r.title), future: r.summary ?? r.technicalDetail ?? undefined, benefits: r.commercialDetail ?? undefined })),
+    useCases: useCaseRecs.map((r) => ({ title: r.title, current: r.currentState ?? ucField("uc_current", r.title), implications: r.implications ?? ucField("uc_impl", r.title), future: r.summary ?? r.technicalDetail ?? undefined, benefits: r.commercialDetail ?? undefined })),
     roiPct: fmtPct(fin.roiPct),
     paybackMonths: fin.paybackMonths != null ? `${fin.paybackMonths.toFixed(1)} months` : "—",
     npv: fmtMoney(fin.npv, cur),
     financialRows,
+    cashflow: { years: ["Year 1", "Year 2", "Year 3"], cumBenefit: cum, cumInvestment: cumInvest },
     results: [
       { label: "Return on Investment", value: fmtPct(fin.roiPct) },
       { label: "Net Present Value", value: fmtMoney(fin.npv, cur) },

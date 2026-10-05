@@ -12,6 +12,8 @@ import { CommentThread } from "@/components/CommentThread";
 import { AlternativeEditor } from "@/components/AlternativeEditor";
 import { EvaluationMatrix } from "@/components/EvaluationMatrix";
 import { RecommendationEditor } from "@/components/RecommendationEditor";
+import { ValueStoryEditor } from "@/components/ValueStoryEditor";
+import type { ValueStory } from "@/lib/actions";
 import { VE_PHASES } from "@/lib/domain/phases";
 import { PlaybookBar } from "@/components/PlaybookBar";
 import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
@@ -219,6 +221,15 @@ export default async function StudyPage({
             canEdit={canEdit}
             canDecide={canDecide}
             currency={study.currency}
+          />
+
+          {/* Value story — the CVR narrative (why-now, priorities, drivers, collaboration) */}
+          <ValueStoryEditor
+            studyId={study.id}
+            canEdit={canEdit}
+            whyNow={study.whyNow}
+            whyThisSolution={study.whyThisSolution}
+            valueStory={(study.valueStory ?? null) as ValueStory | null}
           />
 
           {/* Study baseline — information-phase measures & stakeholders captured at discovery */}

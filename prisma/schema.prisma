@@ -375,6 +375,13 @@ model Study {
   problemStatement String?
   customerName   String? // customer / account name for client-facing exports (e.g. the CVR)
 
+  // Value-story capture (feeds the CVR exec summary & "our understanding" slides).
+  whyNow          String? // the trigger / compelling event
+  whyThisSolution String? // rationale for the chosen solution & partner
+  /// { priorities: [{title, bullets[]}], priorityQuote, priorityQuoteBy,
+  ///   drivers: [{driver, enabler}], collabStats: [{label, value}], deliveryTeam: [{name, role}] }
+  valueStory      Json?
+
   /// Evaluation-phase criteria & weights: [{ key, label, weight }]
   evaluationCriteria Json?
 
@@ -505,6 +512,8 @@ model Recommendation {
   summary        String?
   technicalDetail String?
   commercialDetail String?
+  currentState    String? // for the CVR use-case detail slide: current situation this recommendation addresses
+  implications    String? // the business implication / cost of not acting
   status         RecommendationStatus @default(PROPOSED)
   estimatedValue Float?
   estimatedCost  Float?

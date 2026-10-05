@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { VE_PHASES, VR_PHASES } from "@/lib/domain/phases";
@@ -219,6 +220,8 @@ export async function updateRecommendation(
     summary?: string | null;
     technicalDetail?: string | null;
     commercialDetail?: string | null;
+    currentState?: string | null;
+    implications?: string | null;
     estimatedValue?: number | null;
     estimatedCost?: number | null;
   }
@@ -232,8 +235,37 @@ export async function updateRecommendation(
       summary: data.summary,
       technicalDetail: data.technicalDetail,
       commercialDetail: data.commercialDetail,
+      currentState: data.currentState,
+      implications: data.implications,
       estimatedValue: data.estimatedValue,
       estimatedCost: data.estimatedCost,
+    },
+  });
+  revalidatePath(`/ve/${studyId}`);
+}
+
+// --- Value story (CVR capture) ---------------------------------------------
+export interface ValueStory {
+  priorities?: { title: string; bullets: string[] }[];
+  priorityQuote?: string;
+  priorityQuoteBy?: string;
+  drivers?: { driver: string; enabler: string }[];
+  collabStats?: { label: string; value: string }[];
+  deliveryTeam?: { name: string; role: string }[];
+}
+
+export async function updateValueStory(
+  studyId: string,
+  data: { whyNow?: string | null; whyThisSolution?: string | null; valueStory?: ValueStory }
+) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  await prisma.study.update({
+    where: { id: studyId },
+    data: {
+      whyNow: data.whyNow,
+      whyThisSolution: data.whyThisSolution,
+      ...(data.valueStory ? { valueStory: data.valueStory as unknown as Prisma.InputJsonValue } : {}),
     },
   });
   revalidatePath(`/ve/${studyId}`);
