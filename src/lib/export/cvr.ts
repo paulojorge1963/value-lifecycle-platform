@@ -19,7 +19,7 @@ export interface CvrInitiative { title: string; detail?: string; quote?: string 
 export interface CvrDriverEnabler { driver: string; enabler: string }
 export interface CvrBenefitRow { useCase: string; group: string; benefits: string }
 export interface CvrUseCase { title: string; current?: string; implications?: string; future?: string; benefits?: string }
-export interface CvrFinRow { label: string; y1?: string; y2?: string; y3?: string; total?: string; emph?: boolean }
+export interface CvrFinRow { label: string; cells: string[]; total?: string; emph?: boolean }
 export interface CvrNextStep { area: string; detail: string }
 
 export interface CvrData {
@@ -55,6 +55,7 @@ export interface CvrData {
   paybackMonths?: string;
   npv?: string;
   financialRows: CvrFinRow[];
+  finYears: string[]; // column headers for the financial-detail table (e.g. ["Now","Yr 1",…])
   cashflow?: { years: string[]; cumBenefit: number[]; cumInvestment: number[] }; // for the cash-flow chart
   results: { label: string; value: string }[];
   nextSteps: CvrNextStep[];
@@ -322,7 +323,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
 
   /* 13 · THREE-YEAR SUMMARY */
   {
-    const s = content("The Business Case", "Three-year summary of results");
+    const s = content("The Business Case", "Summary of results");
     const stats: [string, string, string][] = [["PAYBACK", or(d.paybackMonths, "X months"), GREEN], ["ROI", or(d.roiPct, "X%"), DEEP], ["NPV", or(d.npv, "—"), TEAL]];
     const cw = (CW - 2 * 0.5) / 3;
     stats.forEach((st, i) => {
@@ -337,17 +338,21 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
 
   /* 14 · FINANCIAL DETAIL */
   {
-    const s = content("The Business Case", "Three-year financial detail");
-    const head = ["Benefit / Investment", "Year 1", "Year 2", "Year 3", "Total"];
-    const rows: pptxgen.TableRow[] = [head.map((t) => ({ text: t, options: { bold: true, color: WHITE, fill: { color: DEEP }, fontSize: 11, valign: "middle", align: t === "Benefit / Investment" ? "left" : "right" } }))];
+    const s = content("The Business Case", `Cash flow & financial detail (${d.finYears.length - 1}-year horizon)`);
+    const head = ["Benefit / Investment", ...d.finYears, "Total"];
+    const nY = d.finYears.length;
+    const TW = 8.3, labW = 2.2, totW = 0.95, yrW = (TW - labW - totW) / nY;
+    const colW = [labW, ...Array(nY).fill(yrW), totW];
+    const fs = nY > 5 ? 8.5 : 10;
+    const rows: pptxgen.TableRow[] = [head.map((t, i) => ({ text: t, options: { bold: true, color: WHITE, fill: { color: DEEP }, fontSize: nY > 5 ? 9 : 10.5, valign: "middle", align: i === 0 ? "left" : "right" } }))];
     d.financialRows.forEach((r, i) => {
       const band = r.emph ? "E7EEF7" : (i % 2 ? "F4F9FD" : WHITE);
       rows.push([
-        { text: r.label, options: { bold: !!r.emph, color: INK, fill: { color: band }, fontSize: 10.5, valign: "middle", align: "left" } },
-        ...[r.y1, r.y2, r.y3, r.total].map((v) => ({ text: v ?? "—", options: { color: MUTED, fill: { color: band }, fontSize: 10.5, valign: "middle" as const, align: "right" as const } })),
+        { text: r.label, options: { bold: !!r.emph, color: INK, fill: { color: band }, fontSize: fs, valign: "middle", align: "left" } },
+        ...[...r.cells, r.total].map((v) => ({ text: v ?? "—", options: { color: MUTED, fill: { color: band }, fontSize: fs, valign: "middle" as const, align: "right" as const } })),
       ]);
     });
-    s.addTable(rows, { x: MX, y: 1.55, w: 8.3, colW: [3.5, 1.2, 1.2, 1.2, 1.2], rowH: 0.34, border: { type: "solid", color: "E6EEF5", pt: 1 }, fontFace: BF, autoPage: false, margin: [2, 5, 2, 5] });
+    s.addTable(rows, { x: MX, y: 1.55, w: TW, colW, rowH: 0.3, border: { type: "solid", color: "E6EEF5", pt: 1 }, fontFace: BF, autoPage: false, margin: [2, 4, 2, 4] });
     card(s, 9.15, 1.55, 3.58, 2.35, MIST);
     s.addText("RESULTS", { x: 9.4, y: 1.7, w: 3.1, h: 0.3, margin: 0, fontFace: HF, fontSize: 12, bold: true, color: DEEP, charSpacing: 1 });
     d.results.slice(0, 4).forEach((r, i) => {

@@ -27,29 +27,42 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
   const dr = bc?.discountRatePct ?? 10;
 
   const lines: CashFlowLine[] = (bc?.costItems ?? []).map((c) => ({ label: c.label, kind: c.kind as CashFlowLine["kind"], amount: c.amount, year: c.year, recurring: c.recurring }));
-  const fin = computeFinance(lines, { discountRatePct: dr, horizonYears: bc?.horizonYears ?? 5 });
+  const H = bc?.horizonYears ?? 5;
+  const fin = computeFinance(lines, { discountRatePct: dr, horizonYears: H });
 
-  const active = (c: { year?: number | null; recurring: boolean }, y: number) => (c.recurring || c.year == null ? true : c.year === y);
-  const YRS = [0, 1, 2];
-  const benefitBy = YRS.map((y) => (bc?.costItems ?? []).filter((c) => c.kind === "BENEFIT" && active(c, y)).reduce((s, c) => s + c.amount, 0));
-  const costBy = YRS.map((y) => (bc?.costItems ?? []).filter((c) => c.kind !== "BENEFIT" && active(c, y)).reduce((s, c) => s + c.amount, 0));
+  // Full-horizon cash-flow statement, reconciled to the NPV engine (finance.ts).
+  // Periods t = 0 ("Now", the up-front investment, undiscounted) … H.
+  const YR = Array.from({ length: H + 1 }, (_, t) => t);
+  const isUpfront = (c: CashFlowLine) => (c.kind === "CAPEX" || c.kind === "ONE_OFF") && (c.year ?? 0) === 0;
+  const isRecurringCost = (c: CashFlowLine) => c.kind === "OPEX" || (c.kind === "RECURRING" && c.recurring !== false);
+  const isRecurringBenefit = (c: CashFlowLine) => c.kind === "BENEFIT" && (c.recurring || c.year == null);
+  // Per-item contribution in period t (mirrors finance.ts yearlyNetSeries exactly).
+  const itemAt = (c: CashFlowLine, t: number) => {
+    if (t === 0) return isUpfront(c) ? c.amount : 0;
+    if (c.kind === "BENEFIT") return (isRecurringBenefit(c) ? c.amount : 0) + ((c.year ?? 0) === t ? c.amount : 0);
+    return (isRecurringCost(c) ? c.amount : 0) + ((c.year ?? 0) === t && !isUpfront(c) ? c.amount : 0);
+  };
+  const benefitBy = YR.map((t) => lines.filter((c) => c.kind === "BENEFIT").reduce((s, c) => s + itemAt(c, t), 0));
+  const costBy = YR.map((t) => lines.filter((c) => c.kind !== "BENEFIT").reduce((s, c) => s + itemAt(c, t), 0));
+  const netBy = YR.map((t) => benefitBy[t] - costBy[t]);
+  const dcfBy = YR.map((t) => netBy[t] / Math.pow(1 + dr / 100, t));
   const cum: number[] = []; benefitBy.reduce((a, b, i) => (cum[i] = a + b), 0);
   const cumInvest: number[] = []; costBy.reduce((a, b, i) => (cumInvest[i] = a + b), 0);
-  const netBy = YRS.map((y) => benefitBy[y] - costBy[y]);
-  const dcfBy = YRS.map((y) => netBy[y] / Math.pow(1 + dr / 100, y + 1));
   const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
-  const money3 = (arr: number[]) => ({ y1: fmtMoney(arr[0], cur), y2: fmtMoney(arr[1], cur), y3: fmtMoney(arr[2], cur) });
+  const moneyN = (arr: number[]) => arr.map((v) => fmtMoney(v, cur));
+  const finYears = YR.map((t) => (t === 0 ? "Now" : `Yr ${t}`));
 
   const financialRows: CvrData["financialRows"] = [
-    { label: "Annual benefit", ...money3(benefitBy), total: fmtMoney(sum(benefitBy), cur) },
-    { label: "Cumulative benefit", ...money3(cum) },
-    ...(bc?.costItems ?? []).filter((c) => c.kind !== "BENEFIT").slice(0, 5).map((c) => {
-      const per = YRS.map((y) => (active(c, y) ? c.amount : 0));
-      return { label: c.label, ...money3(per), total: fmtMoney(sum(per), cur) };
+    { label: "Annual benefit", cells: moneyN(benefitBy), total: fmtMoney(sum(benefitBy), cur) },
+    { label: "Cumulative benefit", cells: moneyN(cum) },
+    ...(bc?.costItems ?? []).filter((c) => c.kind !== "BENEFIT").slice(0, 4).map((c) => {
+      const line: CashFlowLine = { label: c.label, kind: c.kind as CashFlowLine["kind"], amount: c.amount, year: c.year, recurring: c.recurring };
+      const per = YR.map((t) => itemAt(line, t));
+      return { label: c.label, cells: moneyN(per), total: fmtMoney(sum(per), cur) };
     }),
-    { label: "Total investment", ...money3(costBy), total: fmtMoney(sum(costBy), cur), emph: true },
-    { label: "Net cash flow", ...money3(netBy), total: fmtMoney(sum(netBy), cur) },
-    { label: "Discounted cash flow", ...money3(dcfBy) },
+    { label: "Total investment", cells: moneyN(costBy), total: fmtMoney(sum(costBy), cur), emph: true },
+    { label: "Net cash flow", cells: moneyN(netBy), total: fmtMoney(sum(netBy), cur) },
+    { label: "Discounted cash flow", cells: moneyN(dcfBy), total: fmtMoney(sum(dcfBy), cur) }, // Σ = NPV
   ];
 
   const benefits = study.handover.filter((a) => a.type === "EXPECTED_BENEFIT");
@@ -135,7 +148,8 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     paybackMonths: fin.paybackMonths != null ? `${fin.paybackMonths.toFixed(1)} months` : "—",
     npv: fmtMoney(fin.npv, cur),
     financialRows,
-    cashflow: { years: ["Year 1", "Year 2", "Year 3"], cumBenefit: cum, cumInvestment: cumInvest },
+    finYears,
+    cashflow: { years: finYears, cumBenefit: cum, cumInvestment: cumInvest },
     results: [
       { label: "Return on Investment", value: fmtPct(fin.roiPct) },
       { label: "Net Present Value", value: fmtMoney(fin.npv, cur) },
