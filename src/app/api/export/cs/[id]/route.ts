@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Document, Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun } from "docx";
+import { Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun } from "docx";
 import { prisma } from "@/lib/db";
 import { fmtMoney, fmtPct } from "@/lib/finance";
 import { CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
+import { brandedDoc } from "@/lib/export/doc-template";
 
 // CS deliverable export: Account Success Review (health, value, renewal, growth).
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -52,13 +53,13 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     }),
   ];
 
-  const doc = new Document({
-    sections: [{
-      children: [
-        new Paragraph({ text: "Account Success Review", heading: HeadingLevel.TITLE }),
-        new Paragraph({ children: [new TextRun({ text: `${e.code} · ${e.accountName}`, bold: true })] }),
-        p(`Solution: ${e.industry.name} · CSM: ${e.owner.name} · Status: ${e.status} · Health: ${e.healthOverall} · Lifecycle stage ${currentStageNo}/8`),
-        p(e.arr ? `ARR: ${fmtMoney(e.arr, cur)}${e.renewalDate ? ` · Renewal: ${new Date(e.renewalDate).toLocaleDateString()}` : ""}` : ""),
+  const doc = brandedDoc({
+    docTitle: "Account Success Review",
+    code: e.code,
+    subtitle: e.accountName,
+    metaLine: `Solution: ${e.industry.name} · CSM: ${e.owner.name} · Status: ${e.status} · Health: ${e.healthOverall} · Lifecycle stage ${currentStageNo}/8`,
+    body: [
+        ...(e.arr ? [p(`ARR: ${fmtMoney(e.arr, cur)}${e.renewalDate ? ` · Renewal: ${new Date(e.renewalDate).toLocaleDateString()}` : ""}`)] : []),
 
         h("Objectives & success plan"),
         p(e.objectives ?? "—"),
@@ -99,8 +100,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
         h("Lifecycle status"),
         ...e.stages.sort((a, b) => a.order - b.order).map((s) => bullet(`${s.order}. ${CS_STAGE_TITLE[s.stage]} — ${s.status.toLowerCase()}`)),
-      ],
-    }],
+    ],
   });
 
   const buf = await Packer.toBuffer(doc);

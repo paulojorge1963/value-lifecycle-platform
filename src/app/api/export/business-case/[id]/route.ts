@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Document, Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType } from "docx";
+import { Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType } from "docx";
 import { prisma } from "@/lib/db";
 import { computeFinance, fmtMoney, fmtPct, type CashFlowLine } from "@/lib/finance";
+import { brandedDoc } from "@/lib/export/doc-template";
 
 // VE deliverable export: Business case as a Word document.
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -56,14 +57,12 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     }),
   ];
 
-  const doc = new Document({
-    sections: [
-      {
-        children: [
-          new Paragraph({ text: "Value Engineering — Business Case", heading: HeadingLevel.TITLE }),
-          new Paragraph({ children: [new TextRun({ text: `${study.code} · ${study.title}`, bold: true })] }),
-          p(`Solution: ${study.industry.name}  |  Owner: ${study.owner.name}  |  Status: ${study.status}`),
-
+  const doc = brandedDoc({
+    docTitle: "Value Engineering — Business Case",
+    code: study.code,
+    subtitle: study.title,
+    metaLine: `Solution: ${study.industry.name}  |  Owner: ${study.owner.name}  |  Status: ${study.status}`,
+    body: [
           h("Executive summary"),
           p(bc?.executiveSummary ?? "—"),
 
@@ -90,8 +89,6 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
           h("Value handover — baselines, KPIs & success criteria"),
           ...(study.handover.length ? study.handover.map((a) => bullet(`[${a.type.replaceAll("_", " ")}] ${a.title}${a.detail ? " — " + a.detail : ""}`)) : [p("—")]),
-        ],
-      },
     ],
   });
 
