@@ -126,11 +126,11 @@ export default async function BusinessCasePage({ params }: { params: Promise<{ i
               <ul className="space-y-2 text-sm">
                 {study.risks.map((r) => (
                   <li key={r.id} className="flex items-start justify-between gap-3 border-b border-ink-100 pb-2">
-                    <div>
-                      <div className="font-medium text-ink-800">{r.title}</div>
-                      {r.mitigation && <div className="text-ink-500">Mitigation: {r.mitigation}</div>}
+                    <div className="min-w-0">
+                      <div className="break-words font-medium text-ink-800">{r.title}</div>
+                      {r.mitigation && <div className="break-words text-ink-500">Mitigation: {r.mitigation}</div>}
                     </div>
-                    <span className="badge bg-ink-100 text-ink-600">L{r.likelihood ?? "?"}·I{r.impact ?? "?"}</span>
+                    <span className="badge shrink-0 bg-ink-100 text-ink-600">L{r.likelihood ?? "?"}·I{r.impact ?? "?"}</span>
                   </li>
                 ))}
               </ul>

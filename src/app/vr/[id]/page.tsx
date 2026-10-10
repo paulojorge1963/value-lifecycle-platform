@@ -75,7 +75,7 @@ export default async function TrackPage({
 
   const planned = track.plannedValue ?? 0;
   const realized = track.realizedValue ?? 0;
-  const variance = planned > 0 ? ((realized - planned) / planned) * 100 : 0;
+  const variance = planned > 0 ? ((realized - planned) / planned) * 100 : null;
   const wpDone = track.workPackages.filter((w) => w.status === "DONE").length;
   const onTime = track.workPackages.length > 0 ? (wpDone / track.workPackages.length) * 100 : 0;
 
@@ -124,7 +124,7 @@ export default async function TrackPage({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Planned value" value={fmtMoney(planned, track.currency)} accent="ve" />
         <StatTile label="Realized value" value={fmtMoney(realized, track.currency)} sub={`${fmtPct((realized / (planned || 1)) * 100)} of plan`} accent="vr" />
-        <StatTile label="Variance vs plan" value={fmtPct(variance)} accent={variance >= 0 ? "vr" : "ink"} />
+        <StatTile label="Variance vs plan" value={fmtPct(variance)} accent={(variance ?? 0) >= 0 ? "vr" : "ink"} />
         <StatTile label="On-time implementation" value={fmtPct(onTime)} sub={`${wpDone}/${track.workPackages.length} work pkgs`} accent="vr" />
       </div>
 

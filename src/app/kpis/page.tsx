@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { StatTile, SectionHeader } from "@/components/ui";
-import { fmtMoney, fmtPct } from "@/lib/finance";
+import { fmtMoney, fmtPct, DEFAULT_CURRENCY } from "@/lib/finance";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "KPIs & outcomes" };
 
 export default async function KpisPage({ searchParams }: { searchParams: Promise<{ role?: string; industry?: string }> }) {
   const { role = "all", industry = "all" } = await searchParams;
@@ -29,10 +30,11 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
   // --- VR KPIs ---
   const realizedValue = tracks.reduce((s, x) => s + (x.realizedValue ?? 0), 0);
   const plannedInTracks = tracks.reduce((s, x) => s + (x.plannedValue ?? 0), 0);
-  const variance = plannedInTracks > 0 ? ((realizedValue - plannedInTracks) / plannedInTracks) * 100 : 0;
+  const variance = plannedInTracks > 0 ? ((realizedValue - plannedInTracks) / plannedInTracks) * 100 : null;
   const allWp = tracks.flatMap((t) => t.workPackages);
-  const onTime = allWp.length ? (allWp.filter((w) => w.status === "DONE").length / allWp.length) * 100 : 0;
+  const onTime = allWp.length ? (allWp.filter((w) => w.status === "DONE").length / allWp.length) * 100 : null;
   const reports = tracks.reduce((s, x) => s + x.reports.length, 0);
+  const reportCurrency = studies[0]?.currency ?? tracks[0]?.currency ?? DEFAULT_CURRENCY;
 
   const roleFilter = (d: string) => role === "all" || (role === "ve" && d === "VE") || (role === "vr" && d === "VR");
 
@@ -52,7 +54,7 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatTile label="Alternatives generated" value={String(totalAlternatives)} accent="ve" />
             <StatTile label="Recommendations accepted" value={String(recsAccepted)} accent="ve" />
-            <StatTile label="Planned value impact" value={fmtMoney(plannedValue)} accent="ve" />
+            <StatTile label="Planned value impact" value={fmtMoney(plannedValue, reportCurrency)} accent="ve" />
             <StatTile label="Average ROI / study" value={avgRoi != null ? `${avgRoi.toFixed(0)}%` : "—"} accent="ve" />
           </div>
         </div>
@@ -62,7 +64,7 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
         <div>
           <div className="mb-3 flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-vr-500" /><h3 className="font-semibold text-ink-900">Value Realization KPIs</h3></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Total realized value" value={fmtMoney(realizedValue)} accent="vr" />
+            <StatTile label="Total realized value" value={fmtMoney(realizedValue, reportCurrency)} accent="vr" />
             <StatTile label="Planned vs realized variance" value={fmtPct(variance)} accent="vr" />
             <StatTile label="On-time implementation" value={fmtPct(onTime)} accent="vr" />
             <StatTile label="Value reports delivered" value={String(reports)} accent="vr" />

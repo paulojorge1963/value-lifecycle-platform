@@ -3,10 +3,11 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatTile, StatusBadge, HealthPill, Money, SectionHeader, ProgressBar } from "@/components/ui";
 import { ImportWorkbook } from "@/components/ImportWorkbook";
-import { fmtMoney, fmtPct, fmtDate } from "@/lib/finance";
+import { fmtMoney, fmtPct, fmtDate, DEFAULT_CURRENCY } from "@/lib/finance";
 import { computeSignals, attentionScore } from "@/lib/cs-signals";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Portfolio" };
 
 export default async function PortfolioPage() {
   const user = await getCurrentUser();
@@ -53,7 +54,12 @@ export default async function PortfolioPage() {
   const plannedInTracks = tracks.reduce((s, x) => s + (x.plannedValue ?? 0), 0);
   const activeStudies = studies.filter((s) => !["ARCHIVED", "REJECTED"].includes(s.status)).length;
   const activeTracks = tracks.filter((t) => ["PLANNING", "IN_FLIGHT", "ON_HOLD"].includes(t.status)).length;
-  const realizationPct = plannedInTracks > 0 ? (realizedTotal / plannedInTracks) * 100 : 0;
+  // Null (not 0) when there are no tracks to measure, so the tile reads "—" not "0.0%".
+  const realizationPct = plannedInTracks > 0 ? (realizedTotal / plannedInTracks) * 100 : null;
+  // Quick-fix reporting currency: the workspace's prevailing study currency (not the USD
+  // default). Single-currency workspaces roll up correctly; mixed currencies need the FX
+  // reporting-currency feature (deferred).
+  const reportCurrency = studies[0]?.currency ?? tracks[0]?.currency ?? DEFAULT_CURRENCY;
 
   // By-industry rollup
   const byIndustry = industries.map((ind) => {
@@ -84,8 +90,8 @@ export default async function PortfolioPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Active VE studies" value={String(activeStudies)} sub={`${studies.length} total`} accent="ve" />
         <StatTile label="Active VR tracks" value={String(activeTracks)} sub={`${tracks.length} total`} accent="vr" />
-        <StatTile label="Planned value (VE)" value={fmtMoney(plannedTotal)} sub="Estimated across studies" accent="ve" />
-        <StatTile label="Realized value (VR)" value={fmtMoney(realizedTotal)} sub={`${fmtPct(realizationPct)} of tracked plan`} accent="vr" />
+        <StatTile label="Planned value (VE)" value={fmtMoney(plannedTotal, reportCurrency)} sub="Estimated across studies" accent="ve" />
+        <StatTile label="Realized value (VR)" value={fmtMoney(realizedTotal, reportCurrency)} sub={realizationPct != null ? `${fmtPct(realizationPct)} of tracked plan` : "no tracks yet"} accent="vr" />
       </div>
 
       {/* Planned vs realized bar */}
@@ -93,11 +99,11 @@ export default async function PortfolioPage() {
         <div className="flex items-center justify-between">
           <span className="label">Realized vs planned (tracks in flight)</span>
           <span className="text-sm font-medium text-ink-700">
-            {fmtMoney(realizedTotal)} / {fmtMoney(plannedInTracks)}
+            {fmtMoney(realizedTotal, reportCurrency)} / {fmtMoney(plannedInTracks, reportCurrency)}
           </span>
         </div>
         <div className="mt-3">
-          <ProgressBar pct={realizationPct} accent="vr" />
+          <ProgressBar pct={realizationPct ?? 0} accent="vr" />
         </div>
       </div>
 
@@ -170,14 +176,14 @@ export default async function PortfolioPage() {
               <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <div className="label">Planned</div>
-                  <div className="font-semibold text-ve-700">{fmtMoney(i.planned)}</div>
+                  <div className="font-semibold text-ve-700">{fmtMoney(i.planned, reportCurrency)}</div>
                 </div>
                 <div>
                   <div className="label">Realized</div>
-                  <div className="font-semibold text-vr-700">{fmtMoney(i.realized)}</div>
+                  <div className="font-semibold text-vr-700">{fmtMoney(i.realized, reportCurrency)}</div>
                 </div>
-                <div className="text-xs text-ink-500">{i.studies} studies</div>
-                <div className="text-xs text-ink-500">{i.tracks} tracks</div>
+                <div className="text-xs text-ink-500">{i.studies} {i.studies === 1 ? "study" : "studies"}</div>
+                <div className="text-xs text-ink-500">{i.tracks} {i.tracks === 1 ? "track" : "tracks"}</div>
               </div>
             </div>
           ))}
@@ -215,7 +221,7 @@ export default async function PortfolioPage() {
                         </div>
                       </td>
                       <td className="td"><StatusBadge status={s.status} /></td>
-                      <td className="td text-right"><Money value={s.estimatedValue} /></td>
+                      <td className="td text-right"><Money value={s.estimatedValue} currency={s.currency} /></td>
                     </tr>
                   );
                 })}
@@ -256,8 +262,8 @@ export default async function PortfolioPage() {
                     </td>
                     <td className="td"><HealthPill health={t.health} /></td>
                     <td className="td text-right text-sm">
-                      <span className="font-medium text-vr-700">{fmtMoney(t.realizedValue)}</span>
-                      <span className="text-ink-400"> / {fmtMoney(t.plannedValue)}</span>
+                      <span className="font-medium text-vr-700">{fmtMoney(t.realizedValue, t.currency)}</span>
+                      <span className="text-ink-400"> / {fmtMoney(t.plannedValue, t.currency)}</span>
                     </td>
                   </tr>
                 ))}

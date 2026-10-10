@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/session";
 import { StatusBadge, HealthPill } from "@/components/ui";
 import { PrintButton } from "@/components/PrintButton";
 import { VE_PHASES } from "@/lib/domain/phases";
+import { exitCriteriaFor } from "@/lib/gates";
 import { fmtMoney, fmtPct } from "@/lib/finance";
 
 export const dynamic = "force-dynamic";
@@ -45,19 +46,17 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
   });
   if (!study) notFound();
 
-  // Exit criteria for the current phase (guidance = quality gate / next steps).
-  const templates = await prisma.phaseTemplate.findMany({ where: { discipline: "VE" } });
-  const tmplByPhase = Object.fromEntries(templates.map((t) => [t.vePhase as string, t]));
-
   const phases = [...study.phases].sort((a, b) => a.order - b.order);
   const total = phases.length;
   const done = phases.filter((p) => p.status === "COMPLETE").length;
   const currentPhase =
     phases.find((p) => p.status === "IN_PROGRESS") ?? phases.find((p) => p.status !== "COMPLETE") ?? phases[total - 1];
   const pct = total ? Math.round((done / total) * 100) : 0;
-  const currentTmpl = currentPhase ? tmplByPhase[currentPhase.phase] : null;
-  const exitCriteria =
-    (currentTmpl?.content as { exitCriteria?: string[] } | undefined)?.exitCriteria ?? [];
+  // Exit criteria from the domain source of truth + the phase's saved checklist —
+  // identical to the study page, so "met" counts never disagree between the two.
+  const exitCriteria = currentPhase ? exitCriteriaFor("VE", currentPhase.phase) : [];
+  const phaseChecklist = (currentPhase?.checklist ?? {}) as Record<string, boolean>;
+  const exitMet = exitCriteria.filter((_, i) => phaseChecklist[String(i)]).length;
 
   const recs = study.recommendations;
   const accepted = recs.filter((r) => r.status === "ACCEPTED");
@@ -74,7 +73,7 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
   const handedOver = !!track;
   const planned = track?.plannedValue ?? 0;
   const realized = track?.realizedValue ?? 0;
-  const variance = planned > 0 ? ((realized - planned) / planned) * 100 : 0;
+  const variance = planned > 0 ? ((realized - planned) / planned) * 100 : null;
   const wpDone = track ? track.workPackages.filter((w) => w.status === "DONE").length : 0;
   const wpTotal = track?.workPackages.length ?? 0;
   const onTime = wpTotal > 0 ? (wpDone / wpTotal) * 100 : 0;
@@ -235,8 +234,8 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
                     return (
                       <li key={r.id}>
                         <div className="flex items-start justify-between gap-2">
-                          <span className="font-medium text-ink-800">{r.title}</span>
-                          <span className={`badge ${sev}`}>L{r.likelihood ?? "–"}×I{r.impact ?? "–"}</span>
+                          <span className="min-w-0 break-words font-medium text-ink-800">{r.title}</span>
+                          <span className={`badge shrink-0 ${sev}`}>L{r.likelihood ?? "–"}×I{r.impact ?? "–"}</span>
                         </div>
                         {r.mitigation && <div className="text-xs text-ink-500">Mitigation: {r.mitigation}</div>}
                       </li>
@@ -257,11 +256,19 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
                 <Empty>All VE phases complete — ready for handover to realization.</Empty>
               ) : exitCriteria.length > 0 ? (
                 <>
-                  <div className="text-xs text-ink-400">To complete “{currentPhase ? PHASE_TITLE[currentPhase.phase] : ""}”:</div>
+                  <div className="text-xs text-ink-400">
+                    To complete “{currentPhase ? PHASE_TITLE[currentPhase.phase] : ""}” — {exitMet} / {exitCriteria.length} met:
+                  </div>
                   <ul className="mt-1.5 space-y-1 text-sm text-ink-700">
-                    {exitCriteria.map((c, i) => (
-                      <li key={i} className="flex gap-2"><span className="text-ve-500">▢</span>{c}</li>
-                    ))}
+                    {exitCriteria.map((c, i) => {
+                      const met = !!phaseChecklist[String(i)];
+                      return (
+                        <li key={i} className="flex gap-2">
+                          <span className={met ? "text-green-600" : "text-ve-500"}>{met ? "☑" : "▢"}</span>
+                          <span className={met ? "text-ink-400 line-through" : ""}>{c}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </>
               ) : (
@@ -285,7 +292,7 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <ReportTile label="Planned value" value={fmtMoney(planned, track.currency)} accent="ve" />
                 <ReportTile label="Realized value" value={fmtMoney(realized, track.currency)} sub={`${fmtPct((realized / (planned || 1)) * 100)} of plan`} accent="vr" />
-                <ReportTile label="Variance vs plan" value={fmtPct(variance)} accent={variance >= 0 ? "vr" : "ink"} />
+                <ReportTile label="Variance vs plan" value={fmtPct(variance)} accent={(variance ?? 0) >= 0 ? "vr" : "ink"} />
                 <ReportTile label="On-time delivery" value={fmtPct(onTime)} sub={`${wpDone}/${wpTotal} work pkgs`} accent="vr" />
               </div>
 

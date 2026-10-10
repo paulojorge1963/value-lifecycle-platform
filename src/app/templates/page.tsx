@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { SectionHeader } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Templates" };
 
 export default async function TemplatesPage() {
   const [templates, phases, industries] = await Promise.all([

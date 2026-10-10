@@ -7,6 +7,7 @@ import { ImportWorkbook } from "@/components/ImportWorkbook";
 import { INDUSTRY_PROFILES } from "@/lib/domain/industries";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Value Engineering" };
 
 export default async function VeWorkspace() {
   const user = await getCurrentUser();

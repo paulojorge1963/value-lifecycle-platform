@@ -8,6 +8,7 @@ import { NewTrackForm } from "@/components/NewTrackForm";
 import { ImportWorkbook } from "@/components/ImportWorkbook";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Value Realization" };
 
 export default async function VrWorkspace() {
   const user = await getCurrentUser();

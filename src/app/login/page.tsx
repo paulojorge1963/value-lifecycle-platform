@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { LoginForm } from "@/components/LoginForm";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Sign in" };
 
 const ROLE_LABEL: Record<string, string> = {
   VALUE_ENGINEER: "Value Engineer",

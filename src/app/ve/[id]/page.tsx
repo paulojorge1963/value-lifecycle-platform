@@ -17,14 +17,21 @@ import type { ValueStory } from "@/lib/actions";
 import { VE_PHASES } from "@/lib/domain/phases";
 import { PlaybookBar } from "@/components/PlaybookBar";
 import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
-import { exitCriteriaFor } from "@/lib/gates";
+import { exitCriteriaFor, unmetCriteria } from "@/lib/gates";
+import { WorkspaceShell, WorkspaceSection, type SectionMeta } from "@/components/StudyWorkspace";
 import { StarterTextPanel } from "@/components/StarterTextPanel";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { asCriteria, asScores } from "@/lib/evaluation";
 import { isAiEnabled } from "@/lib/ai";
-import { fmtMoney } from "@/lib/finance";
+import { fmtMoney, fmtPct, computeFinance, type CashFlowLine } from "@/lib/finance";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const s = await prisma.study.findUnique({ where: { id }, select: { code: true, title: true } });
+  return { title: s ? `${s.code} — ${s.title}` : "VE study" };
+}
 
 const PHASE_TITLE = Object.fromEntries(VE_PHASES.map((p) => [p.key, p.title]));
 
@@ -95,6 +102,21 @@ export default async function StudyPage({
   const aiEnabled = isAiEnabled();
   const canHandover = can(user.role, "track.create");
 
+  // Workspace shell: which sections are relevant to each phase (drives the phase
+  // view, the jump index and the next-action banner).
+  const activeUnmet = activePhase ? unmetCriteria(exitCriteriaFor("VE", activePhase.phase), activePhase.checklist) : [];
+  const wsIndex = [
+    tmpl && activePhase ? { id: "guidance", title: "Phase guidance", phases: null } : null,
+    { id: "functions", title: "Function model", phases: ["FUNCTION_ANALYSIS"] },
+    { id: "fast", title: "FAST diagram", phases: ["FUNCTION_ANALYSIS"] },
+    { id: "alternatives", title: "Alternatives", phases: ["CREATIVE", "EVALUATION"] },
+    { id: "evaluation", title: "Evaluation", phases: ["EVALUATION"] },
+    { id: "recommendations", title: "Recommendations", phases: ["DEVELOPMENT", "HANDOVER"] },
+    { id: "valuestory", title: "Value story", phases: ["ORIENTATION", "DEVELOPMENT", "PRESENTATION"] },
+    study.infoItems.length > 0 ? { id: "baseline", title: "Study baseline", phases: ["INFORMATION", "HANDOVER"] } : null,
+    { id: "comments", title: "Discussion", phases: null },
+  ].filter(Boolean) as SectionMeta[];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -141,10 +163,27 @@ export default async function StudyPage({
         basePath={`/ve/${study.id}`}
       />
 
+      {/* Next-action banner */}
+      {activePhase && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ve-100 bg-ve-50/50 px-4 py-3">
+          <div className="text-sm">
+            <span className="font-semibold text-ve-800">Phase {activePhase.order}/8 · {tmpl?.title ?? PHASE_TITLE[activePhase.phase]}</span>
+            <span className="text-ink-600">
+              {" — "}
+              {activeUnmet.length > 0
+                ? `${activeUnmet.length} exit ${activeUnmet.length === 1 ? "criterion" : "criteria"} remaining`
+                : "all exit criteria met — ready to advance"}
+            </span>
+          </div>
+          {tmpl && <a href="#guidance" className="btn-ghost text-xs">Go to phase guidance ↓</a>}
+        </div>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Phase guidance panel */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2">
+          <WorkspaceShell activePhase={activePhaseKey ?? ""} index={wsIndex}>
           {tmpl && activePhase && (
+            <WorkspaceSection id="guidance" title="Phase guidance" phases={null}>
             <div className="card card-pad">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -177,15 +216,18 @@ export default async function StudyPage({
               </div>
               <StarterTextPanel kind="VE" phaseKey={activePhase.phase} industryKey={study.industryKey} />
             </div>
+            </WorkspaceSection>
           )}
 
-          {/* Function model — inline editable */}
+          <WorkspaceSection id="functions" title="Function model" phases={["FUNCTION_ANALYSIS"]}>
           <FunctionEditor studyId={study.id} functions={study.functions} canEdit={canEdit} currency={study.currency} />
+          </WorkspaceSection>
 
-          {/* FAST diagram — how/why logic tree from the function chain */}
+          <WorkspaceSection id="fast" title="FAST diagram" phases={["FUNCTION_ANALYSIS"]}>
           <FastDiagram functions={study.functions} />
+          </WorkspaceSection>
 
-          {/* Creative alternatives — inline editable, promote shortlisted → recommendations */}
+          <WorkspaceSection id="alternatives" title="Alternatives" phases={["CREATIVE", "EVALUATION"]}>
           <AlternativeEditor
             studyId={study.id}
             alternatives={study.alternatives}
@@ -194,8 +236,9 @@ export default async function StudyPage({
             aiEnabled={aiEnabled}
             canEdit={canEdit}
           />
+          </WorkspaceSection>
 
-          {/* Evaluation matrix — criteria, weighted scoring & ranking */}
+          <WorkspaceSection id="evaluation" title="Evaluation" phases={["EVALUATION"]}>
           <EvaluationMatrix
             studyId={study.id}
             criteria={asCriteria(study.evaluationCriteria)}
@@ -208,8 +251,9 @@ export default async function StudyPage({
             }))}
             canEdit={canEdit}
           />
+          </WorkspaceSection>
 
-          {/* Recommendations — inline editable, showing which alternative each came from */}
+          <WorkspaceSection id="recommendations" title="Recommendations" phases={["DEVELOPMENT", "HANDOVER"]}>
           <RecommendationEditor
             studyId={study.id}
             recommendations={study.recommendations}
@@ -222,8 +266,9 @@ export default async function StudyPage({
             canDecide={canDecide}
             currency={study.currency}
           />
+          </WorkspaceSection>
 
-          {/* Value story — the CVR narrative (why-now, priorities, drivers, collaboration) */}
+          <WorkspaceSection id="valuestory" title="Value story" phases={["ORIENTATION", "DEVELOPMENT", "PRESENTATION"]}>
           <ValueStoryEditor
             studyId={study.id}
             canEdit={canEdit}
@@ -231,9 +276,10 @@ export default async function StudyPage({
             whyThisSolution={study.whyThisSolution}
             valueStory={(study.valueStory ?? null) as ValueStory | null}
           />
+          </WorkspaceSection>
 
-          {/* Study baseline — information-phase measures & stakeholders captured at discovery */}
           {study.infoItems.length > 0 && (
+            <WorkspaceSection id="baseline" title="Study baseline" phases={["INFORMATION", "HANDOVER"]}>
             <div className="card card-pad">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-ink-900">Study baseline</h2>
@@ -284,9 +330,10 @@ export default async function StudyPage({
                 </div>
               )}
             </div>
+            </WorkspaceSection>
           )}
 
-          {/* Discussion */}
+          <WorkspaceSection id="comments" title="Discussion" phases={null}>
           <CommentThread
             entityType="Study"
             entityId={study.id}
@@ -297,6 +344,8 @@ export default async function StudyPage({
               .filter((c) => c.entityType === "Study")
               .map((c) => ({ id: c.id, body: c.body, authorId: c.authorId, authorName: c.author.name, createdAt: c.createdAt.toISOString() }))}
           />
+          </WorkspaceSection>
+          </WorkspaceShell>
         </div>
 
         {/* Sidebar: business case + handover */}
@@ -304,17 +353,32 @@ export default async function StudyPage({
           <ActivityFeed events={events.map((e) => ({ id: e.id, action: e.action, actor: e.actor?.name ?? null, at: e.createdAt, meta: e.metadata as Record<string, unknown> | null }))} />
           <div className="card card-pad">
             <h2 className="mb-3 font-semibold text-ink-900">Business case</h2>
-            {study.businessCase ? (
+            {study.businessCase ? (() => {
+              // Recompute live from the same cost/benefit line items as the business-case
+              // builder, so the two pages never disagree (and empty financials read "—").
+              const bcLines: CashFlowLine[] = (study.businessCase.costItems ?? []).map((c) => ({
+                label: c.label,
+                kind: c.kind as CashFlowLine["kind"],
+                amount: c.amount,
+                year: c.year,
+                recurring: c.recurring,
+              }));
+              const fin = computeFinance(bcLines, {
+                discountRatePct: study.businessCase.discountRatePct ?? undefined,
+                horizonYears: study.businessCase.horizonYears ?? undefined,
+              });
+              return (
               <dl className="space-y-2 text-sm">
-                <Row k="ROI" v={study.businessCase.roiPct != null ? `${study.businessCase.roiPct.toFixed(0)}%` : "—"} />
-                <Row k="Payback" v={study.businessCase.paybackMonths != null ? `${study.businessCase.paybackMonths.toFixed(1)} mo` : "—"} />
-                <Row k="NPV" v={fmtMoney(study.businessCase.npv, study.currency)} />
-                <Row k="IRR" v={study.businessCase.irrPct != null ? `${study.businessCase.irrPct.toFixed(0)}%` : "—"} />
+                <Row k="ROI" v={fmtPct(fin.roiPct)} />
+                <Row k="Payback" v={fin.paybackMonths != null ? `${fin.paybackMonths.toFixed(1)} mo` : "—"} />
+                <Row k="NPV" v={fmtMoney(fin.npv, study.currency)} />
+                <Row k="IRR" v={fmtPct(fin.irrPct)} />
                 <div className="pt-2">
                   <Link href={`/ve/${study.id}/business-case`} className="btn-ve w-full justify-center">Open builder</Link>
                 </div>
               </dl>
-            ) : (
+              );
+            })() : (
               <p className="text-sm text-ink-500">No business case yet.</p>
             )}
           </div>

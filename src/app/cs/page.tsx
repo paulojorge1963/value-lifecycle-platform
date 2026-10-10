@@ -9,6 +9,7 @@ import { ImportWorkbook } from "@/components/ImportWorkbook";
 import { computeSignals } from "@/lib/cs-signals";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Customer Success" };
 
 export default async function CsWorkspace() {
   const user = await getCurrentUser();

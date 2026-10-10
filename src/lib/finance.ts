@@ -76,6 +76,8 @@ export function npv(series: number[], discountRatePct: number): number {
 
 /** IRR via bisection on [-0.99, 1.0]. Returns % or null if no sign change. */
 export function irrPct(series: number[]): number | null {
+  // Degenerate series (no real cash flow) has no meaningful IRR → "—", not a spurious root.
+  if (!series.some((cf) => Math.abs(cf) > 1e-9)) return null;
   const f = (rate: number) => series.reduce((s, cf, t) => s + cf / Math.pow(1 + rate, t), 0);
   let lo = -0.99;
   let hi = 1.0;
@@ -101,6 +103,9 @@ export function computeFinance(
   const invest = totalInvestment(lines);
   const annual = annualNetBenefit(lines);
   const series = yearlyNetSeries(lines, horizonYears);
+  // Only report NPV/IRR when there is genuine cash flow — an empty/zero series
+  // would otherwise read as "0" (NPV) or a spurious root (IRR).
+  const hasCashFlow = series.some((v) => Math.abs(v) > 1e-9);
 
   const lccByYear: number[] = [];
   let cum = 0;
@@ -120,8 +125,8 @@ export function computeFinance(
     annualNetBenefit: annual,
     roiPct: roiPct(invest, annual, horizonYears),
     paybackMonths: paybackMonths(invest, annual),
-    npv: npv(series, discountRatePct),
-    irrPct: irrPct(series),
+    npv: hasCashFlow ? npv(series, discountRatePct) : null,
+    irrPct: hasCashFlow ? irrPct(series) : null,
     lccByYear,
   };
 }

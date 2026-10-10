@@ -9,7 +9,12 @@ import { TopBar } from "@/components/TopBar";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Value Lifecycle Platform",
+  // Per-page titles slot into this template (e.g. "Portfolio · Value Lifecycle Platform");
+  // pages set `export const metadata = { title: "…" }` or generateMetadata for study names.
+  title: {
+    default: "Value Lifecycle Platform",
+    template: "%s · Value Lifecycle Platform",
+  },
   description: "End-to-end workspace for Value Engineers and Value Realization Managers.",
 };
 
