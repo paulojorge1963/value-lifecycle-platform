@@ -26,7 +26,7 @@ function ownedSummary(o: Member["owned"]): string {
 
 const ROLE_OPTIONS: { value: string; label: string }[] = [
   { value: "VALUE_ENGINEER", label: "Value Engineer" },
-  { value: "VALUE_REALIZATION_MANAGER", label: "Value Realization Manager" },
+  { value: "VALUE_REALIZATION_MANAGER", label: "Value Realisation Manager" },
   { value: "REVIEWER", label: "Reviewer" },
   { value: "VIEWER", label: "Viewer / Stakeholder" },
   { value: "ADMIN", label: "Administrator" },

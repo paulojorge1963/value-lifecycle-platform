@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { handoverToRealization } from "@/lib/actions";
 
-// GET /api/tracks — list realization tracks for the org
+// GET /api/tracks — list realisation tracks for the org
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

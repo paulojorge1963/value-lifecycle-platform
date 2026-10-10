@@ -1,7 +1,7 @@
 // =============================================================================
 //  Customer Success — attention signals.
 //  Deterministic, computed at render time (no scheduler needed): renewal
-//  reminders, health alerts, overdue actions, detractors, low realization.
+//  reminders, health alerts, overdue actions, detractors, low realisation.
 // =============================================================================
 
 export interface SignalInput {

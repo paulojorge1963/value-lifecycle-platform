@@ -11,12 +11,12 @@ export default function Home() {
         </h1>
         <p className="mt-3 max-w-2xl text-ink-600">
           The <b>Value Engineer</b> analyses functions, cost and performance to build a quantified business case.
-          The <b>Value Realization Manager</b> implements it, drives adoption, and proves the value against that
-          business case. This platform connects the two — every realization track links back to its source study.
+          The <b>Value Realisation Manager</b> implements it, drives adoption, and proves the value against that
+          business case. This platform connects the two — every realisation track links back to its source study.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href="/ve" className="btn-ve">Enter Value Engineering →</Link>
-          <Link href="/vr" className="btn-vr">Enter Value Realization →</Link>
+          <Link href="/vr" className="btn-vr">Enter Value Realisation →</Link>
           <Link href="/portfolio" className="btn-ghost">View Portfolio dashboard</Link>
         </div>
       </section>
@@ -45,7 +45,7 @@ export default function Home() {
         <div className="card card-pad">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-vr-500" />
-            <h2 className="font-semibold text-ink-900">The Value Realization lifecycle — 7 phases</h2>
+            <h2 className="font-semibold text-ink-900">The Value Realisation lifecycle — 7 phases</h2>
           </div>
           <ol className="mt-4 space-y-2">
             {VR_PHASES.map((p) => (
@@ -72,12 +72,12 @@ export default function Home() {
           </div>
           <div className="grid place-items-center px-2 text-2xl text-ink-400">→</div>
           <div className="flex-1 rounded-xl bg-vr-50 p-4">
-            <div className="label text-vr-700">Value Realization Manager</div>
+            <div className="label text-vr-700">Value Realisation Manager</div>
             <p className="mt-1 text-ink-700">Receives the handover → implements & drives adoption → measures realized vs planned value → reports & closes the loop.</p>
           </div>
         </div>
         <p className="mt-4 text-xs text-ink-500">
-          Use the role switcher (top-right) to experience the platform as a Value Engineer, Value Realization Manager,
+          Use the role switcher (top-right) to experience the platform as a Value Engineer, Value Realisation Manager,
           Reviewer or Stakeholder.
         </p>
       </section>

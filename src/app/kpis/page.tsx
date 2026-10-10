@@ -44,7 +44,7 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
 
       {/* Filters */}
       <div className="flex flex-wrap gap-4">
-        <FilterGroup label="Role" param="role" current={role} base={{ industry }} options={[["all", "All"], ["ve", "Value Engineer"], ["vr", "Value Realization"]]} />
+        <FilterGroup label="Role" param="role" current={role} base={{ industry }} options={[["all", "All"], ["ve", "Value Engineer"], ["vr", "Value Realisation"]]} />
         <FilterGroup label="Solution" param="industry" current={industry} base={{ role }} options={[["all", "All"], ...industries.map((i) => [i.key, i.name] as [string, string])]} />
       </div>
 
@@ -62,7 +62,7 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
 
       {roleFilter("VR") && (
         <div>
-          <div className="mb-3 flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-vr-500" /><h3 className="font-semibold text-ink-900">Value Realization KPIs</h3></div>
+          <div className="mb-3 flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-vr-500" /><h3 className="font-semibold text-ink-900">Value Realisation KPIs</h3></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatTile label="Total realized value" value={fmtMoney(realizedValue, reportCurrency)} accent="vr" />
             <StatTile label="Planned vs realized variance" value={fmtPct(variance)} accent="vr" />

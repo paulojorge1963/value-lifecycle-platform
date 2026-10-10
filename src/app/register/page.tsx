@@ -8,7 +8,7 @@ export default function RegisterPage() {
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-xl bg-ink-900 text-lg font-bold text-white">V</div>
         <h1 className="text-2xl font-bold text-ink-900">Create your workspace</h1>
-        <p className="mt-1 text-sm text-ink-500">Set up a new value-engineering &amp; realization workspace.</p>
+        <p className="mt-1 text-sm text-ink-500">Set up a new value-engineering &amp; realisation workspace.</p>
       </div>
       <div className="card card-pad">
         <RegisterForm />

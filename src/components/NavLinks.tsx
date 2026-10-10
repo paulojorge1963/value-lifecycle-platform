@@ -7,7 +7,7 @@ type Accent = "ve" | "vr" | "cs" | "ink";
 const LINKS: { href: string; label: string; accent: Accent }[] = [
   { href: "/portfolio", label: "Portfolio", accent: "ink" },
   { href: "/ve", label: "Value Engineering", accent: "ve" },
-  { href: "/vr", label: "Value Realization", accent: "vr" },
+  { href: "/vr", label: "Value Realisation", accent: "vr" },
   { href: "/cs", label: "Customer Success", accent: "cs" },
   { href: "/kpis", label: "KPIs", accent: "ink" },
   { href: "/templates", label: "Templates", accent: "ink" },

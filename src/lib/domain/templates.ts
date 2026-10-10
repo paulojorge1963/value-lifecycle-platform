@@ -138,7 +138,7 @@ Improve value by {{objective}} without compromising {{must_not_compromise}}.
   {
     discipline: "VR",
     kind: "vrp",
-    title: "Value Realization Plan",
+    title: "Value Realisation Plan",
     body: `## Linked VE study
 Source study: {{study_code}} — {{study_title}}. Approved recommendations: {{recommendations}}.
 

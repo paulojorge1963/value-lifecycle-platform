@@ -268,7 +268,7 @@ export default async function PortfolioPage() {
                   </tr>
                 ))}
                 {tracks.length === 0 && (
-                  <tr><td className="td text-ink-400" colSpan={3}>No realization tracks yet.</td></tr>
+                  <tr><td className="td text-ink-400" colSpan={3}>No realisation tracks yet.</td></tr>
                 )}
               </tbody>
             </table>

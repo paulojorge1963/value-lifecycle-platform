@@ -239,7 +239,7 @@ export const KPI_CATALOG: KpiDef[] = [
   {
     key: "template_reuse_rate",
     name: "Template / plan reuse rate",
-    description: "Share of tracks reusing an existing realization plan or template.",
+    description: "Share of tracks reusing an existing realisation plan or template.",
     discipline: "VR",
     category: "OTHER",
     unit: "%",

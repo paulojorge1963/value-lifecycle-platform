@@ -90,7 +90,7 @@ export async function deleteStudy(studyId: string) {
   // Org-scope: never delete another organization's study.
   const study = await prisma.study.findFirst({ where: { id: studyId, organizationId: user.organizationId }, select: { id: true, code: true } });
   if (!study) throw new Error("Study not found");
-  // Cascades all children; any realization track is detached (studyId → null) by the DB.
+  // Cascades all children; any realisation track is detached (studyId → null) by the DB.
   await prisma.study.delete({ where: { id: study.id } });
   // Audit without a studyId FK — that row is gone now.
   await prisma.auditEvent.create({ data: { actorId: user.id, action: "study.deleted", entityType: "Study", entityId: study.id, metadata: { code: study.code } } });
@@ -276,7 +276,7 @@ export async function deleteRecommendation(id: string, studyId: string) {
   if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
   // Guard: an accepted recommendation already being implemented shouldn't vanish silently.
   const linked = await prisma.workPackage.count({ where: { recommendationId: id } });
-  if (linked > 0) throw new Error("Cannot delete — linked to realization work packages.");
+  if (linked > 0) throw new Error("Cannot delete — linked to realisation work packages.");
   await prisma.recommendation.delete({ where: { id } });
   await audit("recommendation.deleted", "Recommendation", id, { studyId });
   revalidatePath(`/ve/${studyId}`);
@@ -446,7 +446,7 @@ export async function updateBusinessCaseCurrency(businessCaseId: string, studyId
   revalidatePath(`/ve/${studyId}`);
 }
 
-// ---- The marquee flow: hand a study over into a Value Realization track ----
+// ---- The marquee flow: hand a study over into a Value Realisation track ----
 export async function handoverToRealization(studyId: string) {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "track.create")) throw new Error("Not permitted");
@@ -465,7 +465,7 @@ export async function handoverToRealization(studyId: string) {
   const track = await prisma.realizationTrack.create({
     data: {
       code,
-      title: `${study.title} — Realization`,
+      title: `${study.title} — Realisation`,
       status: "PLANNING",
       health: "GREEN",
       organizationId: study.organizationId,
@@ -542,9 +542,9 @@ export async function handoverToRealization(studyId: string) {
   return track.id;
 }
 
-// ---- Start a standalone realization track (VRM-only, no VE study) -----------
+// ---- Start a standalone realisation track (VRM-only, no VE study) -----------
 // For software already in place at a customer where no Value Engineering is
-// needed — you just want to run the realization lifecycle to protect and prove
+// needed — you just want to run the realisation lifecycle to protect and prove
 // value. The track starts blank (7 VR phases + an adoption plan); benefits and
 // KPI targets are added from the existing deployment's baseline.
 export async function createRealizationTrack(formData: FormData) {
@@ -591,7 +591,7 @@ export async function createRealizationTrack(formData: FormData) {
   return track.id;
 }
 
-// ---- Archive / unarchive / delete a realization track ---------------------
+// ---- Archive / unarchive / delete a realisation track ---------------------
 export async function archiveTrack(trackId: string) {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");

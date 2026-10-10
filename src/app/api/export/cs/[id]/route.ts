@@ -66,7 +66,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         ...(sp?.successCriteria ? [bullet(`Success criteria: ${sp.successCriteria}`)] : []),
         ...(sp?.commitments ? [bullet(`Commitments: ${sp.commitments}`)] : []),
 
-        h("Value summary (from linked realization tracks)"),
+        h("Value summary (from linked realisation tracks)"),
         bullet(`Planned value: ${fmtMoney(planned, cur)}`),
         bullet(`Realized value: ${fmtMoney(realized, cur)} (${fmtPct((realized / (planned || 1)) * 100)} of plan)`),
         ...e.tracks.map((t) => bullet(`${t.code} · ${t.title}: ${fmtMoney(t.realizedValue ?? 0, t.currency)} / ${fmtMoney(t.plannedValue ?? 0, t.currency)}`)),

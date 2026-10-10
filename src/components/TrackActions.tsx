@@ -55,7 +55,7 @@ export function TrackActions({
           <div className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 text-left shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold text-ink-900">Delete track {code}?</h3>
             <p className="text-sm text-ink-600">
-              This permanently deletes the realization track and everything in it — work packages, the adoption plan,
+              This permanently deletes the realisation track and everything in it — work packages, the adoption plan,
               KPI targets &amp; actuals, benefits, risks, reports and lessons. This cannot be undone.
             </p>
             <p className="rounded-lg bg-ink-50 p-2 text-sm text-ink-600">

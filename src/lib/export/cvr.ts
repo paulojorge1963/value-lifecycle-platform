@@ -333,7 +333,7 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       s.addText(st[0], { x, y, w: cw, h: 0.6, align: "center", valign: "middle", margin: 0, fontFace: HF, fontSize: 15, bold: true, color: WHITE, charSpacing: 1 });
       s.addText(st[1], { x: x + 0.2, y: y + 1.1, w: cw - 0.4, h: 0.9, align: "center", valign: "middle", margin: 0, fontFace: HF, fontSize: 26, bold: true, color: INK });
     });
-    s.addText(d.realized ? "Realised value, from the linked Value Realization track." : "Planned value at VE stage; becomes realised value through Value Realization (VR).", { x: MX, y: 5.1, w: 12.0, h: 0.4, margin: 0, fontFace: BF, fontSize: 12.5, italic: true, color: MUTED });
+    s.addText(d.realized ? "Realised value, from the linked Value Realisation track." : "Planned value at VE stage; becomes realised value through Value Realisation (VR).", { x: MX, y: 5.1, w: 12.0, h: 0.4, margin: 0, fontFace: BF, fontSize: 12.5, italic: true, color: MUTED });
   }
 
   /* 14 · FINANCIAL DETAIL */

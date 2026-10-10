@@ -238,11 +238,11 @@ export const VE_PHASES: PhaseDef[] = [
     order: 8,
     title: "Handover to Implementation & Follow-up",
     purpose:
-      "Package approved recommendations, baselines, KPIs and success criteria into a Value Realization track so nothing is lost in translation.",
+      "Package approved recommendations, baselines, KPIs and success criteria into a Value Realisation track so nothing is lost in translation.",
     keyQuestions: [
       "Which recommendations were approved for implementation?",
       "What are the confirmed baselines, KPIs and success criteria?",
-      "Who owns realization, and what is the high-level implementation plan?",
+      "Who owns realisation, and what is the high-level implementation plan?",
       "What risks carry forward?",
     ],
     requiredInputs: ["Approved recommendations", "Business case", "Handover artifacts"],
@@ -250,19 +250,19 @@ export const VE_PHASES: PhaseDef[] = [
       "Confirm approved recommendations and expected benefits",
       "Finalise baselines, KPI definitions and measurement plan",
       "Draft the high-level implementation plan (milestones, owners, timeline)",
-      "Create the Value Realization track and hand over",
+      "Create the Value Realisation track and hand over",
     ],
-    artifacts: ["Value-handover package", "High-level implementation plan", "Value Realization track (created)"],
+    artifacts: ["Value-handover package", "High-level implementation plan", "Value Realisation track (created)"],
     exitCriteria: [
       "All approved recommendations captured as handover artifacts",
       "Baselines and KPIs defined with owners and data sources",
-      "Value Realization track created and linked to this study",
+      "Value Realisation track created and linked to this study",
     ],
   },
 ];
 
 // ---------------------------------------------------------------------------
-//  VALUE REALIZATION — the 7-phase realization lifecycle
+//  VALUE REALIZATION — the 7-phase realisation lifecycle
 // ---------------------------------------------------------------------------
 
 export const VR_PHASES: PhaseDef[] = [

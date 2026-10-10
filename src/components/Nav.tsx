@@ -6,7 +6,7 @@ import { NavLinks } from "@/components/NavLinks";
 
 const ROLE_LABEL: Record<string, string> = {
   VALUE_ENGINEER: "Value Engineer",
-  VALUE_REALIZATION_MANAGER: "Value Realization Mgr",
+  VALUE_REALIZATION_MANAGER: "Value Realisation Mgr",
   CUSTOMER_SUCCESS_MANAGER: "Customer Success Mgr",
   REVIEWER: "Reviewer",
   VIEWER: "Viewer",

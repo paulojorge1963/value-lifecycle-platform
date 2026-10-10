@@ -85,7 +85,7 @@ export default async function TrackPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-ink-400">
-            <Link href="/vr" className="hover:text-vr-700">Value Realization</Link>
+            <Link href="/vr" className="hover:text-vr-700">Value Realisation</Link>
             <span>/</span>
             <span>{track.code}</span>
           </div>
@@ -130,7 +130,7 @@ export default async function TrackPage({
 
       {/* Phase playbook */}
       <PlaybookBar
-        title="Value Realization lifecycle"
+        title="Value Realisation lifecycle"
         phases={track.phases.map((p) => ({ key: p.phase, name: PHASE_TITLE[p.phase], order: p.order, status: p.status }))}
         activeKey={activePhaseKey ?? ""}
         basePath={`/vr/${track.id}`}
@@ -264,9 +264,9 @@ export default async function TrackPage({
         {/* Sidebar */}
         <div className="space-y-6">
           <ActivityFeed events={events.map((e) => ({ id: e.id, action: e.action, actor: e.actor?.name ?? null, at: e.createdAt, meta: e.metadata as Record<string, unknown> | null }))} />
-          {/* Benefits realization */}
+          {/* Benefits realisation */}
           <div className="card card-pad">
-            <h2 className="mb-3 font-semibold text-ink-900">Benefits realization</h2>
+            <h2 className="mb-3 font-semibold text-ink-900">Benefits realisation</h2>
             <div className="space-y-4">
               {track.benefits.map((b) => (
                 <div key={b.id}>

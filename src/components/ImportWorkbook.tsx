@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 type Plan = { code: string; counts?: Record<string, unknown> } & Record<string, unknown>;
 type Preview = { kind: "VE" | "VR" | "CS"; entity: string; code: string; title: string; plan: Plan; entityId?: string; existingId?: string };
 
-const KIND_NAME = { VE: "Value Engineering study", VR: "Value Realization track", CS: "Customer Success engagement" } as const;
+const KIND_NAME = { VE: "Value Engineering study", VR: "Value Realisation track", CS: "Customer Success engagement" } as const;
 const ROUTE = { VE: "/ve", VR: "/vr", CS: "/cs" } as const;
 
 export function ImportWorkbook({ label = "Import workbook", variant = "btn-primary" }: { label?: string; variant?: string }) {

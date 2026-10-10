@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: "Value Lifecycle Platform",
     template: "%s · Value Lifecycle Platform",
   },
-  description: "End-to-end workspace for Value Engineers and Value Realization Managers.",
+  description: "End-to-end workspace for Value Engineers and Value Realisation Managers.",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -202,7 +202,7 @@ export const INDUSTRY_PROFILES: IndustryProfileDef[] = [
       studyTypes: [
         "Software ROI / TCO business case",
         "Vendor / tool consolidation case",
-        "Adoption & value-realization study",
+        "Adoption & value-realisation study",
         "Renewal & expansion case",
         "Cloud migration / modernization TCO case",
         "Build-vs-buy business case",

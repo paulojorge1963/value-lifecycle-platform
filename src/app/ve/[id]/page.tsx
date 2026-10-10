@@ -117,6 +117,21 @@ export default async function StudyPage({
     { id: "comments", title: "Discussion", phases: null },
   ].filter(Boolean) as SectionMeta[];
 
+  // Content-completeness meter: what work objects are actually captured, independent
+  // of the 8-phase Job Plan status (so an imported study with real content doesn't
+  // read as empty just because its phases show NOT_STARTED).
+  const completeness: { k: string; ok: boolean }[] = [
+    { k: "Baseline", ok: study.infoItems.length > 0 },
+    { k: "Functions", ok: study.functions.length > 0 },
+    { k: "Alternatives", ok: study.alternatives.length > 0 },
+    { k: "Evaluation", ok: study.alternatives.some((a) => a.weightedScore != null) },
+    { k: "Recommendations", ok: study.recommendations.length > 0 },
+    { k: "Value story", ok: !!(study.whyNow || study.whyThisSolution || study.valueStory) },
+    { k: "Business case", ok: !!study.businessCase && (study.businessCase.costItems?.length ?? 0) > 0 },
+    { k: "Handover", ok: study.handover.length > 0 },
+  ];
+  const capturedCount = completeness.filter((c) => c.ok).length;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -163,19 +178,37 @@ export default async function StudyPage({
         basePath={`/ve/${study.id}`}
       />
 
-      {/* Next-action banner */}
+      {/* Next-action banner + content-completeness meter */}
       {activePhase && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ve-100 bg-ve-50/50 px-4 py-3">
-          <div className="text-sm">
-            <span className="font-semibold text-ve-800">Phase {activePhase.order}/8 · {tmpl?.title ?? PHASE_TITLE[activePhase.phase]}</span>
-            <span className="text-ink-600">
-              {" — "}
-              {activeUnmet.length > 0
-                ? `${activeUnmet.length} exit ${activeUnmet.length === 1 ? "criterion" : "criteria"} remaining`
-                : "all exit criteria met — ready to advance"}
-            </span>
+        <div className="rounded-xl border border-ve-100 bg-ve-50/50 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="text-sm">
+              <span className="font-semibold text-ve-800">Phase {activePhase.order}/8 · {tmpl?.title ?? PHASE_TITLE[activePhase.phase]}</span>
+              <span className="text-ink-600">
+                {" — "}
+                {activeUnmet.length > 0
+                  ? `${activeUnmet.length} exit ${activeUnmet.length === 1 ? "criterion" : "criteria"} remaining`
+                  : "all exit criteria met — ready to advance"}
+              </span>
+            </div>
+            {tmpl && <a href="#guidance" className="btn-ghost text-xs">Go to phase guidance ↓</a>}
           </div>
-          {tmpl && <a href="#guidance" className="btn-ghost text-xs">Go to phase guidance ↓</a>}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-ve-100 pt-2">
+            <span className="label mr-1" title="Work objects captured in this study — independent of the phase workflow status above.">
+              Content captured {capturedCount}/{completeness.length}
+            </span>
+            {completeness.map((c) => (
+              <span
+                key={c.k}
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                  c.ok ? "bg-green-50 text-green-700" : "bg-ink-100 text-ink-400"
+                }`}
+              >
+                <span className="text-[9px]">{c.ok ? "●" : "○"}</span>
+                {c.k}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 

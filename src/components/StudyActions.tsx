@@ -61,7 +61,7 @@ export function StudyActions({
             </p>
             {isHandedOver && (
               <p className="rounded-lg bg-amber-50 p-2 text-sm text-amber-700">
-                This study was handed over. Its realization track stays, but loses its link back to this study.
+                This study was handed over. Its realisation track stays, but loses its link back to this study.
               </p>
             )}
             <div>

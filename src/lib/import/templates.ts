@@ -272,7 +272,7 @@ function buildVE(wb: ExcelJS.Workbook) {
 
   // 9. Handover pack
   ws = wb.addWorksheet("9. Handover pack"); widths(ws, 30, 22, 12, 12, 12, 14, 20, 16);
-  setTitle(ws, "9", "Handover pack", "KPI definitions, baselines, success criteria, expected benefits handed to Value Realization.");
+  setTitle(ws, "9", "Handover pack", "KPI definitions, baselines, success criteria, expected benefits handed to Value Realisation.");
   sub(ws, 4, "KPIs & baselines");
   headerRow(ws, 5, ["KPI (pick)", "KPI key (auto)", "Baseline", "Target", "Unit (auto)", "Frequency", "Data source", "Owner"]);
   ws.getCell("A6").value = "SLA attainment"; ws.getCell("A6").font = { name: FONT, italic: true, size: 10, color: { argb: EX } };
@@ -299,7 +299,7 @@ function buildVE(wb: ExcelJS.Workbook) {
 function buildVR(wb: ExcelJS.Workbook) {
   buildReadme(wb, "Blue Turtle · VR Intake Workbook — Read me",
     "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.", README_ROWS,
-    [["1. Track", "Realization track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"],
+    [["1. Track", "Realisation track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"],
      ["3. Work packages", "Work packages"], ["4. Adoption plan", "Adoption plan activities"], ["5. KPI tracker", "KPI targets + actuals by period"],
      ["6. Benefits", "Benefits — planned vs realized"], ["7. Risks & issues", "Track risk/issue register"], ["8. QBR notes", "Quarterly value review notes"],
      ["9. Lessons", "Lessons learned"], ["Reference", "KPI catalogue + per-profile drivers & levers"]]);
@@ -322,7 +322,7 @@ function buildVR(wb: ExcelJS.Workbook) {
 
   // 1. Track
   let ws = wb.addWorksheet("1. Track"); widths(ws, 42, 52, 26);
-  setTitle(ws, "1", "Track", "Realization track header → maps to the app's New realization track (or the VE → VR handover).");
+  setTitle(ws, "1", "Track", "Realisation track header → maps to the app's New realisation track (or the VE → VR handover).");
   const tk: [string, string?, (string | number)?][] = [["Client / account"], ["Track title"], ["Origin", "TrackOrigin"],
     ["Source study code (if handover)"], ["Solution profile", "SolutionProfiles"], ["VRM (owner)"], ["Objectives"],
     ["Success criteria"], ["Planned value"], ["Currency", "Currencies"], ["Start date"], ["Target date"]];

@@ -251,9 +251,9 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
             <section className="report-block">
               <SectionTitle>Next steps</SectionTitle>
               {study.status === "HANDED_OVER" ? (
-                <Empty>Handed over to realization — see the realization status below.</Empty>
+                <Empty>Handed over to realisation — see the realisation status below.</Empty>
               ) : done === total ? (
-                <Empty>All VE phases complete — ready for handover to realization.</Empty>
+                <Empty>All VE phases complete — ready for handover to realisation.</Empty>
               ) : exitCriteria.length > 0 ? (
                 <>
                   <div className="text-xs text-ink-400">
@@ -277,12 +277,12 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
             </section>
           </div>
 
-          {/* Realization status — only once handed over */}
+          {/* Realisation status — only once handed over */}
           {handedOver && track && (
             <section className="report-block rounded-lg border border-vr-200 bg-vr-50/40 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-vr-700">
-                  <span className="h-2.5 w-2.5 rounded-full bg-vr-500" /> Realization status · {track.code}
+                  <span className="h-2.5 w-2.5 rounded-full bg-vr-500" /> Realisation status · {track.code}
                 </h2>
                 <div className="flex items-center gap-2 text-sm">
                   <StatusBadge status={track.status} />

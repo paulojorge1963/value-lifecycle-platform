@@ -234,7 +234,7 @@ export async function importWorkbook(data: ArrayBuffer | Buffer, opts: ImportOpt
   // ------------------------------------------------------------------ VR ----
   if (kind === "VR") {
     const t = wb.getWorksheet("1. Track");
-    const title = str(kv(t, "Track title")) ?? "Imported realization track";
+    const title = str(kv(t, "Track title")) ?? "Imported realisation track";
     const industryKey = profileKey(str(kv(t, "Solution profile")));
     if (!industryKey) throw new Error("Solution profile is missing or unrecognised on '1. Track'.");
     const currency = str(kv(t, "Currency")) ?? "USD";

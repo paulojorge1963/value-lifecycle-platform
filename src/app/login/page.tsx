@@ -6,7 +6,7 @@ export const metadata = { title: "Sign in" };
 
 const ROLE_LABEL: Record<string, string> = {
   VALUE_ENGINEER: "Value Engineer",
-  VALUE_REALIZATION_MANAGER: "Value Realization Manager",
+  VALUE_REALIZATION_MANAGER: "Value Realisation Manager",
   CUSTOMER_SUCCESS_MANAGER: "Customer Success Manager",
   REVIEWER: "Reviewer",
   VIEWER: "Stakeholder / Viewer",
@@ -47,7 +47,7 @@ export default async function LoginPage() {
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-xl bg-ink-900 text-lg font-bold text-white">V</div>
         <h1 className="text-2xl font-bold text-ink-900">Value Lifecycle Platform</h1>
-        <p className="mt-1 text-sm text-ink-500">Sign in to your value-engineering &amp; realization workspace.</p>
+        <p className="mt-1 text-sm text-ink-500">Sign in to your value-engineering &amp; realisation workspace.</p>
       </div>
       <div className="card card-pad">
         <LoginForm workspaces={workspaces} demoPassword={demoPassword} />

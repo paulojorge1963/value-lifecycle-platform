@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { fmtMoney, fmtPct } from "@/lib/finance";
 import { brandedDoc } from "@/lib/export/doc-template";
 
-// VR deliverable export: Value Realization Plan + QBR pack as a Word document.
+// VR deliverable export: Value Realisation Plan + QBR pack as a Word document.
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const track = await prisma.realizationTrack.findUnique({
@@ -62,7 +62,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       : [];
 
   const doc = brandedDoc({
-    docTitle: "Value Realization Plan & QBR Pack",
+    docTitle: "Value Realisation Plan & QBR Pack",
     code: track.code,
     subtitle: track.title,
     metaLine: `${track.study ? `Source study: ${track.study.code}` : "Standalone (existing software)"} · Solution: ${track.industry.name} · Owner: ${track.owner.name} · Health: ${track.health}`,
@@ -82,7 +82,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
           h("Implementation work breakdown"),
           gtable(WW, wpRows),
 
-          h("Benefits realization"),
+          h("Benefits realisation"),
           ...track.benefits.map((b) => bullet(`${b.label}: ${fmtMoney(b.realizedValue, cur)} realized of ${fmtMoney(b.plannedValue, cur)} planned`)),
 
           h("Adoption & change management"),
@@ -103,7 +103,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   return new NextResponse(buf as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "Content-Disposition": `attachment; filename="${track.code}-value-realization-plan.docx"`,
+      "Content-Disposition": `attachment; filename="${track.code}-value-realisation-plan.docx"`,
     },
   });
 }

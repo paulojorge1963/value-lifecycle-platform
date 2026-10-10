@@ -25,7 +25,7 @@ function Icon({ d, className }: { d: string; className?: string }) {
 const NAV: { href: string; label: string; icon: keyof typeof I }[] = [
   { href: "/portfolio", label: "Portfolio", icon: "grid" },
   { href: "/ve", label: "Value Engineering", icon: "wrench" },
-  { href: "/vr", label: "Value Realization", icon: "trend" },
+  { href: "/vr", label: "Value Realisation", icon: "trend" },
   { href: "/cs", label: "Customer Success", icon: "heart" },
   { href: "/kpis", label: "KPIs", icon: "chart" },
   { href: "/templates", label: "Templates", icon: "book" },

@@ -181,7 +181,7 @@ export default async function EngagementPage({
 
           {/* Linked VR tracks */}
           <div className="card card-pad">
-            <h2 className="mb-3 font-semibold text-ink-900">Linked Value Realization tracks</h2>
+            <h2 className="mb-3 font-semibold text-ink-900">Linked Value Realisation tracks</h2>
             <div className="space-y-2">
               {e.tracks.map((t) => (
                 <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg border border-ink-200 p-3">

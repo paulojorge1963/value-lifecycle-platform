@@ -8,7 +8,7 @@ import { NewTrackForm } from "@/components/NewTrackForm";
 import { ImportWorkbook } from "@/components/ImportWorkbook";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Value Realization" };
+export const metadata = { title: "Value Realisation" };
 
 export default async function VrWorkspace() {
   const user = await getCurrentUser();
@@ -23,7 +23,7 @@ export default async function VrWorkspace() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        title="Value Realization workspace"
+        title="Value Realisation workspace"
         desc="Implement approved recommendations, drive adoption, and prove realized value against the business case."
         action={
           can(user.role, "track.create") ? (
@@ -74,7 +74,7 @@ export default async function VrWorkspace() {
         })}
         {tracks.length === 0 && (
           <div className="card card-pad text-ink-500">
-            No realization tracks yet. Hand over an approved study from the <Link href="/ve" className="text-ve-700 underline">VE workspace</Link>,
+            No realisation tracks yet. Hand over an approved study from the <Link href="/ve" className="text-ve-700 underline">VE workspace</Link>,
             or start a standalone track above for software already in place.
           </div>
         )}

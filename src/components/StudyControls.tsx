@@ -72,7 +72,7 @@ export function HandoverButton({ studyId, canHandover, existingTrackId }: { stud
   if (existingTrackId) {
     return (
       <button className="btn-vr" onClick={() => router.push(`/vr/${existingTrackId}`)}>
-        Open Value Realization track →
+        Open Value Realisation track →
       </button>
     );
   }
@@ -95,7 +95,7 @@ export function HandoverButton({ studyId, canHandover, existingTrackId }: { stud
           })
         }
       >
-        {pending ? "Creating track…" : "Create Value Realization Track →"}
+        {pending ? "Creating track…" : "Create Value Realisation Track →"}
       </button>
       {err && <span className="text-xs text-red-600">{err}</span>}
     </div>
