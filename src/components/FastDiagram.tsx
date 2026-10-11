@@ -103,7 +103,7 @@ export function FastDiagram({ functions }: { functions: Fn[] }) {
             return (
               <div
                 key={f.id}
-                className={`absolute rounded-lg border px-3 py-2 shadow-sm ${
+                className={`absolute rounded-lg border px-3 py-2 shadow-xs ${
                   basic ? "border-ve-300 bg-ve-50" : "border-ink-200 bg-white"
                 }`}
                 style={{ left: p.x, top: p.y, width: NODE_W, height: NODE_H }}

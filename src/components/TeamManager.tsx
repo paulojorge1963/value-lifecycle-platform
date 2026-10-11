@@ -355,7 +355,7 @@ function ResetPassword({ userId, onDone }: { userId: string; onDone: () => void 
   return (
     <form action={action} className="flex items-center gap-1.5">
       <input type="hidden" name="userId" value={userId} />
-      <input name="password" type="text" required minLength={8} placeholder="new password" className="w-40 rounded border border-ink-300 px-2 py-1 text-xs" />
+      <input name="password" type="text" required minLength={8} placeholder="new password" className="w-40 rounded-sm border border-ink-300 px-2 py-1 text-xs" />
       <button className="btn bg-ve-600 px-2.5 py-1 text-xs text-white hover:bg-ve-700" disabled={pending}>{pending ? "…" : "Save"}</button>
       {err && <span className="text-xs text-red-600">{err}</span>}
     </form>

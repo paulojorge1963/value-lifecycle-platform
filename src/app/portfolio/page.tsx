@@ -123,9 +123,9 @@ export default async function PortfolioPage() {
             <div className="card card-pad">
               <div className="label">Health</div>
               <div className="mt-2 flex gap-3 text-sm">
-                <span className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-700">● {health.GREEN} green</span>
-                <span className="rounded bg-amber-50 px-2 py-0.5 text-amber-700">● {health.AMBER} amber</span>
-                <span className="rounded bg-red-50 px-2 py-0.5 text-red-700">● {health.RED} red</span>
+                <span className="rounded-sm bg-emerald-50 px-2 py-0.5 text-emerald-700">● {health.GREEN} green</span>
+                <span className="rounded-sm bg-amber-50 px-2 py-0.5 text-amber-700">● {health.AMBER} amber</span>
+                <span className="rounded-sm bg-red-50 px-2 py-0.5 text-red-700">● {health.RED} red</span>
               </div>
             </div>
             <div className="card card-pad">
@@ -157,7 +157,7 @@ export default async function PortfolioPage() {
                 <Link href={`/cs/${e.id}`} className="font-medium text-ink-800 hover:text-vr-700">{e.accountName}</Link>
                 <span className="flex flex-wrap gap-1">
                   {signals.slice(0, 4).map((s, i) => (
-                    <span key={i} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
+                    <span key={i} className={`rounded-sm px-1.5 py-0.5 text-[10px] font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
                   ))}
                 </span>
               </li>
@@ -282,7 +282,7 @@ export default async function PortfolioPage() {
 function NoData() {
   return (
     <div className="card card-pad">
-      <p className="text-ink-600">No data yet. Run <code className="rounded bg-ink-100 px-1">npm run db:seed</code> to load demo studies and tracks.</p>
+      <p className="text-ink-600">No data yet. Run <code className="rounded-sm bg-ink-100 px-1">npm run db:seed</code> to load demo studies and tracks.</p>
     </div>
   );
 }

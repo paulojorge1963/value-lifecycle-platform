@@ -72,8 +72,8 @@ export function KpiActualForm({ trackId, kpiTargetId, unit, canEdit }: { trackId
         start(() => recordKpiActual(trackId, fd));
       }}
     >
-      <input name="periodLabel" placeholder="2026-Q4" className="w-24 rounded border border-ink-300 px-2 py-1 text-xs" required />
-      <input name="value" type="number" step="any" placeholder={unit} className="w-24 rounded border border-ink-300 px-2 py-1 text-xs" required />
+      <input name="periodLabel" placeholder="2026-Q4" className="w-24 rounded-sm border border-ink-300 px-2 py-1 text-xs" required />
+      <input name="value" type="number" step="any" placeholder={unit} className="w-24 rounded-sm border border-ink-300 px-2 py-1 text-xs" required />
       <button className="btn bg-vr-600 px-2.5 py-1 text-xs text-white hover:bg-vr-700" disabled={pending}>
         {pending ? "…" : "Record"}
       </button>
@@ -96,7 +96,7 @@ export function BenefitInput({ id, trackId, planned, realized, canEdit }: { id: 
             type="number"
             value={val}
             onChange={(e) => setVal(Number(e.target.value))}
-            className="w-28 rounded border border-ink-300 px-2 py-1 text-xs"
+            className="w-28 rounded-sm border border-ink-300 px-2 py-1 text-xs"
           />
           <button
             className="btn bg-vr-600 px-2 py-1 text-xs text-white hover:bg-vr-700"

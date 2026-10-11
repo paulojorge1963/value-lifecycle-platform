@@ -81,7 +81,7 @@ export default async function CsWorkspace() {
               {signals.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {signals.slice(0, 3).map((s, i) => (
-                    <span key={i} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
+                    <span key={i} className={`rounded-sm px-1.5 py-0.5 text-[10px] font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
                   ))}
                 </div>
               )}

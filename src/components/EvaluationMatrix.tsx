@@ -145,7 +145,7 @@ export function EvaluationMatrix({
                   <input
                     value={c.label}
                     onChange={(e) => editCriterion(c.key, { label: e.target.value })}
-                    className="w-28 rounded border border-ink-300 bg-white px-1.5 py-0.5 text-xs"
+                    className="w-28 rounded-sm border border-ink-300 bg-white px-1.5 py-0.5 text-xs"
                   />
                   <span className="text-xs text-ink-400">w</span>
                   <input
@@ -153,7 +153,7 @@ export function EvaluationMatrix({
                     value={c.weight}
                     min={0}
                     onChange={(e) => editCriterion(c.key, { weight: Number(e.target.value) })}
-                    className="w-12 rounded border border-ink-300 bg-white px-1.5 py-0.5 text-xs"
+                    className="w-12 rounded-sm border border-ink-300 bg-white px-1.5 py-0.5 text-xs"
                   />
                   <button className="text-xs text-red-500 hover:text-red-700" onClick={() => removeCriterion(c.key)}>✕</button>
                 </>
@@ -207,7 +207,7 @@ export function EvaluationMatrix({
                             max={SCORE_MAX}
                             value={scores[a.id]?.[c.key] ?? ""}
                             onChange={(e) => setCell(a.id, c.key, e.target.value)}
-                            className="w-14 rounded border border-ink-300 px-1.5 py-1 text-center text-sm"
+                            className="w-14 rounded-sm border border-ink-300 px-1.5 py-1 text-center text-sm"
                           />
                         ) : (
                           <span className="text-sm text-ink-700">{a.scores?.[c.key] ?? "—"}</span>

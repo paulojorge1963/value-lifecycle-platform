@@ -99,7 +99,7 @@ export function LoginForm({
           </div>
 
           {ws?.isDemo && oneClickDemo ? (
-            <p className="text-center text-xs text-ink-400">Demo password: <code className="rounded bg-ink-100 px-1">{demoPassword}</code></p>
+            <p className="text-center text-xs text-ink-400">Demo password: <code className="rounded-sm bg-ink-100 px-1">{demoPassword}</code></p>
           ) : (
             <p className="text-center text-xs text-ink-400">Pick a member to fill their email, then enter your password above.</p>
           )}

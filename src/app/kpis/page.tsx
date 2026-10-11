@@ -87,7 +87,7 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
                   <td className="td"><span className={`badge ${d.discipline === "VE" ? "bg-ve-50 text-ve-700" : "bg-vr-50 text-vr-700"}`}>{d.discipline}</span></td>
                   <td className="td text-xs">{d.category.replaceAll("_", " ").toLowerCase()}</td>
                   <td className="td text-xs">{d.unit}</td>
-                  <td className="td"><code className="rounded bg-ink-100 px-1.5 py-0.5 text-xs text-ink-600">{d.formula ?? "—"}</code></td>
+                  <td className="td"><code className="rounded-sm bg-ink-100 px-1.5 py-0.5 text-xs text-ink-600">{d.formula ?? "—"}</code></td>
                 </tr>
               ))}
             </tbody>

@@ -22,7 +22,7 @@ export async function Nav() {
     <header className="sticky top-0 z-20 border-b border-ink-200/70 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-2.5">
         <Link href={user ? "/portfolio" : "/login"} className="flex items-center gap-2.5 font-semibold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-ink-800 to-ink-950 text-sm font-bold text-white shadow-soft">V</span>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-linear-to-br from-ink-800 to-ink-950 text-sm font-bold text-white shadow-soft">V</span>
           <span className="hidden leading-tight sm:block">
             <span className="block text-ink-900">Value Lifecycle</span>
             {org && <span className="block text-[11px] font-normal text-ink-400">{org.name}</span>}

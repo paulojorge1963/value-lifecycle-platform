@@ -82,7 +82,7 @@ export function ValueStoryEditor({
               <div className="sm:col-span-2"><span className="label">Priorities</span>
                 <ul className="mt-0.5 grid gap-2 sm:grid-cols-3">
                   {valueStory.priorities.map((p, i) => (
-                    <li key={i} className="rounded border border-ink-100 p-2">
+                    <li key={i} className="rounded-sm border border-ink-100 p-2">
                       <div className="font-medium text-ink-800">{p.title || `Priority ${i + 1}`}</div>
                       <ul className="mt-0.5 list-disc pl-4 text-xs text-ink-600">{p.bullets.map((b, j) => <li key={j}>{b}</li>)}</ul>
                     </li>
@@ -129,7 +129,7 @@ export function ValueStoryEditor({
           <label className="label">Priorities (3 columns — one bullet per line)</label>
           <div className="mt-1 grid gap-2 sm:grid-cols-3">
             {priorities.map((p, i) => (
-              <div key={i} className="rounded border border-ink-100 p-2">
+              <div key={i} className="rounded-sm border border-ink-100 p-2">
                 <input value={p.title} onChange={(e) => setPriorities(priorities.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} className="input" placeholder={`Priority ${i + 1} title`} />
                 <textarea value={p.bullets.join("\n")} onChange={(e) => setPriorities(priorities.map((x, j) => j === i ? { ...x, bullets: e.target.value.split("\n") } : x))} rows={3} className="input mt-1 text-sm" placeholder={"Detail one\nDetail two"} />
               </div>

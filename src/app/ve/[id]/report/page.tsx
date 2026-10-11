@@ -234,7 +234,7 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
                     return (
                       <li key={r.id}>
                         <div className="flex items-start justify-between gap-2">
-                          <span className="min-w-0 break-words font-medium text-ink-800">{r.title}</span>
+                          <span className="min-w-0 wrap-break-word font-medium text-ink-800">{r.title}</span>
                           <span className={`badge shrink-0 ${sev}`}>L{r.likelihood ?? "–"}×I{r.impact ?? "–"}</span>
                         </div>
                         {r.mitigation && <div className="text-xs text-ink-500">Mitigation: {r.mitigation}</div>}

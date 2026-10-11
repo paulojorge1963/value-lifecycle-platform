@@ -135,19 +135,19 @@ export function CostItemEditor({
             if (editing) {
               return (
                 <tr key={c.id} className="bg-ve-50/50">
-                  <td className="td"><input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} className="w-full rounded border border-ink-300 px-2 py-1 text-sm" /></td>
+                  <td className="td"><input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} className="w-full rounded-sm border border-ink-300 px-2 py-1 text-sm" /></td>
                   <td className="td">
-                    <select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value })} className="rounded border border-ink-300 px-1.5 py-1 text-sm">
+                    <select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value })} className="rounded-sm border border-ink-300 px-1.5 py-1 text-sm">
                       {KINDS.map((k) => <option key={k} value={k}>{k.toLowerCase()}</option>)}
                     </select>
                   </td>
                   <td className="td">
-                    <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })} className="rounded border border-ink-300 px-1.5 py-1 text-sm">
+                    <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })} className="rounded-sm border border-ink-300 px-1.5 py-1 text-sm">
                       {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat ? cat.replaceAll("_", " ").toLowerCase() : "—"}</option>)}
                     </select>
                   </td>
-                  <td className="td"><input type="number" value={draft.year ?? ""} onChange={(e) => setDraft({ ...draft, year: numOrNull(e.target.value) })} className="w-16 rounded border border-ink-300 px-2 py-1 text-sm" /></td>
-                  <td className="td text-right"><input type="number" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: Number(e.target.value) })} className="w-28 rounded border border-ink-300 px-2 py-1 text-right text-sm" /></td>
+                  <td className="td"><input type="number" value={draft.year ?? ""} onChange={(e) => setDraft({ ...draft, year: numOrNull(e.target.value) })} className="w-16 rounded-sm border border-ink-300 px-2 py-1 text-sm" /></td>
+                  <td className="td text-right"><input type="number" value={draft.amount} onChange={(e) => setDraft({ ...draft, amount: Number(e.target.value) })} className="w-28 rounded-sm border border-ink-300 px-2 py-1 text-right text-sm" /></td>
                   <td className="td">
                     <div className="flex items-center justify-end gap-1.5">
                       <label className="mr-1 flex items-center gap-1 text-xs text-ink-500"><input type="checkbox" checked={draft.recurring} onChange={(e) => setDraft({ ...draft, recurring: e.target.checked })} /> recurring</label>

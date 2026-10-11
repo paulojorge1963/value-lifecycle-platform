@@ -106,15 +106,15 @@ export function FunctionEditor({ studyId, functions, canEdit, currency }: { stud
                   <tr key={f.id} className="bg-ve-50/50">
                     <td className="td">
                       <div className="flex gap-1.5">
-                        <input value={draft.verb} onChange={(e) => setDraft({ ...draft, verb: e.target.value })} placeholder="verb" className="w-24 rounded border border-ink-300 px-2 py-1 text-sm" />
-                        <input value={draft.noun} onChange={(e) => setDraft({ ...draft, noun: e.target.value })} placeholder="noun" className="w-28 rounded border border-ink-300 px-2 py-1 text-sm" />
+                        <input value={draft.verb} onChange={(e) => setDraft({ ...draft, verb: e.target.value })} placeholder="verb" className="w-24 rounded-sm border border-ink-300 px-2 py-1 text-sm" />
+                        <input value={draft.noun} onChange={(e) => setDraft({ ...draft, noun: e.target.value })} placeholder="noun" className="w-28 rounded-sm border border-ink-300 px-2 py-1 text-sm" />
                       </div>
                       <div className="mt-1.5 flex items-center gap-1 text-xs text-ink-400">
                         <span>supports (why) →</span>
                         <select
                           value={draft.parentId ?? ""}
                           onChange={(e) => setDraft({ ...draft, parentId: e.target.value || null })}
-                          className="rounded border border-ink-300 px-1.5 py-0.5 text-xs text-ink-700"
+                          className="rounded-sm border border-ink-300 px-1.5 py-0.5 text-xs text-ink-700"
                         >
                           <option value="">— top-level —</option>
                           {functions.filter((x) => x.id !== f.id).map((x) => (
@@ -124,16 +124,16 @@ export function FunctionEditor({ studyId, functions, canEdit, currency }: { stud
                       </div>
                     </td>
                     <td className="td">
-                      <select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value })} className="rounded border border-ink-300 px-2 py-1 text-sm">
+                      <select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value })} className="rounded-sm border border-ink-300 px-2 py-1 text-sm">
                         <option value="BASIC">basic</option>
                         <option value="SECONDARY">secondary</option>
                       </select>
                     </td>
                     <td className="td text-right">
-                      <input type="number" value={draft.cost ?? ""} onChange={(e) => setDraft({ ...draft, cost: numOrNull(e.target.value) })} className="w-24 rounded border border-ink-300 px-2 py-1 text-right text-sm" />
+                      <input type="number" value={draft.cost ?? ""} onChange={(e) => setDraft({ ...draft, cost: numOrNull(e.target.value) })} className="w-24 rounded-sm border border-ink-300 px-2 py-1 text-right text-sm" />
                     </td>
                     <td className="td text-right">
-                      <input type="number" value={draft.worth ?? ""} onChange={(e) => setDraft({ ...draft, worth: numOrNull(e.target.value) })} className="w-24 rounded border border-ink-300 px-2 py-1 text-right text-sm" />
+                      <input type="number" value={draft.worth ?? ""} onChange={(e) => setDraft({ ...draft, worth: numOrNull(e.target.value) })} className="w-24 rounded-sm border border-ink-300 px-2 py-1 text-right text-sm" />
                     </td>
                     <td className="td text-right text-ink-400">
                       {draft.cost && draft.worth ? (draft.cost / draft.worth).toFixed(2) : "—"}

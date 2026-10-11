@@ -32,7 +32,7 @@ export function WorkspaceShell({
   return (
     <WsCtx.Provider value={{ activePhase, showAll }}>
       <div className="space-y-5">
-        <div className="sticky top-2 z-20 flex flex-wrap items-center gap-1.5 rounded-xl border border-ink-200 bg-white/92 px-3 py-2 shadow-sm backdrop-blur">
+        <div className="sticky top-2 z-20 flex flex-wrap items-center gap-1.5 rounded-xl border border-ink-200 bg-white/92 px-3 py-2 shadow-xs backdrop-blur-sm">
           <span className="label mr-1">Jump to</span>
           {visible.map((i) => (
             <button

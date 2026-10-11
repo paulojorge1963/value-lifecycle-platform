@@ -1,69 +1,189 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-  color-scheme: light;
-}
+@theme {
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, Segoe UI,
+    Roboto, Helvetica, Arial, sans-serif;
 
-body {
-  @apply text-ink-800 antialiased;
-  background:
-    radial-gradient(1200px 600px at 100% -10%, rgba(44, 59, 77, 0.05), transparent 60%),
-    radial-gradient(1000px 500px at -10% 0%, rgba(163, 81, 57, 0.05), transparent 55%),
-    theme("colors.ink.50");
-  background-attachment: fixed;
-  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
-}
+  --color-ve-50: #eef1f4;
+  --color-ve-100: #d9dfe5;
+  --color-ve-200: #b7c2cd;
+  --color-ve-300: #8b9aaa;
+  --color-ve-400: #5c6e80;
+  --color-ve-500: #3c4e60;
+  --color-ve-600: #2c3b4d;
+  --color-ve-700: #243040;
+  --color-ve-800: #1d2733;
+  --color-ve-900: #151c25;
 
-/* Consistent keyboard focus everywhere (mouse clicks stay clean) */
-:where(a, button, [role="button"], input, select, textarea):focus-visible {
-  @apply outline-none ring-2 ring-ve-500/45 ring-offset-2 ring-offset-white;
-}
+  --color-vr-50: #fbf0ec;
+  --color-vr-100: #f5dacf;
+  --color-vr-200: #e9b7a4;
+  --color-vr-300: #d98e74;
+  --color-vr-400: #c56a4e;
+  --color-vr-500: #b15a40;
+  --color-vr-600: #a35139;
+  --color-vr-700: #86402c;
+  --color-vr-800: #6a3323;
+  --color-vr-900: #4f261a;
 
-@layer components {
-  .card {
-    @apply rounded-xl border border-ink-200/80 bg-white shadow-card;
+  --color-cs-50: #fff6ec;
+  --color-cs-100: #ffe8ce;
+  --color-cs-200: #ffd4a3;
+  --color-cs-300: #ffc488;
+  --color-cs-400: #ffb162;
+  --color-cs-500: #f59b44;
+  --color-cs-600: #e07e2a;
+  --color-cs-700: #b45e1c;
+  --color-cs-800: #8a4715;
+  --color-cs-900: #663410;
+
+  --color-bmc-50: #fff6ec;
+  --color-bmc-100: #ffe8ce;
+  --color-bmc-200: #ffd4a3;
+  --color-bmc-400: #ffb162;
+  --color-bmc-500: #f59b44;
+  --color-bmc-600: #e07e2a;
+  --color-bmc-700: #b45e1c;
+
+  --color-rail: #1b2632;
+  --color-railfg: #aeb7bf;
+
+  --color-ink-50: #f4f1e9;
+  --color-ink-100: #eae4d8;
+  --color-ink-200: #dad3c6;
+  --color-ink-300: #c3bbab;
+  --color-ink-400: #9a9284;
+  --color-ink-500: #6e685c;
+  --color-ink-600: #4c4e50;
+  --color-ink-700: #363f49;
+  --color-ink-800: #26303b;
+  --color-ink-900: #1b2632;
+
+  --shadow-soft:
+    0 1px 2px rgba(27, 38, 50, 0.04), 0 1px 3px rgba(27, 38, 50, 0.06);
+  --shadow-card:
+    0 1px 2px rgba(27, 38, 50, 0.04), 0 6px 16px -6px rgba(27, 38, 50, 0.1);
+  --shadow-card-hover:
+    0 10px 28px -8px rgba(27, 38, 50, 0.16),
+    0 3px 8px -3px rgba(27, 38, 50, 0.08);
+  --shadow-pop: 0 12px 34px -10px rgba(27, 38, 50, 0.22);
+
+  --animate-fade-in-up: fade-in-up 0.28s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  .card-pad {
-    @apply p-5;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
+}
+
+@utility card {
+  @apply rounded-xl border border-ink-200/80 bg-white shadow-card;
+}
+
+@utility card-pad {
+  @apply p-5;
+}
+
+@utility card-hover {
   /* Interactive card — subtle lift on hover (use on clickable cards) */
-  .card-hover {
-    @apply transition duration-200 ease-out hover:-translate-y-0.5 hover:border-ink-300 hover:shadow-card-hover;
+  @apply transition duration-200 ease-out hover:-translate-y-0.5 hover:border-ink-300 hover:shadow-card-hover;
+}
+
+@utility btn {
+  @apply inline-flex select-none items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition duration-150 ease-out active:scale-[.98] disabled:pointer-events-none disabled:opacity-60;
+}
+
+@utility btn-primary {
+  @apply btn bg-ink-900 text-white shadow-soft hover:bg-ink-800;
+}
+
+@utility btn-ve {
+  @apply btn bg-ve-600 text-white shadow-soft hover:bg-ve-700;
+}
+
+@utility btn-vr {
+  @apply btn bg-vr-600 text-white shadow-soft hover:bg-vr-700;
+}
+
+@utility btn-cs {
+  @apply btn bg-cs-600 text-white shadow-soft hover:bg-cs-700;
+}
+
+@utility btn-ghost {
+  @apply btn border border-ink-200 bg-white text-ink-700 shadow-soft hover:border-ink-300 hover:bg-ink-50;
+}
+
+@utility badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ring-black/5;
+}
+
+@utility label {
+  @apply text-xs font-semibold uppercase tracking-wide text-ink-500;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm text-ink-900 shadow-soft transition placeholder:text-ink-400 focus:border-ve-500 focus:outline-hidden focus:ring-2 focus:ring-ve-500/25;
+}
+
+@utility th {
+  @apply px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-ink-500;
+}
+
+@utility td {
+  @apply px-3 py-2 text-sm text-ink-700;
+}
+
+@layer utilities {
+  :root {
+    color-scheme: light;
   }
-  .btn {
-    @apply inline-flex select-none items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition duration-150 ease-out active:scale-[.98] disabled:pointer-events-none disabled:opacity-60;
+
+  body {
+    @apply text-ink-800 antialiased;
+    background:
+      radial-gradient(
+        1200px 600px at 100% -10%,
+        rgba(44, 59, 77, 0.05),
+        transparent 60%
+      ),
+      radial-gradient(
+        1000px 500px at -10% 0%,
+        rgba(163, 81, 57, 0.05),
+        transparent 55%
+      ),
+      var(--color-ink-50);
+    background-attachment: fixed;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
   }
-  .btn-primary {
-    @apply btn bg-ink-900 text-white shadow-soft hover:bg-ink-800;
-  }
-  .btn-ve {
-    @apply btn bg-ve-600 text-white shadow-soft hover:bg-ve-700;
-  }
-  .btn-vr {
-    @apply btn bg-vr-600 text-white shadow-soft hover:bg-vr-700;
-  }
-  .btn-cs {
-    @apply btn bg-cs-600 text-white shadow-soft hover:bg-cs-700;
-  }
-  .btn-ghost {
-    @apply btn border border-ink-200 bg-white text-ink-700 shadow-soft hover:border-ink-300 hover:bg-ink-50;
-  }
-  .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ring-black/5;
-  }
-  .label {
-    @apply text-xs font-semibold uppercase tracking-wide text-ink-500;
-  }
-  .input {
-    @apply w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm text-ink-900 shadow-soft transition placeholder:text-ink-400 focus:border-ve-500 focus:outline-none focus:ring-2 focus:ring-ve-500/25;
-  }
-  .th {
-    @apply px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-ink-500;
-  }
-  .td {
-    @apply px-3 py-2 text-sm text-ink-700;
+
+  /* Consistent keyboard focus everywhere (mouse clicks stay clean) */
+  :where(a, button, [role='button'], input, select, textarea):focus-visible {
+    @apply outline-hidden ring-2 ring-ve-500/45 ring-offset-2 ring-offset-white;
   }
 }
 

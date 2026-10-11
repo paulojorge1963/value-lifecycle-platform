@@ -114,7 +114,7 @@ export function CommentThread({
           onChange={(e) => setBody(e.target.value)}
           rows={2}
           placeholder="Add a comment…"
-          className={`w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 ${ring}`}
+          className={`w-full rounded-lg border border-ink-300 px-3 py-2 text-sm focus:outline-hidden focus:ring-2 ${ring}`}
           onKeyDown={(e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submit();
           }}

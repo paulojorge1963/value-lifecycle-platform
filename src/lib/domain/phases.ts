@@ -221,14 +221,14 @@ export const VE_PHASES: PhaseDef[] = [
     ],
     requiredInputs: ["Business case", "Developed recommendations"],
     tasks: [
-      "Assemble the presentation deck outline",
+      "Assemble the presentation deck outline-solid",
       "Prepare the executive summary and financial headlines",
       "Document the recommended option and the ask",
       "Capture approval decisions and conditions",
     ],
-    artifacts: ["Presentation deck outline", "Decision log"],
+    artifacts: ["Presentation deck outline-solid", "Decision log"],
     exitCriteria: [
-      "Deck outline complete (summary, problem, options, recommendation, financials, implementation outline)",
+      "Deck outline-solid complete (summary, problem, options, recommendation, financials, implementation outline)",
       "Approval decision recorded",
     ],
   },
@@ -416,7 +416,7 @@ export const VR_PHASES: PhaseDef[] = [
       "Produce the periodic value report",
       "Assemble the QBR / EBR pack",
     ],
-    artifacts: ["Value report (periodic)", "QBR / EBR pack outline", "Planned-vs-realized view"],
+    artifacts: ["Value report (periodic)", "QBR / EBR pack outline-solid", "Planned-vs-realized view"],
     exitCriteria: [
       "KPI actuals recorded for the period",
       "Realized value and variance computed",

@@ -122,7 +122,7 @@ export default async function EngagementPage({
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm">
           <span className="font-medium text-amber-800">Needs attention:</span>
           {signals.map((s, i) => (
-            <span key={i} className={`rounded px-2 py-0.5 text-xs font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
+            <span key={i} className={`rounded-sm px-2 py-0.5 text-xs font-medium ${s.level === "red" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{s.label}</span>
           ))}
         </div>
       )}

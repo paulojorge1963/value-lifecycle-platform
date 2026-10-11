@@ -93,7 +93,7 @@ Improve value by {{objective}} without compromising {{must_not_compromise}}.
   {
     discipline: "VE",
     kind: "presentation_outline",
-    title: "Presentation deck outline",
+    title: "Presentation deck outline-solid",
     body: `1. Executive summary — the value story in one line
 2. Problem & scope
 3. Approach (VE Job Plan)
@@ -168,7 +168,7 @@ Success is achieving {{success_criteria}}.
   {
     discipline: "VR",
     kind: "qbr",
-    title: "QBR / EBR value pack outline",
+    title: "QBR / EBR value pack outline-solid",
     body: `## Executive value story
 {{one_line_story}}
 

@@ -339,9 +339,9 @@ export default async function StudyPage({
                     <tbody>
                       {baselineItems.map((it) => (
                         <tr key={it.id} className="border-t border-ink-100 align-top">
-                          <td className="py-1.5 pr-3 text-ink-700 break-words">{it.label}</td>
-                          <td className="py-1.5 pr-3 font-medium text-ink-900 break-words">{it.value}</td>
-                          <td className="py-1.5 text-ink-400 break-words">{it.source}</td>
+                          <td className="py-1.5 pr-3 text-ink-700 wrap-break-word">{it.label}</td>
+                          <td className="py-1.5 pr-3 font-medium text-ink-900 wrap-break-word">{it.value}</td>
+                          <td className="py-1.5 text-ink-400 wrap-break-word">{it.source}</td>
                         </tr>
                       ))}
                     </tbody>

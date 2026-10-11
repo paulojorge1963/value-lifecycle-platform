@@ -215,7 +215,7 @@ export default async function TrackPage({
                     {k.actuals.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
                         {k.actuals.map((a) => (
-                          <span key={a.id} className="rounded bg-ink-100 px-2 py-0.5 text-ink-600">{a.periodLabel}: {a.value}</span>
+                          <span key={a.id} className="rounded-sm bg-ink-100 px-2 py-0.5 text-ink-600">{a.periodLabel}: {a.value}</span>
                         ))}
                       </div>
                     )}

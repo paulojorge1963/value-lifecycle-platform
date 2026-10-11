@@ -93,7 +93,7 @@ export function HealthScorecard({
             {latest.factors.map((f) => (
               <div key={f.key} className="flex items-center gap-2">
                 <span className="w-40 text-sm text-ink-600">{f.label}</span>
-                <div className="h-2 flex-1 overflow-hidden rounded bg-ink-100">
+                <div className="h-2 flex-1 overflow-hidden rounded-sm bg-ink-100">
                   <div className={`h-full ${f.score >= 70 ? "bg-emerald-500" : f.score >= 40 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${Math.max(0, Math.min(100, f.score))}%` }} />
                 </div>
                 <span className="w-8 text-right text-xs text-ink-500">{f.score}</span>
@@ -102,7 +102,7 @@ export function HealthScorecard({
           </div>
           {history.length > 1 && (
             <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
-              {history.map((h) => <span key={h.periodLabel} className={`rounded bg-ink-100 px-2 py-0.5 ${ragCls(h.overall)}`}>{h.periodLabel}: {h.overall}</span>)}
+              {history.map((h) => <span key={h.periodLabel} className={`rounded-sm bg-ink-100 px-2 py-0.5 ${ragCls(h.overall)}`}>{h.periodLabel}: {h.overall}</span>)}
             </div>
           )}
         </>
@@ -121,7 +121,7 @@ export function HealthScorecard({
               {HEALTH_FACTORS.map((f) => (
                 <label key={f.key} className="flex items-center gap-2 text-sm">
                   <span className="w-40 text-ink-600">{f.label}</span>
-                  <input name={`f_${f.key}`} type="number" min={0} max={100} defaultValue={70} className="w-20 rounded border border-ink-300 px-2 py-1 text-sm" />
+                  <input name={`f_${f.key}`} type="number" min={0} max={100} defaultValue={70} className="w-20 rounded-sm border border-ink-300 px-2 py-1 text-sm" />
                   <span className="text-xs text-ink-400">/100 · w{f.weight}</span>
                 </label>
               ))}
@@ -155,7 +155,7 @@ export function ActionLog({ engagementId, actions, canEdit }: { engagementId: st
         {actions.map((a) => {
           const next = ACTION_NEXT[a.status];
           return (
-            <div key={a.id} className="flex items-center justify-between gap-2 rounded border border-ink-100 px-3 py-1.5 text-sm">
+            <div key={a.id} className="flex items-center justify-between gap-2 rounded-sm border border-ink-100 px-3 py-1.5 text-sm">
               <div>
                 <span className={a.status === "DONE" ? "text-ink-400 line-through" : "text-ink-800"}>{a.title}</span>
                 <span className="ml-2 text-xs text-ink-400">{a.owner ?? "—"}{a.dueDate ? ` · due ${fmtDate(a.dueDate)}` : ""}</span>
@@ -172,9 +172,9 @@ export function ActionLog({ engagementId, actions, canEdit }: { engagementId: st
       </div>
       {canEdit && (
         <form className="mt-3 flex flex-wrap items-center gap-1.5" action={(fd) => start(async () => { await addAction(engagementId, fd); router.refresh(); })}>
-          <input name="title" placeholder="New action" className="min-w-[10rem] flex-1 rounded border border-ink-300 px-2 py-1 text-sm" required />
-          <input name="owner" placeholder="Owner" className="w-28 rounded border border-ink-300 px-2 py-1 text-sm" />
-          <input name="dueDate" type="date" className="rounded border border-ink-300 px-2 py-1 text-sm" />
+          <input name="title" placeholder="New action" className="min-w-40 flex-1 rounded-sm border border-ink-300 px-2 py-1 text-sm" required />
+          <input name="owner" placeholder="Owner" className="w-28 rounded-sm border border-ink-300 px-2 py-1 text-sm" />
+          <input name="dueDate" type="date" className="rounded-sm border border-ink-300 px-2 py-1 text-sm" />
           <button className="btn-vr" disabled={pending}>{pending ? "…" : "Add"}</button>
         </form>
       )}
@@ -198,7 +198,7 @@ export function StakeholderPanel({ engagementId, stakeholders, canEdit }: { enga
               <span className="text-xs text-ink-400"> · {[s.title, s.role].filter(Boolean).join(" · ") || "—"}{s.influence ? ` · influence ${s.influence}/5` : ""}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`rounded px-1.5 py-0.5 text-[10px] ${SENTIMENT_CLS[s.sentiment] ?? ""}`}>{s.sentiment.toLowerCase()}</span>
+              <span className={`rounded-sm px-1.5 py-0.5 text-[10px] ${SENTIMENT_CLS[s.sentiment] ?? ""}`}>{s.sentiment.toLowerCase()}</span>
               {canEdit && <button className="text-xs text-ink-400 hover:text-red-600" disabled={pending} onClick={() => start(async () => { await deleteStakeholder(engagementId, s.id); router.refresh(); })}>✕</button>}
             </div>
           </div>
