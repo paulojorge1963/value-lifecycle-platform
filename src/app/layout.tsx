@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const org = user ? await prisma.organization.findUnique({ where: { id: user.organizationId }, select: { name: true } }) : null;
 
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en-GB" className={inter.variable}>
       <body className="font-sans">
         {user ? (
           <div className="flex h-screen overflow-hidden">

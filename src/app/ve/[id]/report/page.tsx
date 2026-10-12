@@ -291,7 +291,7 @@ export default async function StudyReportPage({ params }: { params: Promise<{ id
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <ReportTile label="Planned value" value={fmtMoney(planned, track.currency)} accent="ve" />
-                <ReportTile label="Realized value" value={fmtMoney(realized, track.currency)} sub={`${fmtPct((realized / (planned || 1)) * 100)} of plan`} accent="vr" />
+                <ReportTile label="Realised value" value={fmtMoney(realized, track.currency)} sub={`${fmtPct((realized / (planned || 1)) * 100)} of plan`} accent="vr" />
                 <ReportTile label="Variance vs plan" value={fmtPct(variance)} accent={(variance ?? 0) >= 0 ? "vr" : "ink"} />
                 <ReportTile label="On-time delivery" value={fmtPct(onTime)} sub={`${wpDone}/${wpTotal} work pkgs`} accent="vr" />
               </div>

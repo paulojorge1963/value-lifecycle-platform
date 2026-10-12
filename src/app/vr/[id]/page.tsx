@@ -123,7 +123,7 @@ export default async function TrackPage({
       {/* Value KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Planned value" value={fmtMoney(planned, track.currency)} accent="ve" />
-        <StatTile label="Realized value" value={fmtMoney(realized, track.currency)} sub={`${fmtPct((realized / (planned || 1)) * 100)} of plan`} accent="vr" />
+        <StatTile label="Realised value" value={fmtMoney(realized, track.currency)} sub={`${fmtPct((realized / (planned || 1)) * 100)} of plan`} accent="vr" />
         <StatTile label="Variance vs plan" value={fmtPct(variance)} accent={(variance ?? 0) >= 0 ? "vr" : "ink"} />
         <StatTile label="On-time implementation" value={fmtPct(onTime)} sub={`${wpDone}/${track.workPackages.length} work pkgs`} accent="vr" />
       </div>

@@ -24,7 +24,7 @@ export default async function VrWorkspace() {
     <div className="space-y-6">
       <SectionHeader
         title="Value Realisation workspace"
-        desc="Implement approved recommendations, drive adoption, and prove realized value against the business case."
+        desc="Implement approved recommendations, drive adoption, and prove realised value against the business case."
         action={
           can(user.role, "track.create") ? (
             <div className="flex items-center gap-2">
@@ -60,7 +60,7 @@ export default async function VrWorkspace() {
               </div>
               <div className="mt-4">
                 <div className="mb-1 flex justify-between text-xs text-ink-500">
-                  <span>Realized vs planned</span>
+                  <span>Realised vs planned</span>
                   <span>{fmtMoney(t.realizedValue, t.currency)} / {fmtMoney(t.plannedValue, t.currency)}</span>
                 </div>
                 <ProgressBar pct={pct} accent="vr" />

@@ -73,7 +73,7 @@ export default function Home() {
           <div className="grid place-items-center px-2 text-2xl text-ink-400">→</div>
           <div className="flex-1 rounded-xl bg-vr-50 p-4">
             <div className="label text-vr-700">Value Realisation Manager</div>
-            <p className="mt-1 text-ink-700">Receives the handover → implements & drives adoption → measures realized vs planned value → reports & closes the loop.</p>
+            <p className="mt-1 text-ink-700">Receives the handover → implements & drives adoption → measures realised vs planned value → reports & closes the loop.</p>
           </div>
         </div>
         <p className="mt-4 text-xs text-ink-500">

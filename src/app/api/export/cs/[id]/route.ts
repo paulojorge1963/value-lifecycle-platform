@@ -68,7 +68,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
         h("Value summary (from linked realisation tracks)"),
         bullet(`Planned value: ${fmtMoney(planned, cur)}`),
-        bullet(`Realized value: ${fmtMoney(realized, cur)} (${fmtPct((realized / (planned || 1)) * 100)} of plan)`),
+        bullet(`Realised value: ${fmtMoney(realized, cur)} (${fmtPct((realized / (planned || 1)) * 100)} of plan)`),
         ...e.tracks.map((t) => bullet(`${t.code} · ${t.title}: ${fmtMoney(t.realizedValue ?? 0, t.currency)} / ${fmtMoney(t.plannedValue ?? 0, t.currency)}`)),
         ...e.studies.map((s) => bullet(`${s.code} · ${s.title}${s.businessCase?.roiPct != null ? ` — ROI ${fmtPct(s.businessCase.roiPct)}` : ""}`)),
 

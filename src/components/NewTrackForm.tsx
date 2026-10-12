@@ -61,7 +61,7 @@ export function NewTrackForm({ industries }: { industries: { key: string; name: 
         </div>
         <div>
           <label className="label">Success criteria (optional)</label>
-          <textarea name="successCriteria" rows={2} className="input mt-1" placeholder="How will we know value has been realized?" />
+          <textarea name="successCriteria" rows={2} className="input mt-1" placeholder="How will we know value has been realised?" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>

@@ -249,7 +249,7 @@ export async function importWorkbook(data: ArrayBuffer | Buffer, opts: ImportOpt
     const wps = readTable(wb.getWorksheet("3. Work packages"), ["Name", "Description", "Owner", "Start", "Due", "Status"], "Implement: consolidate schedulers");
     const acts = readTable(wb.getWorksheet("4. Adoption plan"), ["Activity", "Audience / who's impacted", "Owner", "Due", "Status"], "Jobs-as-code training for ops");
     const tracker = readTable(wb.getWorksheet("5. KPI tracker"), ["KPI (pick)", "KPI key (auto)", "Baseline", "Target", "Unit (auto)", "Period", "Actual", "Attainment % (auto)"], "SLA attainment");
-    const benefits = readTable(wb.getWorksheet("6. Benefits"), ["Benefit", "Category", "Planned value", "Realized value", "Variance (auto)"], "Licence + rerun saving");
+    const benefits = readTable(wb.getWorksheet("6. Benefits"), ["Benefit", "Category", "Planned value", "Realised value", "Variance (auto)"], "Licence + rerun saving");
     const risks = readTable(wb.getWorksheet("7. Risks & issues"), ["Risk / issue", "Likelihood (1–5)", "Impact (1–5)", "Score (auto)", "Mitigation", "Status"], "Adoption lag in ops team");
     const lessons = readTable(wb.getWorksheet("9. Lessons"), ["Category", "Lesson", "Recommendation for next time"], "what_worked");
 
@@ -280,13 +280,14 @@ export async function importWorkbook(data: ArrayBuffer | Buffer, opts: ImportOpt
       const ap = await tx.adoptionPlan.findUnique({ where: { trackId: track.id } });
       let ao = 1;
       if (ap) for (const a of acts) if (str(a["Activity"])) await tx.adoptionActivity.create({ data: { adoptionPlanId: ap.id, label: String(a["Activity"]), audience: str(a["Audience / who's impacted"]), status: (str(a["Status"]) as any) ?? "NOT_STARTED", dueDate: date(a["Due"]), order: ao++ } });
-      for (const b of benefits) if (str(b["Benefit"])) await tx.benefit.create({ data: { trackId: track.id, label: String(b["Benefit"]), category: (str(b["Category"]) as any) ?? "COST_SAVING", plannedValue: num(b["Planned value"]) ?? 0, realizedValue: num(b["Realized value"]) ?? 0, currency } });
-      const realizedTotal = benefits.reduce((s, b) => s + (num(b["Realized value"]) ?? 0), 0);
+      for (const b of benefits) if (str(b["Benefit"])) await tx.benefit.create({ data: { trackId: track.id, label: String(b["Benefit"]), category: (str(b["Category"]) as any) ?? "COST_SAVING", plannedValue: num(b["Planned value"]) ?? 0, realizedValue: num(b["Realised value"]) ?? 0, currency } });
+      const realizedTotal = benefits.reduce((s, b) => s + (num(b["Realised value"]) ?? 0), 0);
       if (realizedTotal > 0) await tx.realizationTrack.update({ where: { id: track.id }, data: { realizedValue: realizedTotal } });
       for (const r of risks) if (str(r["Risk / issue"])) await tx.riskItem.create({ data: { trackId: track.id, title: String(r["Risk / issue"]).slice(0, 120), description: str(r["Risk / issue"]), likelihood: num(r["Likelihood (1–5)"]) ?? undefined, impact: num(r["Impact (1–5)"]) ?? undefined, mitigation: str(r["Mitigation"]), status: (str(r["Status"]) as any) ?? "OPEN" } });
       for (const l of lessons) if (str(l["Lesson"])) await tx.lessonLearned.create({ data: { trackId: track.id, category: str(l["Category"]), detail: String(l["Lesson"]), feedsBackTo: str(l["Recommendation for next time"]) } });
       const qbr = wb.getWorksheet("8. QBR notes");
-      const summary = str(kv(qbr, "Realized vs planned (summary)"));
+      // Accept the British header on new workbooks, the older US spelling on ones downloaded before the language switch.
+      const summary = str(kv(qbr, "Realised vs planned (summary)") ?? kv(qbr, "Realized vs planned (summary)"));
       if (summary) { const actions = str(kv(qbr, "Actions & owners")); await tx.valueReport.create({ data: { trackId: track.id, kind: "QUARTERLY_QBR" as any, title: "QBR — imported", content: { executiveStory: summary, wins: str(kv(qbr, "Wins")), risks: str(kv(qbr, "Risks / blockers")), expansion: str(kv(qbr, "Renewal / expansion signal")), nextBestActions: actions ? actions.split(/\s*;\s*/).filter(Boolean) : [] } as Prisma.InputJsonValue } }); }
       await tx.auditEvent.create({ data: { action: "track.imported", entityType: "RealizationTrack", entityId: track.id, trackId: track.id, actorId: ownerId, metadata: { source: "workbook-import", origin: isHandover ? "VE_HANDOVER" : "STANDALONE" } } });
     }, { timeout: 60000 });

@@ -73,7 +73,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
           h("Value summary"),
           bullet(`Planned value: ${fmtMoney(planned, cur)}`),
-          bullet(`Realized value: ${fmtMoney(realized, cur)} (${fmtPct((realized / (planned || 1)) * 100)} of plan)`),
+          bullet(`Realised value: ${fmtMoney(realized, cur)} (${fmtPct((realized / (planned || 1)) * 100)} of plan)`),
           bullet(`Variance vs plan: ${fmtPct(variance)}`),
 
           h("Baseline & KPI measurement plan"),

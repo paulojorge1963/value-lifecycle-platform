@@ -405,21 +405,21 @@ export const VR_PHASES: PhaseDef[] = [
     purpose:
       "Measure actual performance against baseline and targets, and produce periodic value reports and QBR/EBR packs.",
     keyQuestions: [
-      "What value has been realized vs planned to date?",
+      "What value has been realised vs planned to date?",
       "What is the variance and what is driving it?",
       "What is the executive value story and the next-best action?",
     ],
     requiredInputs: ["KPI actuals", "Benefit measurements"],
     tasks: [
       "Record KPI actuals each period",
-      "Compute realized value and variance vs plan",
+      "Compute realised value and variance vs plan",
       "Produce the periodic value report",
       "Assemble the QBR / EBR pack",
     ],
-    artifacts: ["Value report (periodic)", "QBR / EBR pack outline-solid", "Planned-vs-realized view"],
+    artifacts: ["Value report (periodic)", "QBR / EBR pack outline-solid", "Planned-vs-realised view"],
     exitCriteria: [
       "KPI actuals recorded for the period",
-      "Realized value and variance computed",
+      "Realised value and variance computed",
       "Value report / QBR pack produced",
     ],
   },
@@ -429,22 +429,22 @@ export const VR_PHASES: PhaseDef[] = [
     order: 7,
     title: "Close-Out & Lessons Learned",
     purpose:
-      "Confirm realized benefits vs the business case, document lessons learned, and feed improvements back into VE templates and playbooks.",
+      "Confirm realised benefits vs the business case, document lessons learned, and feed improvements back into VE templates and playbooks.",
     keyQuestions: [
-      "What benefits were realized vs the original business case?",
+      "What benefits were realised vs the original business case?",
       "What worked, what didn't, and what would we change?",
       "What should feed back into future VE studies and templates?",
     ],
-    requiredInputs: ["Final KPI actuals", "Realized benefits", "Business case"],
+    requiredInputs: ["Final KPI actuals", "Realised benefits", "Business case"],
     tasks: [
-      "Confirm final realized benefits vs business case",
+      "Confirm final realised benefits vs business case",
       "Document lessons learned",
       "Capture recommendations for future VE studies",
       "Close the track and update playbooks",
     ],
     artifacts: ["Close-out report", "Lessons-learned log", "Playbook updates"],
     exitCriteria: [
-      "Final realized value confirmed against the business case",
+      "Final realised value confirmed against the business case",
       "Lessons learned documented",
       "Feedback routed to VE templates / playbooks",
     ],

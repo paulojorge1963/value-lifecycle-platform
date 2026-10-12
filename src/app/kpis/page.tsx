@@ -64,8 +64,8 @@ export default async function KpisPage({ searchParams }: { searchParams: Promise
         <div>
           <div className="mb-3 flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-vr-500" /><h3 className="font-semibold text-ink-900">Value Realisation KPIs</h3></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatTile label="Total realized value" value={fmtMoney(realizedValue, reportCurrency)} accent="vr" />
-            <StatTile label="Planned vs realized variance" value={fmtPct(variance)} accent="vr" />
+            <StatTile label="Total realised value" value={fmtMoney(realizedValue, reportCurrency)} accent="vr" />
+            <StatTile label="Planned vs realised variance" value={fmtPct(variance)} accent="vr" />
             <StatTile label="On-time implementation" value={fmtPct(onTime)} accent="vr" />
             <StatTile label="Value reports delivered" value={String(reports)} accent="vr" />
           </div>

@@ -352,7 +352,7 @@ export async function generateEbrNarrative(engagementId: string): Promise<{ sour
           "You are a Customer Success Manager drafting a concise Executive Business Review (EBR) narrative for a customer. Be specific, value-led and honest about risk. This is an editable draft.",
         prompt:
           `Account: ${e.accountName}\nSolution: ${e.industry.name}\nStatus: ${e.status} · Health: ${e.healthOverall}\n` +
-          `Value: ${fmtMoney(realized, cur)} realized of ${fmtMoney(planned, cur)} planned (${fmtPct(pct)}).\n` +
+          `Value: ${fmtMoney(realized, cur)} realised of ${fmtMoney(planned, cur)} planned (${fmtPct(pct)}).\n` +
           (latestHealth ? `Latest health score: ${latestHealth.overall}/100; weakest factor: ${weakest?.label ?? "n/a"}.\n` : "") +
           (rd !== null ? `Renewal in ${rd} days.\n` : "") +
           (detractors ? `${detractors} detractor stakeholder(s).\n` : "") +
@@ -387,8 +387,8 @@ export async function generateEbrNarrative(engagementId: string): Promise<{ sour
     if (detractors) riskBits.push(`${detractors} detractor stakeholder(s)`);
     if (weakest && weakest.score < 60) riskBits.push(`${weakest.label.toLowerCase()} is the weakest health factor`);
     return {
-      executiveStory: `${e!.accountName} is ${e!.status.toLowerCase().replace("_", " ")} on the ${e!.industry.name} solution. To date the account has realized ${fmtMoney(realized, cur)} of ${fmtMoney(planned, cur)} planned value (${fmtPct(pct)}). ${e!.healthOverall === "GREEN" ? "The relationship is healthy and renewal is on track." : "Focused action is needed to protect the renewal."}`,
-      valueSummary: `${fmtMoney(realized, cur)} realized of ${fmtMoney(planned, cur)} planned (${fmtPct(pct)} of plan) across ${e!.tracks.length} initiative(s).`,
+      executiveStory: `${e!.accountName} is ${e!.status.toLowerCase().replace("_", " ")} on the ${e!.industry.name} solution. To date the account has realised ${fmtMoney(realized, cur)} of ${fmtMoney(planned, cur)} planned value (${fmtPct(pct)}). ${e!.healthOverall === "GREEN" ? "The relationship is healthy and renewal is on track." : "Focused action is needed to protect the renewal."}`,
+      valueSummary: `${fmtMoney(realized, cur)} realised of ${fmtMoney(planned, cur)} planned (${fmtPct(pct)} of plan) across ${e!.tracks.length} initiative(s).`,
       risks: riskBits.length ? `Key risks: ${riskBits.join("; ")}.` : "No material risks flagged this period.",
       nextBestActions: [
         rd !== null && rd <= 120 ? "Confirm renewal stakeholders and book the renewal EBR." : "Schedule the next executive value review.",

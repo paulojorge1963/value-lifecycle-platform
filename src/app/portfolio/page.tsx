@@ -79,7 +79,7 @@ export default async function PortfolioPage() {
     <div className="space-y-8">
       <SectionHeader
         title="Value Portfolio"
-        desc="Combined view for leaders — planned value from VE studies, realized value from VR tracks."
+        desc="Combined view for leaders — planned value from VE studies, realised value from VR tracks."
         action={
           can(user.role, "study.create") || can(user.role, "track.create") || can(user.role, "cs.create") ? (
             <ImportWorkbook label="Import workbook" variant="btn-ghost" />
@@ -91,13 +91,13 @@ export default async function PortfolioPage() {
         <StatTile label="Active VE studies" value={String(activeStudies)} sub={`${studies.length} total`} accent="ve" />
         <StatTile label="Active VR tracks" value={String(activeTracks)} sub={`${tracks.length} total`} accent="vr" />
         <StatTile label="Planned value (VE)" value={fmtMoney(plannedTotal, reportCurrency)} sub="Estimated across studies" accent="ve" />
-        <StatTile label="Realized value (VR)" value={fmtMoney(realizedTotal, reportCurrency)} sub={realizationPct != null ? `${fmtPct(realizationPct)} of tracked plan` : "no tracks yet"} accent="vr" />
+        <StatTile label="Realised value (VR)" value={fmtMoney(realizedTotal, reportCurrency)} sub={realizationPct != null ? `${fmtPct(realizationPct)} of tracked plan` : "no tracks yet"} accent="vr" />
       </div>
 
       {/* Planned vs realized bar */}
       <div className="card card-pad">
         <div className="flex items-center justify-between">
-          <span className="label">Realized vs planned (tracks in flight)</span>
+          <span className="label">Realised vs planned (tracks in flight)</span>
           <span className="text-sm font-medium text-ink-700">
             {fmtMoney(realizedTotal, reportCurrency)} / {fmtMoney(plannedInTracks, reportCurrency)}
           </span>
@@ -179,7 +179,7 @@ export default async function PortfolioPage() {
                   <div className="font-semibold text-ve-700">{fmtMoney(i.planned, reportCurrency)}</div>
                 </div>
                 <div>
-                  <div className="label">Realized</div>
+                  <div className="label">Realised</div>
                   <div className="font-semibold text-vr-700">{fmtMoney(i.realized, reportCurrency)}</div>
                 </div>
                 <div className="text-xs text-ink-500">{i.studies} {i.studies === 1 ? "study" : "studies"}</div>
@@ -241,7 +241,7 @@ export default async function PortfolioPage() {
                 <tr>
                   <th className="th">Track</th>
                   <th className="th">Health</th>
-                  <th className="th text-right">Realized / Planned</th>
+                  <th className="th text-right">Realised / Planned</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ink-100">

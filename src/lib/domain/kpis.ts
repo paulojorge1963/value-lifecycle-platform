@@ -1,6 +1,6 @@
 // =============================================================================
 //  KPI catalogue — role-specific and shared KPIs with formulas.
-//  VE-discipline KPIs are *planned* value; VR-discipline KPIs are *realized*.
+//  VE-discipline KPIs are *planned* value; VR-discipline KPIs are *realised*.
 // =============================================================================
 
 export type Discipline = "VE" | "VR";
@@ -32,7 +32,7 @@ export const KPI_CATALOG: KpiDef[] = [
   // ---- Shared / financial ----
   {
     key: "cost_savings",
-    name: "Estimated / realized cost savings",
+    name: "Estimated / realised cost savings",
     description: "Reduction in total cost vs baseline. VE estimates it; VR proves it.",
     discipline: "VE",
     category: "COST_SAVING",
@@ -146,7 +146,7 @@ export const KPI_CATALOG: KpiDef[] = [
   },
   {
     key: "task_utilization",
-    name: "Licence / capacity utilization",
+    name: "Licence / capacity utilisation",
     description: "Share of licensed capacity (e.g. tasks, seats, units) actually used — proves value from what was purchased and flags right-sizing headroom.",
     discipline: "VR",
     category: "COST_SAVING",
@@ -192,8 +192,8 @@ export const KPI_CATALOG: KpiDef[] = [
   // ---- VR outcome-level ----
   {
     key: "realized_value",
-    name: "Realized value",
-    description: "Total value realized (cost, revenue, risk, time, quality).",
+    name: "Realised value",
+    description: "Total value realised (cost, revenue, risk, time, quality).",
     discipline: "VR",
     category: "COST_SAVING",
     unit: "USD",
@@ -203,8 +203,8 @@ export const KPI_CATALOG: KpiDef[] = [
   },
   {
     key: "net_variance",
-    name: "Planned vs realized variance",
-    description: "Variance between planned and realized value (positive = over-delivered).",
+    name: "Planned vs realised variance",
+    description: "Variance between planned and realised value (positive = over-delivered).",
     discipline: "VR",
     category: "OTHER",
     unit: "%",
@@ -227,8 +227,8 @@ export const KPI_CATALOG: KpiDef[] = [
   // ---- VR portfolio-level ----
   {
     key: "total_realized_value",
-    name: "Total realized value (portfolio)",
-    description: "Aggregate realized value across all tracks.",
+    name: "Total realised value (portfolio)",
+    description: "Aggregate realised value across all tracks.",
     discipline: "VR",
     category: "COST_SAVING",
     unit: "USD",

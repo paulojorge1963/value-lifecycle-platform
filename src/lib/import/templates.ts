@@ -301,7 +301,7 @@ function buildVR(wb: ExcelJS.Workbook) {
     "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.", README_ROWS,
     [["1. Track", "Realisation track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"],
      ["3. Work packages", "Work packages"], ["4. Adoption plan", "Adoption plan activities"], ["5. KPI tracker", "KPI targets + actuals by period"],
-     ["6. Benefits", "Benefits — planned vs realized"], ["7. Risks & issues", "Track risk/issue register"], ["8. QBR notes", "Quarterly value review notes"],
+     ["6. Benefits", "Benefits — planned vs realised"], ["7. Risks & issues", "Track risk/issue register"], ["8. QBR notes", "Quarterly value review notes"],
      ["9. Lessons", "Lessons learned"], ["Reference", "KPI catalogue + per-profile drivers & levers"]]);
   buildReferenceVEVR(wb);
   buildLists(wb, [
@@ -367,8 +367,8 @@ function buildVR(wb: ExcelJS.Workbook) {
 
   // 6. Benefits
   ws = wb.addWorksheet("6. Benefits"); widths(ws, 34, 16, 14, 14, 14);
-  setTitle(ws, "6", "Benefits — planned vs realized", "Realized rolls up to the track & portfolio in the app.");
-  headerRow(ws, 4, ["Benefit", "Category", "Planned value", "Realized value", "Variance (auto)"]);
+  setTitle(ws, "6", "Benefits — planned vs realised", "Realised rolls up to the track & portfolio in the app.");
+  headerRow(ws, 4, ["Benefit", "Category", "Planned value", "Realised value", "Variance (auto)"]);
   ws.getCell("A5").value = "Licence + rerun saving"; ws.getCell("A5").font = { name: FONT, italic: true, size: 10, color: { argb: EX } };
   for (let r = 5; r <= 17; r++) auto(ws, `E${r}`, `IFERROR(D${r}-C${r},"")`);
   dvRange(ws, "B", 5, 17, "BenefitCategory");
@@ -383,8 +383,8 @@ function buildVR(wb: ExcelJS.Workbook) {
 
   // 8. QBR notes
   ws = wb.addWorksheet("8. QBR notes"); widths(ws, 34, 60);
-  setTitle(ws, "8", "QBR / value review notes", "Reconcile realized value vs the business case.");
-  ["Review date", "Attendees", "Realized vs planned (summary)", "Wins", "Risks / blockers", "Renewal / expansion signal", "Actions & owners"]
+  setTitle(ws, "8", "QBR / value review notes", "Reconcile realised value vs the business case.");
+  ["Review date", "Attendees", "Realised vs planned (summary)", "Wins", "Risks / blockers", "Renewal / expansion signal", "Actions & owners"]
     .forEach((l, i) => { label(ws, 4 + i, l); input(ws, `B${4 + i}`); });
 
   // 9. Lessons

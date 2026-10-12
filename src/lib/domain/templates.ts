@@ -176,9 +176,9 @@ Success is achieving {{success_criteria}}.
 - Milestones complete: {{milestones_done}} / {{milestones_total}}
 - Track health: {{health}}
 
-## Realized benefits to date
+## Realised benefits to date
 - Planned value: {{planned}}
-- Realized to date: {{realized}} ({{variance}}% vs plan)
+- Realised to date: {{realized}} ({{variance}}% vs plan)
 - By category: {{by_category}}
 
 ## Adoption
@@ -194,7 +194,7 @@ Success is achieving {{success_criteria}}.
     title: "Close-out report",
     body: `## Final realized value vs business case
 - Planned (business case): {{planned}}
-- Realized (final): {{realized}}
+- Realised (final): {{realized}}
 - Variance: {{variance}}%
 
 ## What was delivered

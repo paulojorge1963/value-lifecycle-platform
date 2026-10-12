@@ -131,7 +131,7 @@ export default async function EngagementPage({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="ARR" value={e.arr ? fmtMoney(e.arr, e.currency) : "—"} accent="vr" />
         <StatTile label="Planned value (linked)" value={fmtMoney(plannedValue, e.currency)} accent="ve" />
-        <StatTile label="Realized value (linked)" value={fmtMoney(realizedValue, e.currency)} sub={`${fmtPct((realizedValue / (plannedValue || 1)) * 100)} of plan`} accent="vr" />
+        <StatTile label="Realised value (linked)" value={fmtMoney(realizedValue, e.currency)} sub={`${fmtPct((realizedValue / (plannedValue || 1)) * 100)} of plan`} accent="vr" />
         <StatTile label="Renewal" value={rd !== null ? `${rd} days` : "—"} sub={e.renewalDate ? fmtDate(e.renewalDate) : "not set"} accent={rd !== null && rd < 90 ? "ink" : "vr"} />
       </div>
 

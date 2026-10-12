@@ -7,7 +7,7 @@
  */
 export function PrintButton({ className = "btn-ve" }: { className?: string }) {
   return (
-    <button type="button" className={className} onClick={() => window.print()} title="Opens your browser's print dialog — choose “Save as PDF”.">
+    <button type="button" className={className} onClick={() => window.print()} title="Opens your browser's print dialogue — choose “Save as PDF”.">
       Print / Save as PDF ↓
     </button>
   );
