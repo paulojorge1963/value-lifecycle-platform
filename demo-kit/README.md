@@ -1,10 +1,10 @@
 # Value Lifecycle Platform — Demo Kit
 
-**Platform version:** v0.6.5 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+**Platform version:** v0.7.1 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
 
 **Deploy your own:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform) &nbsp; needs a Postgres DB (Neon) created and seeded first — see [DEPLOYMENT.md](../DEPLOYMENT.md).
 
-Deliverables for demoing and explaining the **Value Lifecycle Platform** — one workspace across three roles: the **Value Engineer** (8-phase VE Job Plan), the **Value Realization Manager** (7-phase realization lifecycle) with a first-class handover between them, and the **Customer Success Manager** (continuous 8-stage engagement that references — never duplicates — the account's studies and tracks).
+Deliverables for demoing and explaining the **Value Lifecycle Platform** — one workspace across three roles: the **Value Engineer** (8-phase VE Job Plan), the **Value Realisation Manager** (7-phase realisation lifecycle) with a first-class handover between them, and the **Customer Success Manager** (continuous 8-stage engagement that references — never duplicates — the account's studies and tracks).
 
 | File | What it is | Use it to… |
 |---|---|---|
@@ -15,7 +15,7 @@ Deliverables for demoing and explaining the **Value Lifecycle Platform** — one
 | **ValueLifecycle-Process-Guide.docx** | A practitioner's guide to the full VE → handover → VRM process, phase by phase, with six flow diagrams — including the standalone VRM path for software already in place | Train the team / learn the method end to end |
 | **ValueLifecycle-Runbook.md** | A step-by-step operator's runbook — run the app, fill in the capture workbooks, and import them | Set up / operate the app end to end |
 | **ValueLifecycle-Field-Guides.md** | One-page field guides for the three capture workbooks (VE Discovery, VR Intake, CS Intake) | Hand to a VE / VRM / CSM before a client meeting |
-| **ValueLifecycle-Sample-ITSM-Displacement-*.xlsx** | A filled, import-ready sample pair — a VE Discovery study for a competitive **ITSM-platform displacement / TCO case** and its matching VR Intake realization track (vendor-neutral, illustrative figures) | Import to see a worked study + track end to end |
+| **ValueLifecycle-Sample-ITSM-Displacement-*.xlsx** | A filled, import-ready sample pair — a VE Discovery study for a competitive **ITSM-platform displacement / TCO case** and its matching VR Intake realisation track (vendor-neutral, illustrative figures) | Import to see a worked study + track end to end |
 | **ValueLifecycle-Sample-MSP-Managed-ITSM-*.xlsx** | A filled, import-ready **VE → VR → CS** sample — a managed service provider moving its service desk off a self-hosted incumbent to a **partner-managed, ring-fenced, multi-tenant ITSM platform** (vendor-neutral, illustrative figures) | Import to see a full VE→VR→CS chain end to end |
 
 Each document is also provided as **Markdown source** (`*.md`) — the editable originals — and the demo script, user guide, design document and process guide each ship as a **PDF** for quick sharing. The solution overview ships as both **.pptx** (editable) and **.pdf**.
@@ -54,8 +54,8 @@ demo-kit/
 3. Roles & responsibilities
 4. **Part A** — the 8-phase Value Engineering process
 5. The handover — the first-class bridge
-   - **5.1 · When there's no study — standalone realization** *(start VRM directly for software already in place)*
-6. **Part B** — the 7-phase Value Realization process
+   - **5.1 · When there's no study — standalone realisation** *(start VRM directly for software already in place)*
+6. **Part B** — the 7-phase Value Realisation process
 7. Measuring value — the business case & KPIs
 8. Governance, artifacts & the enabling platform
 9. A worked example, end to end
@@ -63,15 +63,15 @@ demo-kit/
 11. Roles glossary & key terms
 12. Quick-reference checklists
 
-The **standalone VRM path** (new §5.1, and threaded through the lifecycle overview, the Part B intro, the Intake & Baseline phases, the glossary and the VR checklist) mirrors the app's **"New realization track"** flow — running the 7-phase realization lifecycle with no VE study, for an existing deployment, with baselines set from what's already live.
+The **standalone VRM path** (new §5.1, and threaded through the lifecycle overview, the Part B intro, the Intake & Baseline phases, the glossary and the VR checklist) mirrors the app's **"New realisation track"** flow — running the 7-phase realisation lifecycle with no VE study, for an existing deployment, with baselines set from what's already live.
 
 ## The five diagrams
 
-1. **Value lifecycle** — the 8-phase VE Job Plan → handover → 7-phase realization lifecycle.
+1. **Value lifecycle** — the 8-phase VE Job Plan → handover → 7-phase realisation lifecycle.
 2. **Industry as configuration** — the core engine plus three industry profiles.
-3. **Data to documents** — study/realization data → finance & export engine → Word/Excel.
+3. **Data to documents** — study/realisation data → finance & export engine → Word/Excel.
 4. **Architecture** — Next.js UI → server actions/API → Prisma → PostgreSQL, with Auth.js and the optional Anthropic seam.
-5. **The handover** — the marquee flow: accepted recommendations become a seeded realization track.
+5. **The handover** — the marquee flow: accepted recommendations become a seeded realisation track.
 
 ## Regenerating (optional)
 
@@ -108,9 +108,14 @@ The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform
 
 | Version | What changed |
 |---|---|
+| **[v0.7.1](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.1)** | **English (UK) throughout.** The app and its exported documents now use British spelling, and the page language is set to en-GB. Wording and presentation only — no change to features, data or schema. |
+| **[v0.7.0](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.0)** | **Platform maintenance.** Upgraded the underlying web framework and styling/build tooling to their latest major versions and cleared outstanding dependency advisories. Under-the-hood only — no change to features or data. |
+| **[v0.6.8](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.8)** | **Content-completeness indicator.** The VE study page now shows how many of a study's building blocks are actually captured — baseline, functions, alternatives, evaluation, recommendations, value story, business case and handover — independent of phase status, so an imported study with real content no longer reads as empty. Display spelling also aligned to British/Commonwealth English. No schema change. |
+| **[v0.6.7](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.7)** | **Dependency security pass.** Updated dependencies to clear security advisories (including a critical one); the few that remain are build-time only or not reachable at runtime. No change to features or data. |
+| **[v0.6.6](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.6)** | **Review fixes + study-page restructure.** Financials now show a dash instead of misleading zeros when there is nothing to calculate, and the study page recomputes them live from the same figures as the business case. The study page gains a phase-filtered view with a sticky jump-index, collapsible sections and a next-action banner, and amounts display in each record's own currency. No schema change. |
 | **[v0.6.5](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.5)** | **Value-review financials reconcile to NPV.** The value-review deck's cash-flow table now runs over the business case's full horizon (up-front investment, then each year's net benefit) and its discounted cash-flow total equals the headline NPV. The cash-flow chart extends to the full horizon too. Presentation only. |
 | **[v0.6.4](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.4)** | **Fuller value story → complete CVR.** The VE study now captures the narrative the value-review deck needs — why-now, why-this-solution, customer priorities and quote, business drivers & enablers, the delivery team and collaboration stats, plus a current-state and implication per recommendation. A fully-captured study now produces a value-review deck with no gaps, and the business-case slide shows a real cash-flow chart. Adds a few optional study fields; existing studies are unaffected. |
-| **[v0.6.3](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.3)** | **Branded Word documents.** The Business Case, Value Realization Plan and Account Success Review now export on the Blue Turtle document template — cover banner, wordmark header and a confidential footer — matching the CVR deck. The value-review deck also fills more of its story (priorities, drivers, delivery team, per-use-case detail) from a fully-captured study. Styling and content-mapping only; no data or schema change. |
+| **[v0.6.3](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.3)** | **Branded Word documents.** The Business Case, Value Realisation Plan and Account Success Review now export on the Blue Turtle document template — cover banner, wordmark header and a confidential footer — matching the CVR deck. The value-review deck also fills more of its story (priorities, drivers, delivery team, per-use-case detail) from a fully-captured study. Styling and content-mapping only; no data or schema change. |
 | **[v0.6.2](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.2)** | **CVR deck restyle.** The Collaborative Value Review PowerPoint export now uses the refreshed presentation template — a cleaner header-band layout with the brand mark in the corner — matching the rest of the value-lifecycle deck set. Styling only; no change to the deck's content, data or structure. |
 | **[v0.6.1](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.1)** | **Team-removal fix.** Removing a workspace member who owns a Customer Success engagement now reassigns those engagements (not just studies, tracks and comments) before the member is removed — previously it failed with a database constraint error. No schema change. |
 | **[v0.6.0](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.0)** | **CVR snapshots + polish.** Save point-in-time **snapshots** of a study's Collaborative Value Review deck — each one re-downloadable later, rebuilt from the data as it was (the live export still reflects the latest study). Plus polish to the CVR export: the executive summary no longer overflows with long text, proof-point figures render cleanly, and the people captured at a kickoff now appear on the deck. No schema change. |
@@ -137,5 +142,5 @@ The [companion packs](#companion-packs) are versioned separately:
 ## Notes
 
 - All deliverables were validated to open cleanly and were spot-checked as rendered pages. Give them a quick look in Word / PowerPoint on your fonts before presenting — the Word docs use the platform's **VE-blue** accent for headings; the deck uses the full **VE-blue / VR-emerald** brand.
-- Demo logins (local demo): on the sign-in screen, choose the **Meridian Value Advisory · demo** workspace and click a role to sign in one-click — Value Engineer, Value Realization Manager, Customer Success Manager, Reviewer, Stakeholder/Viewer or Administrator (`ve@demo.app`, `vrm@demo.app`, `cs@demo.app`, `admin@demo.app`, …). One-click needs `DEMO_PASSWORD` set (otherwise pick a member and type the password); the member picker is **off in production** by default. Hero example: study `VE-2026-014` → track `VR-2026-014`.
+- Demo logins (local demo): on the sign-in screen, choose the **Meridian Value Advisory · demo** workspace and click a role to sign in one-click — Value Engineer, Value Realisation Manager, Customer Success Manager, Reviewer, Stakeholder/Viewer or Administrator (`ve@demo.app`, `vrm@demo.app`, `cs@demo.app`, `admin@demo.app`, …). One-click needs `DEMO_PASSWORD` set (otherwise pick a member and type the password); the member picker is **off in production** by default. Hero example: study `VE-2026-014` → track `VR-2026-014`.
 - See the repo root for [`README.md`](../README.md), [`ARCHITECTURE.md`](../ARCHITECTURE.md) and [`USER_GUIDE.md`](../USER_GUIDE.md).
