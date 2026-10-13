@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Demo Kit
 
-**Platform version:** v0.7.1 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+**Platform version:** v0.7.2 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
 
 **Deploy your own:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform) &nbsp; needs a Postgres DB (Neon) created and seeded first — see [DEPLOYMENT.md](../DEPLOYMENT.md).
 
@@ -108,6 +108,7 @@ The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform
 
 | Version | What changed |
 |---|---|
+| **[v0.7.2](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.2)** | **More operational KPIs.** Adds three Value-Realisation KPIs to the catalogue — failed / rerun jobs, legacy schedulers still live, and jobs-as-code adoption — so realisation tracks for workload-automation clients can baseline and track them. Catalogue addition only; no change to existing data. |
 | **[v0.7.1](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.1)** | **English (UK) throughout.** The app and its exported documents now use British spelling, and the page language is set to en-GB. Wording and presentation only — no change to features, data or schema. |
 | **[v0.7.0](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.0)** | **Platform maintenance.** Upgraded the underlying web framework and styling/build tooling to their latest major versions and cleared outstanding dependency advisories. Under-the-hood only — no change to features or data. |
 | **[v0.6.8](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.6.8)** | **Content-completeness indicator.** The VE study page now shows how many of a study's building blocks are actually captured — baseline, functions, alternatives, evaluation, recommendations, value story, business case and handover — independent of phase status, so an imported study with real content no longer reads as empty. Display spelling also aligned to British/Commonwealth English. No schema change. |
