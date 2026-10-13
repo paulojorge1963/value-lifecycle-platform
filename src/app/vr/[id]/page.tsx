@@ -3,8 +3,13 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
-import { TrackPhaseControl, KpiActualForm, BenefitInput } from "@/components/TrackControls";
+import { TrackPhaseControl } from "@/components/TrackControls";
 import { WorkPackageEditor } from "@/components/WorkPackageEditor";
+import { KpiTargetEditor } from "@/components/KpiTargetEditor";
+import { AdoptionEditor } from "@/components/AdoptionEditor";
+import { BenefitEditor } from "@/components/BenefitEditor";
+import { RiskEditor } from "@/components/RiskEditor";
+import { KPI_CATALOG } from "@/lib/domain/kpis";
 import { TrackActions } from "@/components/TrackActions";
 import { CommentThread } from "@/components/CommentThread";
 import { VR_PHASES } from "@/lib/domain/phases";
@@ -193,36 +198,24 @@ export default async function TrackPage({
           {/* KPI tracker */}
           <div className="card card-pad">
             <h2 className="mb-3 font-semibold text-ink-900">KPI tracker — planned vs actual</h2>
-            <div className="space-y-4">
-              {track.kpiTargets.map((k) => {
-                const latest = k.actuals[k.actuals.length - 1];
-                return (
-                  <div key={k.id} className="rounded-lg border border-ink-200 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="font-medium text-ink-900">{k.definition.name}</div>
-                        <div className="text-xs text-ink-400">
-                          Baseline {k.baselineValue ?? "—"} → Target {k.targetValue ?? "—"} {k.unit} · {k.dataSource ?? "—"} · {k.frequency ?? "—"}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="label">Latest</div>
-                        <div className="text-lg font-semibold text-vr-700">{latest ? `${latest.value} ${k.unit}` : "—"}</div>
-                      </div>
-                    </div>
-                    {k.actuals.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
-                        {k.actuals.map((a) => (
-                          <span key={a.id} className="rounded-sm bg-ink-100 px-2 py-0.5 text-ink-600">{a.periodLabel}: {a.value}</span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="mt-3"><KpiActualForm trackId={track.id} kpiTargetId={k.id} unit={k.unit} canEdit={canKpi} /></div>
-                  </div>
-                );
-              })}
-              {track.kpiTargets.length === 0 && <p className="text-sm text-ink-500">No KPIs yet — defined during the Baseline phase or carried from handover.</p>}
-            </div>
+            <KpiTargetEditor
+              trackId={track.id}
+              canEdit={canEdit}
+              canKpi={canKpi}
+              catalog={KPI_CATALOG.map((k) => ({ key: k.key, name: k.name, unit: k.unit }))}
+              items={track.kpiTargets.map((k) => ({
+                id: k.id,
+                kpiKey: k.kpiKey,
+                name: k.definition.name,
+                baselineValue: k.baselineValue,
+                targetValue: k.targetValue,
+                unit: k.unit,
+                frequency: k.frequency,
+                dataSource: k.dataSource,
+                ownerName: k.ownerName,
+                actuals: k.actuals.map((a) => ({ id: a.id, periodLabel: a.periodLabel, value: a.value })),
+              }))}
+            />
           </div>
 
           {/* Value reports */}
@@ -265,35 +258,35 @@ export default async function TrackPage({
           {/* Benefits realisation */}
           <div className="card card-pad">
             <h2 className="mb-3 font-semibold text-ink-900">Benefits realisation</h2>
-            <div className="space-y-4">
-              {track.benefits.map((b) => (
-                <div key={b.id}>
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium text-ink-800">{b.label}</span>
-                    <span className="text-ink-500">{fmtMoney(b.realizedValue, track.currency)} / {fmtMoney(b.plannedValue, track.currency)}</span>
-                  </div>
-                  <div className="mt-1.5"><BenefitInput id={b.id} trackId={track.id} planned={b.plannedValue} realized={b.realizedValue} canEdit={canKpi} /></div>
-                </div>
-              ))}
-              {track.benefits.length === 0 && <p className="text-sm text-ink-500">No benefits tracked.</p>}
-            </div>
+            <BenefitEditor
+              trackId={track.id}
+              currency={track.currency}
+              canEdit={canEdit}
+              items={track.benefits.map((b) => ({ id: b.id, label: b.label, category: b.category, plannedValue: b.plannedValue, realizedValue: b.realizedValue }))}
+            />
           </div>
 
           {/* Adoption plan */}
-          {track.adoptionPlan && (
-            <div className="card card-pad">
-              <h2 className="mb-2 font-semibold text-ink-900">Adoption & change</h2>
-              {track.adoptionPlan.changeImpact && <p className="text-sm text-ink-600">{track.adoptionPlan.changeImpact}</p>}
-              <ul className="mt-3 space-y-1.5 text-sm">
-                {track.adoptionPlan.activities.map((a) => (
-                  <li key={a.id} className="flex items-center justify-between gap-2">
-                    <span className="text-ink-700">{a.label}</span>
-                    <StatusBadge status={a.status} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <div className="card card-pad">
+            <h2 className="mb-2 font-semibold text-ink-900">Adoption & change</h2>
+            {track.adoptionPlan?.changeImpact && <p className="mb-2 text-sm text-ink-600">{track.adoptionPlan.changeImpact}</p>}
+            <AdoptionEditor
+              trackId={track.id}
+              canEdit={canEdit}
+              items={(track.adoptionPlan?.activities ?? []).map((a) => ({ id: a.id, label: a.label, audience: a.audience, dueDate: a.dueDate ? a.dueDate.toISOString().slice(0, 10) : null, status: a.status }))}
+            />
+          </div>
+
+          {/* Risks & issues */}
+          <div className="card card-pad">
+            <h2 className="mb-3 font-semibold text-ink-900">Risks & issues</h2>
+            <RiskEditor
+              parent="track"
+              parentId={track.id}
+              canEdit={canEdit}
+              items={track.risks.map((r) => ({ id: r.id, title: r.title, description: r.description, likelihood: r.likelihood, impact: r.impact, mitigation: r.mitigation, owner: r.owner, status: r.status }))}
+            />
+          </div>
 
           {/* Objectives / success criteria */}
           <div className="card card-pad">

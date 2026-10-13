@@ -12,6 +12,8 @@ import { CommentThread } from "@/components/CommentThread";
 import { AlternativeEditor } from "@/components/AlternativeEditor";
 import { EvaluationMatrix } from "@/components/EvaluationMatrix";
 import { RecommendationEditor } from "@/components/RecommendationEditor";
+import { BaselineEditor } from "@/components/BaselineEditor";
+import { RiskEditor } from "@/components/RiskEditor";
 import { ValueStoryEditor } from "@/components/ValueStoryEditor";
 import type { ValueStory } from "@/lib/actions";
 import { VE_PHASES } from "@/lib/domain/phases";
@@ -113,7 +115,8 @@ export default async function StudyPage({
     { id: "evaluation", title: "Evaluation", phases: ["EVALUATION"] },
     { id: "recommendations", title: "Recommendations", phases: ["DEVELOPMENT", "HANDOVER"] },
     { id: "valuestory", title: "Value story", phases: ["ORIENTATION", "DEVELOPMENT", "PRESENTATION"] },
-    study.infoItems.length > 0 ? { id: "baseline", title: "Study baseline", phases: ["INFORMATION", "HANDOVER"] } : null,
+    { id: "baseline", title: "Study baseline", phases: ["INFORMATION", "HANDOVER"] },
+    { id: "risks", title: "Risks", phases: ["INFORMATION", "DEVELOPMENT", "HANDOVER"] },
     { id: "comments", title: "Discussion", phases: null },
   ].filter(Boolean) as SectionMeta[];
 
@@ -311,8 +314,7 @@ export default async function StudyPage({
           />
           </WorkspaceSection>
 
-          {study.infoItems.length > 0 && (
-            <WorkspaceSection id="baseline" title="Study baseline" phases={["INFORMATION", "HANDOVER"]}>
+          <WorkspaceSection id="baseline" title="Study baseline" phases={["INFORMATION", "HANDOVER"]}>
             <div className="card card-pad">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-ink-900">Study baseline</h2>
@@ -321,33 +323,13 @@ export default async function StudyPage({
               <p className="mt-1 text-sm text-ink-500">
                 Baseline measures and stakeholders captured during discovery — the reference the business case and value handover are built on.
               </p>
-              {baselineItems.length > 0 && (
-                <div className="mt-3">
-                  <table className="w-full table-fixed text-sm">
-                    <colgroup>
-                      <col className="w-[38%]" />
-                      <col className="w-[24%]" />
-                      <col className="w-[38%]" />
-                    </colgroup>
-                    <thead>
-                      <tr className="text-left text-ink-400">
-                        <th className="pb-2 pr-3 font-medium">Measure</th>
-                        <th className="pb-2 pr-3 font-medium">Value</th>
-                        <th className="pb-2 font-medium">Source</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {baselineItems.map((it) => (
-                        <tr key={it.id} className="border-t border-ink-100 align-top">
-                          <td className="py-1.5 pr-3 text-ink-700 wrap-break-word">{it.label}</td>
-                          <td className="py-1.5 pr-3 font-medium text-ink-900 wrap-break-word">{it.value}</td>
-                          <td className="py-1.5 text-ink-400 wrap-break-word">{it.source}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <div className="mt-3">
+                <BaselineEditor
+                  studyId={study.id}
+                  canEdit={canEdit}
+                  items={baselineItems.map((it) => ({ id: it.id, label: it.label, value: it.value, source: it.source }))}
+                />
+              </div>
               {infoStakeholders.length > 0 && (
                 <div className="mt-4">
                   <div className="label">Stakeholders</div>
@@ -364,7 +346,18 @@ export default async function StudyPage({
               )}
             </div>
             </WorkspaceSection>
-          )}
+
+          <WorkspaceSection id="risks" title="Risks" phases={["INFORMATION", "DEVELOPMENT", "HANDOVER"]}>
+          <div className="card card-pad">
+            <h2 className="mb-3 font-semibold text-ink-900">Risks</h2>
+            <RiskEditor
+              parent="study"
+              parentId={study.id}
+              canEdit={canEdit}
+              items={study.risks.map((r) => ({ id: r.id, title: r.title, description: r.description, likelihood: r.likelihood, impact: r.impact, mitigation: r.mitigation, owner: r.owner, status: r.status }))}
+            />
+          </div>
+          </WorkspaceSection>
 
           <WorkspaceSection id="comments" title="Discussion" phases={null}>
           <CommentThread

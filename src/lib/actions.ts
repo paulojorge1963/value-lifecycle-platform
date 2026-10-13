@@ -707,6 +707,168 @@ export async function deleteWorkPackage(id: string, trackId: string) {
   revalidatePath(`/vr/${trackId}`);
 }
 
+// ===== Risks (on a VE study OR a VR track) ==================================
+type RiskParent = "study" | "track";
+async function assertParentEdit(parent: RiskParent) {
+  const user = await getCurrentUser();
+  const cap = parent === "study" ? "study.edit" : "track.edit";
+  if (!user || !can(user.role, cap)) throw new Error("Not permitted");
+}
+const parentPath = (parent: RiskParent, id: string) => (parent === "study" ? `/ve/${id}` : `/vr/${id}`);
+
+export async function addRisk(parent: RiskParent, parentId: string) {
+  await assertParentEdit(parent);
+  const risk = await prisma.riskItem.create({
+    data: { title: "New risk", status: "OPEN", ...(parent === "study" ? { studyId: parentId } : { trackId: parentId }) },
+  });
+  await audit("risk.created", "RiskItem", risk.id, parent === "study" ? { studyId: parentId } : { trackId: parentId });
+  revalidatePath(parentPath(parent, parentId));
+  return risk.id;
+}
+export async function updateRisk(
+  id: string, parent: RiskParent, parentId: string,
+  data: { title: string; description: string | null; likelihood: number | null; impact: number | null; mitigation: string | null; owner: string | null; status: string },
+) {
+  await assertParentEdit(parent);
+  const title = data.title.trim();
+  if (!title) throw new Error("Title is required");
+  await prisma.riskItem.update({
+    where: { id },
+    data: {
+      title, description: data.description?.trim() || null,
+      likelihood: data.likelihood ?? null, impact: data.impact ?? null,
+      mitigation: data.mitigation?.trim() || null, owner: data.owner?.trim() || null,
+      status: data.status as never,
+    },
+  });
+  revalidatePath(parentPath(parent, parentId));
+}
+export async function deleteRisk(id: string, parent: RiskParent, parentId: string) {
+  await assertParentEdit(parent);
+  await prisma.riskItem.delete({ where: { id } });
+  revalidatePath(parentPath(parent, parentId));
+}
+
+// ===== VE baseline items (InfoItem) ========================================
+export async function addInfoItem(studyId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  const it = await prisma.infoItem.create({ data: { studyId, label: "New baseline measure", category: "cost" } });
+  await audit("infoitem.created", "InfoItem", it.id, { studyId });
+  revalidatePath(`/ve/${studyId}`);
+  return it.id;
+}
+export async function updateInfoItem(id: string, studyId: string, data: { label: string; value: string | null; source: string | null }) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  const label = data.label.trim();
+  if (!label) throw new Error("Measure is required");
+  await prisma.infoItem.update({ where: { id }, data: { label, value: data.value?.trim() || null, source: data.source?.trim() || null } });
+  revalidatePath(`/ve/${studyId}`);
+}
+export async function deleteInfoItem(id: string, studyId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  await prisma.infoItem.delete({ where: { id } });
+  revalidatePath(`/ve/${studyId}`);
+}
+
+// ===== VR KPI targets / baselines (KpiTarget) ==============================
+export async function addKpiTarget(trackId: string, kpiKey: string, unit: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const kt = await prisma.kpiTarget.create({ data: { trackId, kpiKey, unit: unit || "" } });
+  await audit("kpitarget.created", "KpiTarget", kt.id, { trackId });
+  revalidatePath(`/vr/${trackId}`);
+  return kt.id;
+}
+export async function updateKpiTarget(
+  id: string, trackId: string,
+  data: { kpiKey: string; unit: string; baselineValue: number | null; targetValue: number | null; frequency: string | null; dataSource: string | null; ownerName: string | null },
+) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.kpiTarget.update({
+    where: { id },
+    data: {
+      kpiKey: data.kpiKey, unit: data.unit || "",
+      baselineValue: data.baselineValue ?? null, targetValue: data.targetValue ?? null,
+      frequency: data.frequency?.trim() || null, dataSource: data.dataSource?.trim() || null, ownerName: data.ownerName?.trim() || null,
+    },
+  });
+  revalidatePath(`/vr/${trackId}`);
+}
+export async function deleteKpiTarget(id: string, trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.kpiTarget.delete({ where: { id } });
+  revalidatePath(`/vr/${trackId}`);
+}
+
+// ===== VR adoption activities ==============================================
+async function ensureAdoptionPlan(trackId: string) {
+  const existing = await prisma.adoptionPlan.findUnique({ where: { trackId }, select: { id: true } });
+  if (existing) return existing.id;
+  const created = await prisma.adoptionPlan.create({ data: { trackId } });
+  return created.id;
+}
+export async function addAdoptionActivity(trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const planId = await ensureAdoptionPlan(trackId);
+  const max = await prisma.adoptionActivity.aggregate({ where: { adoptionPlanId: planId }, _max: { order: true } });
+  const a = await prisma.adoptionActivity.create({ data: { adoptionPlanId: planId, label: "New adoption activity", status: "NOT_STARTED", order: (max._max.order ?? 0) + 1 } });
+  await audit("adoption.created", "AdoptionActivity", a.id, { trackId });
+  revalidatePath(`/vr/${trackId}`);
+  return a.id;
+}
+export async function updateAdoptionActivity(id: string, trackId: string, data: { label: string; audience: string | null; dueDate: string | null; status: string }) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const label = data.label.trim();
+  if (!label) throw new Error("Activity is required");
+  await prisma.adoptionActivity.update({
+    where: { id },
+    data: { label, audience: data.audience?.trim() || null, dueDate: data.dueDate ? new Date(data.dueDate) : null, status: data.status as never },
+  });
+  revalidatePath(`/vr/${trackId}`);
+}
+export async function deleteAdoptionActivity(id: string, trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.adoptionActivity.delete({ where: { id } });
+  revalidatePath(`/vr/${trackId}`);
+}
+
+// ===== VR benefits (add / edit / delete) ===================================
+export async function addBenefit(trackId: string, currency: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const b = await prisma.benefit.create({ data: { trackId, label: "New benefit", category: "COST_SAVING", plannedValue: 0, realizedValue: 0, currency: currency || "USD" } });
+  await audit("benefit.created", "Benefit", b.id, { trackId });
+  revalidatePath(`/vr/${trackId}`);
+  return b.id;
+}
+export async function updateBenefit(id: string, trackId: string, data: { label: string; category: string; plannedValue: number; realizedValue: number }) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const label = data.label.trim();
+  if (!label) throw new Error("Benefit is required");
+  await prisma.benefit.update({ where: { id }, data: { label, category: data.category as never, plannedValue: data.plannedValue || 0, realizedValue: data.realizedValue || 0 } });
+  // keep the track's rolled-up realised value in step
+  const agg = await prisma.benefit.aggregate({ where: { trackId }, _sum: { realizedValue: true } });
+  await prisma.realizationTrack.update({ where: { id: trackId }, data: { realizedValue: agg._sum.realizedValue ?? 0 } });
+  revalidatePath(`/vr/${trackId}`);
+}
+export async function deleteBenefit(id: string, trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.benefit.delete({ where: { id } });
+  const agg = await prisma.benefit.aggregate({ where: { trackId }, _sum: { realizedValue: true } });
+  await prisma.realizationTrack.update({ where: { id: trackId }, data: { realizedValue: agg._sum.realizedValue ?? 0 } });
+  revalidatePath(`/vr/${trackId}`);
+}
+
 // ---- Record a KPI actual + roll up realized value --------------------------
 export async function recordKpiActual(trackId: string, formData: FormData) {
   const user = await getCurrentUser();
