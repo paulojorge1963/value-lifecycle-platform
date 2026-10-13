@@ -99,15 +99,15 @@ export function WorkPackageEditor({ trackId, items, canEdit }: { trackId: string
               </tr>
             ) : (
               <tr key={w.id}>
-                <td className="td font-medium">
+                <td className="td align-top font-medium">
                   {w.name}
                   {w.isMilestone && <span className="badge ml-1.5 bg-amber-100 text-amber-700">milestone</span>}
                   {w.description && <span className="block text-xs font-normal text-ink-400">{w.description}</span>}
                 </td>
-                <td className="td text-xs text-ink-400">{w.recTitle ?? "—"}</td>
-                <td className="td text-xs">{w.dueDate ? new Date(w.dueDate).toLocaleDateString() : "—"}</td>
-                <td className="td"><StatusBadge status={w.status} /></td>
-                <td className="td whitespace-nowrap text-right">
+                <td className="td align-top text-xs text-ink-400">{w.recTitle ?? "—"}</td>
+                <td className="td align-top text-xs">{w.dueDate ? new Date(w.dueDate).toLocaleDateString() : "—"}</td>
+                <td className="td align-top"><StatusBadge status={w.status} /></td>
+                <td className="td align-top whitespace-nowrap text-right">
                   {canEdit && NEXT[w.status] && (
                     <button className="btn mr-1 border border-ink-200 px-2.5 py-1 text-xs text-ink-600 hover:bg-ink-100" disabled={pending} onClick={() => quick(w.id, NEXT[w.status].value)}>{NEXT[w.status].label}</button>
                   )}

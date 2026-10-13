@@ -76,15 +76,15 @@ export function RiskEditor({ parent, parentId, items, canEdit }: { parent: "stud
             </td></tr>
           ) : (
             <tr key={r.id}>
-              <td className="td font-medium">{r.title}
+              <td className="td align-top font-medium">{r.title}
                 {r.mitigation && <span className="block text-xs font-normal text-ink-400">↳ {r.mitigation}</span>}
-                <span className="block text-[11px] font-normal text-ink-400">{r.status.toLowerCase()}{r.owner ? ` · ${r.owner}` : ""}</span>
+                {r.owner && <span className="block text-[11px] font-normal text-ink-400">owner: {r.owner}</span>}
               </td>
-              <td className="td text-xs">{r.likelihood ?? "—"}</td>
-              <td className="td text-xs">{r.impact ?? "—"}</td>
-              <td className="td"><span className={`badge ${badge(score(r.likelihood, r.impact))}`}>{score(r.likelihood, r.impact) ?? "—"}</span></td>
-              <td className="td text-xs">{r.status.toLowerCase()}</td>
-              <td className="td whitespace-nowrap text-right">
+              <td className="td align-top text-xs">{r.likelihood ?? "—"}</td>
+              <td className="td align-top text-xs">{r.impact ?? "—"}</td>
+              <td className="td align-top"><span className={`badge ${badge(score(r.likelihood, r.impact))}`}>{score(r.likelihood, r.impact) ?? "—"}</span></td>
+              <td className="td align-top text-xs">{r.status.toLowerCase()}</td>
+              <td className="td align-top whitespace-nowrap text-right">
                 {canEdit && <button className="btn mr-1 border border-ink-200 px-2.5 py-1 text-xs text-ink-600 hover:bg-ink-100" onClick={() => begin(r)}>Edit</button>}
                 {canEdit && <button className="btn px-2 py-1 text-xs text-red-500 hover:bg-red-50" disabled={pending} onClick={() => remove(r.id)} title="Delete">✕</button>}
               </td>
