@@ -663,6 +663,50 @@ export async function setWorkPackageStatus(workPackageId: string, trackId: strin
   revalidatePath(`/vr/${trackId}`);
 }
 
+// ---- Work package: add / edit / delete (in-app, standalone or handover) -----
+export async function addWorkPackage(trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const max = await prisma.workPackage.aggregate({ where: { trackId }, _max: { order: true } });
+  const wp = await prisma.workPackage.create({
+    data: { trackId, name: "New work package", status: "NOT_STARTED", order: (max._max.order ?? 0) + 1 },
+  });
+  await audit("workpackage.created", "WorkPackage", wp.id, { trackId });
+  revalidatePath(`/vr/${trackId}`);
+  return wp.id;
+}
+
+export async function updateWorkPackage(
+  id: string,
+  trackId: string,
+  data: { name: string; description: string | null; startDate: string | null; dueDate: string | null; status?: string },
+) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const name = data.name.trim();
+  if (!name) throw new Error("Name is required");
+  await prisma.workPackage.update({
+    where: { id },
+    data: {
+      name,
+      description: data.description?.trim() || null,
+      startDate: data.startDate ? new Date(data.startDate) : null,
+      dueDate: data.dueDate ? new Date(data.dueDate) : null,
+      ...(data.status ? { status: data.status as never } : {}),
+    },
+  });
+  await audit("workpackage.updated", "WorkPackage", id, { trackId });
+  revalidatePath(`/vr/${trackId}`);
+}
+
+export async function deleteWorkPackage(id: string, trackId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  await prisma.workPackage.delete({ where: { id } });
+  await audit("workpackage.deleted", "WorkPackage", id, { trackId });
+  revalidatePath(`/vr/${trackId}`);
+}
+
 // ---- Record a KPI actual + roll up realized value --------------------------
 export async function recordKpiActual(trackId: string, formData: FormData) {
   const user = await getCurrentUser();

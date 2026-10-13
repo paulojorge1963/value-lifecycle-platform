@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
-import { TrackPhaseControl, WorkPackageControl, KpiActualForm, BenefitInput } from "@/components/TrackControls";
+import { TrackPhaseControl, KpiActualForm, BenefitInput } from "@/components/TrackControls";
+import { WorkPackageEditor } from "@/components/WorkPackageEditor";
 import { TrackActions } from "@/components/TrackActions";
 import { CommentThread } from "@/components/CommentThread";
 import { VR_PHASES } from "@/lib/domain/phases";
@@ -173,23 +174,20 @@ export default async function TrackPage({
           {/* Work packages */}
           <div className="card card-pad">
             <h2 className="mb-3 font-semibold text-ink-900">Implementation work packages</h2>
-            <table className="w-full">
-              <thead className="border-b border-ink-200"><tr>
-                <th className="th">Work package</th><th className="th">From rec</th><th className="th">Due</th><th className="th">Status</th><th className="th"></th>
-              </tr></thead>
-              <tbody className="divide-y divide-ink-100">
-                {track.workPackages.map((w) => (
-                  <tr key={w.id}>
-                    <td className="td font-medium">{w.name}{w.isMilestone && <span className="ml-1.5 badge bg-amber-100 text-amber-700">milestone</span>}</td>
-                    <td className="td text-xs text-ink-400">{w.recommendation?.title ?? "—"}</td>
-                    <td className="td text-xs">{w.dueDate ? new Date(w.dueDate).toLocaleDateString() : "—"}</td>
-                    <td className="td"><StatusBadge status={w.status} /></td>
-                    <td className="td text-right"><WorkPackageControl id={w.id} trackId={track.id} status={w.status} canEdit={canEdit} /></td>
-                  </tr>
-                ))}
-                {track.workPackages.length === 0 && <tr><td className="td text-ink-400" colSpan={5}>No work packages.</td></tr>}
-              </tbody>
-            </table>
+            <WorkPackageEditor
+              trackId={track.id}
+              canEdit={canEdit}
+              items={track.workPackages.map((w) => ({
+                id: w.id,
+                name: w.name,
+                description: w.description,
+                recTitle: w.recommendation?.title ?? null,
+                isMilestone: w.isMilestone,
+                startDate: w.startDate ? w.startDate.toISOString().slice(0, 10) : null,
+                dueDate: w.dueDate ? w.dueDate.toISOString().slice(0, 10) : null,
+                status: w.status,
+              }))}
+            />
           </div>
 
           {/* KPI tracker */}
