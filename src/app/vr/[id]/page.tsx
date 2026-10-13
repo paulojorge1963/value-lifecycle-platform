@@ -238,6 +238,17 @@ export default async function TrackPage({
             </div>
           </div>
 
+          {/* Risks & issues */}
+          <div className="card card-pad">
+            <h2 className="mb-3 font-semibold text-ink-900">Risks & issues</h2>
+            <RiskEditor
+              parent="track"
+              parentId={track.id}
+              canEdit={canEdit}
+              items={track.risks.map((r) => ({ id: r.id, title: r.title, description: r.description, likelihood: r.likelihood, impact: r.impact, mitigation: r.mitigation, owner: r.owner, status: r.status }))}
+            />
+          </div>
+
           {/* Discussion */}
           <CommentThread
             entityType="RealizationTrack"
@@ -274,17 +285,6 @@ export default async function TrackPage({
               trackId={track.id}
               canEdit={canEdit}
               items={(track.adoptionPlan?.activities ?? []).map((a) => ({ id: a.id, label: a.label, audience: a.audience, dueDate: a.dueDate ? a.dueDate.toISOString().slice(0, 10) : null, status: a.status }))}
-            />
-          </div>
-
-          {/* Risks & issues */}
-          <div className="card card-pad">
-            <h2 className="mb-3 font-semibold text-ink-900">Risks & issues</h2>
-            <RiskEditor
-              parent="track"
-              parentId={track.id}
-              canEdit={canEdit}
-              items={track.risks.map((r) => ({ id: r.id, title: r.title, description: r.description, likelihood: r.likelihood, impact: r.impact, mitigation: r.mitigation, owner: r.owner, status: r.status }))}
             />
           </div>
 

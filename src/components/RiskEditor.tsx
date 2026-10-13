@@ -51,7 +51,8 @@ export function RiskEditor({ parent, parentId, items, canEdit }: { parent: "stud
 
   return (
     <div>
-      <table className="w-full">
+      <div className="overflow-x-auto">
+      <table className="w-full min-w-[32rem]">
         <thead className="border-b border-ink-200"><tr>
           <th className="th">Risk</th><th className="th">L</th><th className="th">I</th><th className="th">Score</th><th className="th">Status</th><th className="th"></th>
         </tr></thead>
@@ -93,6 +94,7 @@ export function RiskEditor({ parent, parentId, items, canEdit }: { parent: "stud
           {items.length === 0 && <tr><td className="td text-ink-400" colSpan={6}>No risks logged yet.</td></tr>}
         </tbody>
       </table>
+      </div>
       {canEdit && <button className="btn mt-3 border border-ink-200 px-3 py-1 text-xs text-ink-600 hover:bg-ink-100" disabled={pending} onClick={add}>+ Add risk</button>}
     </div>
   );
