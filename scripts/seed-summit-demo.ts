@@ -48,6 +48,42 @@ async function main() {
       status: "HANDED_OVER", organizationId: ORG, teamId: team, industryKey: "automation", ownerId: uVE,
       studyType: "Automation value study",
       problemStatement: "A large Control-M estate (~30,000 licensed tasks, 68.8% avg / 94.4% peak) is business-critical but its value is unmeasured; legacy schedulers persist, ~160 jobs fail/rerun a month, and overnight SLAs are at risk.",
+      whyNow: "Control-M renewal falls in March 2027 and the estate is at 94.4% peak utilisation — close to the licence ceiling. Procurement will press on price unless value is proven, and overnight-batch SLA breaches are already drawing executive attention.",
+      whyThisSolution: "Control-M is already the strategic orchestration platform; consolidating the remaining legacy schedulers and managed file transfer onto it — rather than adding new tools — compounds the existing investment. Blue Turtle runs Control-M at scale and brings the jobs-as-code and MFT patterns that de-risk the migration.",
+      valueStory: {
+        priorities: [
+          { title: "Protect overnight batch", bullets: ["Overnight batch must hit SLA every night", "No business-day impact from failed jobs", "Peak capacity headroom protected"] },
+          { title: "Prove the value", bullets: ["Measure realised value, not just licences held", "A board-ready value story before renewal", "Evidence, not estimates"] },
+          { title: "Simplify & consolidate", bullets: ["Retire the remaining legacy schedulers", "One orchestration estate to run and support", "Avoid new MQ licensing via managed file transfer"] },
+        ],
+        priorityQuote: "We don't want another scheduler — we want the one we already have to run everything, reliably, and to prove it's paying for itself.",
+        priorityQuoteBy: "Head of Central Services",
+        drivers: [
+          { driver: "Renewal & cost pressure", enabler: "Realised-value reporting plus legacy-licence takeout savings" },
+          { driver: "SLA risk on overnight batch", enabler: "Self-healing jobs-as-code with auto-rerun and proactive alerting" },
+          { driver: "Tool & licence sprawl", enabler: "Scheduler and managed-file-transfer consolidation onto Control-M" },
+          { driver: "Thin peak headroom (94.4%)", enabler: "Peak-based capacity forecast and right-sizing before any expansion" },
+        ],
+        collabStats: [
+          { value: "120", label: "Total hours" },
+          { value: "4", label: "Technical workshops" },
+          { value: "9", label: "Stakeholder interviews" },
+          { value: "30k", label: "Tasks analysed" },
+        ],
+        deliveryTeam: [
+          { name: "Paul Goncalves", role: "Value Engineer" },
+          { name: "Thandi Mokoena", role: "Value Realisation Manager" },
+          { name: "Derek Pillay", role: "Control-M Solution Architect" },
+        ],
+      },
+      infoItems: { create: [
+        { label: "Licensed tasks", value: "30,000 licensed tasks", category: "cost", source: "Licence schedule" },
+        { label: "Peak utilisation", value: "94.4% at peak", category: "performance", source: "Usage report" },
+        { label: "Average utilisation", value: "68.8% average", category: "performance", source: "Usage report" },
+        { label: "Failed / rerun jobs", value: "~160 per month", category: "performance", source: "Control-M reporting" },
+        { label: "Legacy schedulers live", value: "2 still in production", category: "constraint", source: "Estate review" },
+        { label: "Overnight SLA attainment", value: "95%, with month-end breaches", category: "performance", source: "Service reporting" },
+      ] },
       scope: "In: batch orchestration, failure recovery, scheduler & MFT consolidation, SLA management, jobs-as-code. Out: application code changes.",
       estimatedValue: 2_400_000, currency: CUR, evaluationCriteria: DEFAULT_CRITERIA as object,
       startedAt: new Date("2026-05-18"), targetDate: new Date("2026-06-26"),
@@ -64,15 +100,16 @@ async function main() {
       },
       recommendations: {
         create: [
-          { title: "Consolidate legacy schedulers onto Control-M", summary: "Retire remaining legacy schedulers and orchestrate all batch on a single Control-M estate.", technicalDetail: "Migrate legacy scheduler jobs to Control-M with SLA management and dependency modelling.", commercialDetail: "Removes scheduler licence + maintenance and cuts rerun/firefighting effort.", status: "ACCEPTED", estimatedValue: 1_200_000, estimatedCost: 150000, order: 1 },
-          { title: "Automate failure recovery with jobs-as-code", summary: "Self-healing job flows with auto-rerun, alerting and version-controlled definitions.", technicalDetail: "Jobs-as-code pipelines with automated recovery runbooks and proactive alerting.", commercialDetail: "Cuts failed-job impact and manual intervention hours; lifts first-time success.", status: "ACCEPTED", estimatedValue: 600_000, estimatedCost: 120000, order: 2 },
-          { title: "Consolidate managed file transfer onto Control-M", summary: "Move file transfer onto Control-M MFT to avoid additional IBM MQ licensing.", technicalDetail: "Control-M Managed File Transfer replaces point MFT and avoids MQ expansion.", commercialDetail: "Avoids MQ licence growth and reduces integration tooling.", status: "ACCEPTED", estimatedValue: 600_000, estimatedCost: 90000, order: 3 },
+          { title: "Consolidate legacy schedulers onto Control-M", summary: "Retire remaining legacy schedulers and orchestrate all batch on a single Control-M estate.", technicalDetail: "Migrate legacy scheduler jobs to Control-M with SLA management and dependency modelling.", commercialDetail: "Removes scheduler licence + maintenance and cuts rerun/firefighting effort.", currentState: "Two legacy schedulers run in parallel with Control-M; jobs are duplicated and reruns are hand-held.", implications: "Duplicate licence and maintenance spend, plus fragile month-end batch where every rerun needs an operator.", status: "ACCEPTED", estimatedValue: 1_200_000, estimatedCost: 150000, order: 1 },
+          { title: "Automate failure recovery with jobs-as-code", summary: "Self-healing job flows with auto-rerun, alerting and version-controlled definitions.", technicalDetail: "Jobs-as-code pipelines with automated recovery runbooks and proactive alerting.", commercialDetail: "Cuts failed-job impact and manual intervention hours; lifts first-time success.", currentState: "~160 jobs fail or rerun each month; recovery is manual and job definitions are not version-controlled.", implications: "Overnight SLA breaches and sustained firefighting effort, with no auditable change history.", status: "ACCEPTED", estimatedValue: 600_000, estimatedCost: 120000, order: 2 },
+          { title: "Consolidate managed file transfer onto Control-M", summary: "Move file transfer onto Control-M MFT to avoid additional IBM MQ licensing.", technicalDetail: "Control-M Managed File Transfer replaces point MFT and avoids MQ expansion.", commercialDetail: "Avoids MQ licence growth and reduces integration tooling.", currentState: "File transfer runs on separate tooling that drives additional IBM MQ licensing.", implications: "Avoidable MQ licence growth and extra integration tooling to support and secure.", status: "ACCEPTED", estimatedValue: 600_000, estimatedCost: 90000, order: 3 },
         ],
       },
       risks: {
         create: [
           { title: "Cutover risk during scheduler migration", likelihood: 3, impact: 4, mitigation: "Phased cutover with parallel run and rollback.", status: "MITIGATING" },
           { title: "Thin licence headroom at peak (94.4%)", likelihood: 3, impact: 3, mitigation: "Peak-based capacity forecast; right-size before any expansion.", status: "OPEN" },
+          { title: "Value left unproven at renewal", likelihood: 3, impact: 4, mitigation: "Stand up realised-value reporting and a board-ready value story before procurement engages.", status: "OPEN" },
         ],
       },
     },
@@ -117,6 +154,8 @@ async function main() {
 
   for (const h of [
     { type: "EXPECTED_BENEFIT", title: "Automation, consolidation & MFT saving", detail: "R2.4M annual saving from takeout + failure reduction + MQ avoidance", data: { plannedValue: 2400000, category: "COST_SAVING" }, order: 0 },
+    { type: "EXPECTED_BENEFIT", title: "Overnight SLA attainment restored", detail: "Overnight batch SLA attainment lifted from 95% to ≥98%", data: { category: "RISK_REDUCTION" }, order: 6 },
+    { type: "EXPECTED_BENEFIT", title: "Failed-job firefighting reduced", detail: "Failed / rerun jobs cut from ~160 to <80 a month via self-healing runbooks", data: { category: "TIME_SAVING" }, order: 7 },
     { type: "KPI", title: "SLA attainment", detail: "Overnight batch SLA attainment", data: { kpiKey: "sla_attainment", baselineValue: 95, targetValue: 98.5, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Ops" }, order: 1 },
     { type: "KPI", title: "Job success rate", detail: "First-time job completion", data: { kpiKey: "job_success_rate", baselineValue: 96, targetValue: 99.5, unit: "%", frequency: "monthly", dataSource: "Control-M", owner: "Ops" }, order: 2 },
     { type: "BASELINE", title: "Baseline utilisation", detail: "68.8% average / 94.4% peak of 30,000 tasks", data: { value: 68.8 }, order: 3 },
