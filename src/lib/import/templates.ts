@@ -115,6 +115,7 @@ function buildReferenceVEVR(wb: ExcelJS.Workbook) {
     r += 1; label(ws, r, "Cost drivers"); ws.getCell(`B${r}`).value = (cfg.costDrivers ?? []).join(" · ");
     r += 1; label(ws, r, "Value levers"); ws.getCell(`B${r}`).value = (cfg.valueLevers ?? []).join(" · ");
     r += 1; label(ws, r, "Default KPIs"); ws.getCell(`B${r}`).value = (cfg.defaultKpiKeys ?? []).join(" · ");
+    if ((cfg.products ?? []).length) { r += 1; label(ws, r, "Products to inventory"); ws.getCell(`B${r}`).value = (cfg.products as any[]).map((x) => x.name).join(" · "); }
   });
 }
 function buildReferenceCS(wb: ExcelJS.Workbook) {
@@ -154,11 +155,25 @@ const README_ROWS: [string, string][] = [
 ];
 
 // ── VE ───────────────────────────────────────────────────────────────────────
+// Shared capture tab: inventory the vendor products the customer runs (e.g. the
+// BMC AMI portfolio on the mainframe) — what each performs, how they use it, and
+// the value & gaps. Capture-only: the importer ignores this tab.
+function buildProductInventory(wb: ExcelJS.Workbook) {
+  const ws = wb.addWorksheet("Product inventory"); widths(ws, 26, 12, 22, 30, 28, 12, 28, 28);
+  ws.getCell("A1").value = "Product / solution inventory";
+  ws.getCell("A1").font = { name: FONT, bold: true, size: 15, color: { argb: TITLE } };
+  ws.getCell("A2").value = "Which vendor products the customer runs, what each performs, how they use it, and the value & gaps. For a mainframe study, inventory the BMC AMI families (see the Reference tab).";
+  ws.getCell("A2").font = { name: FONT, italic: true, size: 10, color: { argb: HINT } };
+  headerRow(ws, 4, ["Product / module", "Deployed?", "Modules in use", "Function (what it performs)", "How it's used (teams / workloads)", "Adoption", "Value delivered (observed)", "Gaps / unrealised value"]);
+  exampleRow(ws, 5, ["BMC AMI Ops", "Yes", "Ops Monitor; Automation", "Monitors z/OS, CICS, Db2; auto-remediation", "Ops team · overnight batch", "Medium", "Fewer overnight incidents", "Not using MSU / capping automation"]);
+  dvRange(ws, "B", 5, 25, "Deployed"); dvRange(ws, "F", 5, 25, "Adoption");
+}
+
 function buildVE(wb: ExcelJS.Workbook) {
   buildReadme(wb, "Blue Turtle · VE Discovery Workbook — Read me",
     "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.", README_ROWS,
     [["1. Engagement", "New VE study header"], ["2. Orientation", "Problem, scope, stakeholders, value hypothesis"],
-     ["3. Baseline", "Current-state cost & pain (with sources)"], ["4. Functions", "Function analysis — verb/noun, cost, worth"],
+     ["3. Baseline", "Current-state cost & pain (with sources)"], ["Product inventory", "Vendor products the customer runs (e.g. BMC AMI) — function, usage, value & gaps"], ["4. Functions", "Function analysis — verb/noun, cost, worth"],
      ["5. Alternatives", "Creative alternatives (linked to functions)"], ["6. Evaluation", "Evaluation matrix — criteria, weights, scores"],
      ["7. Recommendations", "Developed recommendations"], ["8. Business case", "Cost/benefit line items + ROI/payback/NPV"],
      ["9. Handover pack", "KPIs, baselines, success criteria, expected benefits"], ["10. Risks", "Study risk register"],
@@ -178,6 +193,8 @@ function buildVE(wb: ExcelJS.Workbook) {
     ["TrackOrigin", ["STANDALONE (existing software)", "VE_HANDOVER (from a study)"]],
     ["ArtifactType", ["EXPECTED_BENEFIT", "SUCCESS_CRITERION", "BASELINE", "KPI", "RISK"]],
     ["LessonCat", ["what_worked", "what_to_change", "recommendation_for_ve"]],
+    ["Deployed", ["Yes", "No", "Partial"]],
+    ["Adoption", ["High", "Medium", "Low"]],
   ]);
 
   // 1. Engagement
@@ -204,6 +221,8 @@ function buildVE(wb: ExcelJS.Workbook) {
   headerRow(ws, 4, ["Item / metric", "Current value", "Unit", "Source", "Period", "Assumption", "Confidence"]);
   exampleRow(ws, 5, ["Failed / rerun jobs", 120, "per month", "Control-M reports", "Q1 2026", "Steady-state monthly avg", "High"]);
   dvRange(ws, "G", 6, 25, "Confidence");
+
+  buildProductInventory(wb);
 
   // 4. Functions
   ws = wb.addWorksheet("4. Functions"); widths(ws, 22, 22, 14, 14, 14, 16, 34);
@@ -299,7 +318,7 @@ function buildVE(wb: ExcelJS.Workbook) {
 function buildVR(wb: ExcelJS.Workbook) {
   buildReadme(wb, "Blue Turtle · VR Intake Workbook — Read me",
     "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.", README_ROWS,
-    [["1. Track", "Realisation track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"],
+    [["1. Track", "Realisation track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"], ["Product inventory", "Vendor products the customer runs (e.g. BMC AMI) — function, usage, value & gaps"],
      ["3. Work packages", "Work packages"], ["4. Adoption plan", "Adoption plan activities"], ["5. KPI tracker", "KPI targets + actuals by period"],
      ["6. Benefits", "Benefits — planned vs realised"], ["7. Risks & issues", "Track risk/issue register"], ["8. QBR notes", "Quarterly value review notes"],
      ["9. Lessons", "Lessons learned"], ["Reference", "KPI catalogue + per-profile drivers & levers"]]);
@@ -318,6 +337,8 @@ function buildVR(wb: ExcelJS.Workbook) {
     ["TrackOrigin", ["STANDALONE (existing software)", "VE_HANDOVER (from a study)"]],
     ["ArtifactType", ["EXPECTED_BENEFIT", "SUCCESS_CRITERION", "BASELINE", "KPI", "RISK"]],
     ["LessonCat", ["what_worked", "what_to_change", "recommendation_for_ve"]],
+    ["Deployed", ["Yes", "No", "Partial"]],
+    ["Adoption", ["High", "Medium", "Low"]],
   ]);
 
   // 1. Track
@@ -338,6 +359,8 @@ function buildVR(wb: ExcelJS.Workbook) {
     auto(ws, `D${r}`, `IFERROR(INDEX(Reference!$C$5:$C$${KPI_END},MATCH(A${r},Reference!$B$5:$B$${KPI_END},0)),"")`);
   }
   dvRange(ws, "A", 5, 16, "KpiNames"); dvRange(ws, "H", 5, 16, "YesNo");
+
+  buildProductInventory(wb);
 
   // 3. Work packages
   ws = wb.addWorksheet("3. Work packages"); widths(ws, 34, 34, 18, 12, 12, 16);

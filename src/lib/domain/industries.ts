@@ -19,6 +19,10 @@ export interface IndustryProfileDef {
     defaultKpiKeys: string[];
     /// Profile-specific vocabulary shown in guidance / labels.
     glossary: Record<string, string>;
+    /// Vendor product families the study should inventory — their function and
+    /// the value they deliver — so the team captures what the customer owns and
+    /// how they use it (e.g. the BMC AMI portfolio on the mainframe). Optional.
+    products?: { name: string; function: string; value: string }[];
   };
 }
 
@@ -86,6 +90,7 @@ export const INDUSTRY_PROFILES: IndustryProfileDef[] = [
     config: {
       studyTypes: [
         "Mainframe cost-optimisation study",
+        "BMC AMI portfolio value & adoption review",
         "MLC / MSU reduction review",
         "Tailored Fit Pricing (TFP) readiness case",
         "Availability & resilience review",
@@ -133,6 +138,14 @@ export const INDUSTRY_PROFILES: IndustryProfileDef[] = [
         AMI: "Automated Mainframe Intelligence (BMC portfolio)",
         IZOT: "Intelligent Z Optimization & Transformation (BMC line of business)",
       },
+      products: [
+        { name: "BMC AMI Ops", function: "AI-driven monitoring, anomaly detection and automated operations across z/OS, CICS, Db2, IMS, MQ, Java, network and storage (incl. workload/MSU automation & capping).", value: "Fewer and shorter outages, less manual operations effort, proactive problem avoidance and MLC/capacity cost control." },
+        { name: "BMC AMI DevX", function: "Mainframe DevOps and AI-augmented code modernisation — IDE (Workbench), debugging (Code Debug/Xpediter), test data (File-AID), fault diagnostics (Abend-AID) and CI/CD (Code Pipeline/ISPW).", value: "Faster, lower-risk application delivery; mitigates COBOL/skills risk; onboards new developers; enables agile & jobs-as-code." },
+        { name: "BMC AMI Data", function: "Db2 and IMS database performance, administration, recovery and resilience on IBM Z.", value: "Database performance and availability, lower CPU/cost, and faster, more reliable recovery." },
+        { name: "BMC AMI Security", function: "Mainframe threat detection, compliance and access governance (RACF/ACF2/Top Secret), MFA integration and CIS benchmark reporting.", value: "Reduced breach and compliance risk, continuous audit readiness, stronger access control." },
+        { name: "BMC AMI Cloud", function: "Mainframe data and storage to cloud object storage — immutable air-gapped backups, fast disaster recovery and data mobility (removes tape).", value: "Storage cost avoidance, cyber-resilience, faster DR, and mainframe data made available to cloud analytics/AI." },
+        { name: "BMC AMI Assistant & Agentics", function: "Generative and agentic AI across the AMI portfolio — assisted operations, code understanding and modernisation.", value: "Lower effort and faster time-to-value; makes scarce Z expertise go further." },
+      ],
     },
   },
   {
@@ -243,6 +256,83 @@ export const INDUSTRY_PROFILES: IndustryProfileDef[] = [
         OEM: "Original Equipment Manufacturer (the software vendor)",
         ARR: "Annual Recurring Revenue",
       },
+    },
+  },
+  {
+    key: "mainframe_mod",
+    name: "Mainframe Modernisation (IZOT · BMC AMI DevX)",
+    description:
+      "Understanding and transforming the value of the IBM Z estate — what the mainframe runs, for whom, and what to retain, optimise, modernise or retire. Anchored on a mainframe value assessment, then workload disposition and a modernisation roadmap.",
+    config: {
+      studyTypes: [
+        "Mainframe value assessment (what the mainframe delivers)",
+        "BMC AMI portfolio value & adoption review",
+        "Application portfolio analysis & disposition (7 Rs)",
+        "Workload discovery & rationalisation study",
+        "Mainframe modernisation roadmap & business case",
+        "COBOL / code modernisation case (AI-augmented · AMI DevX)",
+        "Rehost / replatform / refactor option-appraisal study",
+        "Mainframe DevOps / jobs-as-code enablement case",
+        "API-enablement & hybrid-cloud integration case",
+        "Data modernisation / mainframe-to-cloud data mobility case",
+        "Z skills & workforce-risk assessment",
+        "Batch modernisation & window-reduction study",
+      ],
+      costDrivers: [
+        "MLC / MSU software cost (R4HA peak)",
+        "MIPS capacity & growth",
+        "Legacy application maintenance cost",
+        "Scarce / ageing Z skills & contractors",
+        "Technical debt & change risk",
+        "Orphaned / low-value workloads",
+      ],
+      valueLevers: [
+        "Workload rationalisation & retirement (orphaned MIPS)",
+        "Right-disposition per the 7 Rs (retain/optimise/modernise/retire)",
+        "AI-augmented code refactoring & auto-documentation (AMI DevX)",
+        "DevOps / jobs-as-code agility & faster delivery",
+        "API-enablement & hybrid-cloud integration",
+        "Z skills-risk reduction & developer productivity",
+      ],
+      exampleDeliverables: [
+        "Mainframe value & usage baseline",
+        "Application portfolio disposition map (7 Rs)",
+        "Modernisation roadmap & business case",
+        "Workload rationalisation / retirement plan",
+      ],
+      defaultKpiKeys: [
+        "workload_value_mapped",
+        "low_value_workloads",
+        "mips_capacity",
+        "msu_r4ha_peak",
+        "cost_per_mips",
+        "modernisation_readiness",
+        "mainframe_cost",
+        "dev_productivity",
+        "reliability_uptime",
+        "roi_pct",
+        "payback_period",
+      ],
+      glossary: {
+        MIPS: "Millions of Instructions Per Second (mainframe capacity measure)",
+        MSU: "Million Service Units (CPU consumption — the MLC billing unit)",
+        MLC: "Monthly Licence Charge",
+        R4HA: "Rolling 4-Hour Average (the sub-capacity software billing basis)",
+        TFP: "Tailored Fit Pricing (IBM's consumption/capacity alternative to R4HA)",
+        "7 Rs": "Modernisation dispositions: retain, encapsulate, rehost, replatform, refactor, re-architect, replace/retire",
+        IZOT: "Intelligent Z Optimization & Transformation (BMC line of business)",
+        "AMI DevX": "BMC's AI-augmented mainframe code modernisation & DevOps suite",
+        COBOL: "Common Business-Oriented Language (predominant mainframe application language)",
+        LPAR: "Logical Partition (a virtualised mainframe instance)",
+      },
+      products: [
+        { name: "BMC AMI Ops", function: "AI-driven monitoring, anomaly detection and automated operations across z/OS, CICS, Db2, IMS, MQ, Java, network and storage (incl. workload/MSU automation & capping).", value: "Fewer and shorter outages, less manual operations effort, proactive problem avoidance and MLC/capacity cost control." },
+        { name: "BMC AMI DevX", function: "Mainframe DevOps and AI-augmented code modernisation — IDE (Workbench), debugging (Code Debug/Xpediter), test data (File-AID), fault diagnostics (Abend-AID) and CI/CD (Code Pipeline/ISPW).", value: "Faster, lower-risk application delivery; mitigates COBOL/skills risk; onboards new developers; enables agile & jobs-as-code." },
+        { name: "BMC AMI Data", function: "Db2 and IMS database performance, administration, recovery and resilience on IBM Z.", value: "Database performance and availability, lower CPU/cost, and faster, more reliable recovery." },
+        { name: "BMC AMI Security", function: "Mainframe threat detection, compliance and access governance (RACF/ACF2/Top Secret), MFA integration and CIS benchmark reporting.", value: "Reduced breach and compliance risk, continuous audit readiness, stronger access control." },
+        { name: "BMC AMI Cloud", function: "Mainframe data and storage to cloud object storage — immutable air-gapped backups, fast disaster recovery and data mobility (removes tape).", value: "Storage cost avoidance, cyber-resilience, faster DR, and mainframe data made available to cloud analytics/AI." },
+        { name: "BMC AMI Assistant & Agentics", function: "Generative and agentic AI across the AMI portfolio — assisted operations, code understanding and modernisation.", value: "Lower effort and faster time-to-value; makes scarce Z expertise go further." },
+      ],
     },
   },
 ];
