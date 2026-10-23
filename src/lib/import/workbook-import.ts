@@ -135,10 +135,19 @@ export async function importWorkbook(data: ArrayBuffer | Buffer, opts: ImportOpt
 
   async function nextCode(prefix: string): Promise<string> {
     const year = new Date().getFullYear();
-    const n = prefix === "VE" ? await prisma.study.count()
-      : prefix === "CS" ? await prisma.customerSuccessEngagement.count()
-      : await prisma.realizationTrack.count();
-    return `${prefix}-${year}-${String(n + 1).padStart(3, "0")}`;
+    // Number from the highest EXISTING code for this prefix+year, not the record
+    // count — codes aren't a contiguous 1..N sequence (seed data, imports and
+    // deletes leave gaps), so count+1 could collide with an existing code.
+    const prefixYear = `${prefix}-${year}-`;
+    const codes = prefix === "VE"
+      ? (await prisma.study.findMany({ where: { code: { startsWith: prefixYear } }, select: { code: true } })).map((r) => r.code)
+      : prefix === "CS"
+      ? (await prisma.customerSuccessEngagement.findMany({ where: { code: { startsWith: prefixYear } }, select: { code: true } })).map((r) => r.code)
+      : (await prisma.realizationTrack.findMany({ where: { code: { startsWith: prefixYear } }, select: { code: true } })).map((r) => r.code);
+    const used = new Set(codes);
+    let n = codes.reduce((max, c) => Math.max(max, parseInt(c.slice(-3), 10) || 0), 0) + 1;
+    while (used.has(`${prefixYear}${String(n).padStart(3, "0")}`)) n++;
+    return `${prefixYear}${String(n).padStart(3, "0")}`;
   }
   async function resolveOwner(roleHint: string): Promise<string> {
     if (OWNER_EMAIL) {

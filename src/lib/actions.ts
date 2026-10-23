@@ -12,11 +12,19 @@ import { assembleCvrData, cvrInclude } from "@/lib/export/cvr-data";
 
 async function nextCode(prefix: string) {
   const year = new Date().getFullYear();
-  const count =
+  // Number from the highest EXISTING code for this prefix+year, not the record
+  // count — codes aren't a contiguous 1..N sequence (seed data, imports and
+  // deletes leave gaps), so count+1 could collide with an existing code and
+  // trip the unique constraint on `code`.
+  const prefixYear = `${prefix}-${year}-`;
+  const codes =
     prefix === "VE"
-      ? await prisma.study.count()
-      : await prisma.realizationTrack.count();
-  return `${prefix}-${year}-${String(count + 1).padStart(3, "0")}`;
+      ? (await prisma.study.findMany({ where: { code: { startsWith: prefixYear } }, select: { code: true } })).map((r) => r.code)
+      : (await prisma.realizationTrack.findMany({ where: { code: { startsWith: prefixYear } }, select: { code: true } })).map((r) => r.code);
+  const used = new Set(codes);
+  let n = codes.reduce((max, c) => Math.max(max, parseInt(c.slice(-3), 10) || 0), 0) + 1;
+  while (used.has(`${prefixYear}${String(n).padStart(3, "0")}`)) n++; // belt-and-braces
+  return `${prefixYear}${String(n).padStart(3, "0")}`;
 }
 
 async function audit(action: string, entityType: string, entityId: string, extra: { studyId?: string; trackId?: string; metadata?: object } = {}) {

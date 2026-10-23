@@ -25,8 +25,15 @@ async function audit(action: string, entityId: string, metadata?: object) {
 
 async function nextCode(): Promise<string> {
   const year = new Date().getFullYear();
-  const n = await prisma.customerSuccessEngagement.count();
-  return `CS-${year}-${String(n + 1).padStart(3, "0")}`;
+  // Number from the highest EXISTING code for the year, not the record count —
+  // codes aren't a contiguous 1..N sequence (seed data, imports and deletes
+  // leave gaps), so count+1 could collide with an existing code.
+  const prefixYear = `CS-${year}-`;
+  const codes = (await prisma.customerSuccessEngagement.findMany({ where: { code: { startsWith: prefixYear } }, select: { code: true } })).map((r) => r.code);
+  const used = new Set(codes);
+  let n = codes.reduce((max, c) => Math.max(max, parseInt(c.slice(-3), 10) || 0), 0) + 1;
+  while (used.has(`${prefixYear}${String(n).padStart(3, "0")}`)) n++;
+  return `${prefixYear}${String(n).padStart(3, "0")}`;
 }
 
 export async function createEngagement(formData: FormData) {

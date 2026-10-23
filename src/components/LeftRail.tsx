@@ -37,7 +37,7 @@ export function LeftRail({ isAdmin, orgName }: { isAdmin: boolean; orgName?: str
 
   return (
     <aside className="flex w-[228px] shrink-0 flex-col bg-rail text-railfg">
-      <Link href="/portfolio" className="flex items-center gap-2.5 px-4 py-4">
+      <Link href="/" className="flex items-center gap-2.5 px-4 py-4" title="Home">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-linear-to-br from-bmc-500 to-bmc-700 text-sm font-bold text-white shadow-soft">V</span>
         <span className="leading-tight">
           <span className="block text-sm font-semibold text-white">Value Lifecycle</span>
