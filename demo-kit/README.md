@@ -1,6 +1,6 @@
 # Value Lifecycle Platform — Demo Kit
 
-**Platform version:** v0.7.5 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
+**Platform version:** v0.7.6 · **Companion packs:** Workshop Guide pack v1.5.0 · Value Study decks v1.2.0 — see [Release history](#release-history) · [all releases on GitHub](https://github.com/paulojorge1963/value-lifecycle-platform/releases)
 
 **Deploy your own:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform&env=DATABASE_URL,DIRECT_URL,AUTH_SECRET,AUTH_TRUST_HOST&envDescription=Neon%20Postgres%20pooled%20%2B%20direct%20URLs%2C%20an%20Auth.js%20secret%20(openssl%20rand%20-base64%2032)%2C%20and%20AUTH_TRUST_HOST%3Dtrue&envLink=https%3A%2F%2Fgithub.com%2Fpaulojorge1963%2Fvalue-lifecycle-platform%2Fblob%2Fmain%2FDEPLOYMENT.md&project-name=value-lifecycle-platform&repository-name=value-lifecycle-platform) &nbsp; needs a Postgres DB (Neon) created and seeded first — see [DEPLOYMENT.md](../DEPLOYMENT.md).
 
@@ -108,6 +108,7 @@ The platform is versioned on GitHub — [paulojorge1963/value-lifecycle-platform
 
 | Version | What changed |
 |---|---|
+| **[v0.7.6](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.6)** | **Cleaner document template.** Removed the large banner image from the top of the first page of the branded Word exports (business case, VRP, CS); title block, running header and footer unchanged. Presentation only. |
 | **[v0.7.5](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.5)** | **Mainframe Modernisation.** New solution profile for assessing the value of the IBM Z estate — what the mainframe runs, how it's used, and what to retain/optimise/modernise/retire — with a BMC AMI portfolio focus (function, value & adoption of each AMI family), a product-inventory capture tab, and new mainframe KPIs. Also fixes code-number generation and links the logo to the home screen. |
 | **[v0.7.4](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.4)** | **Security & maintenance.** Updated the underlying web framework to its latest patch release, applying a security fix. Under-the-hood only — no change to features or data. |
 | **[v0.7.3](https://github.com/paulojorge1963/value-lifecycle-platform/releases/tag/v0.7.3)** | **Edit everything in-app.** You can now create and edit the whole capture model directly in the app, not just via a workbook import — work packages (incl. dates), KPI baselines & targets, benefits, adoption activities, baseline measures, and risks. Permission-gated and audited; no change to existing data. |
