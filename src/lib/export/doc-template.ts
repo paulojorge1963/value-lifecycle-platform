@@ -5,7 +5,7 @@ import {
   Document, Paragraph, TextRun, ImageRun, AlignmentType, HeadingLevel,
   Header, Footer, PageNumber, BorderStyle, TabStopType, type ISectionOptions, type FileChild,
 } from "docx";
-import { BANNER_PNG, BANNER_WH, WORDMARK_PNG, WORDMARK_WH } from "./doc-assets";
+import { WORDMARK_PNG, WORDMARK_WH } from "./doc-assets";
 
 // Blue Turtle palette (matches the decks / CVR).
 const BLUE = "0053B4", INK = "15303F", MUTED = "5E7789", LINE = "DBE7F0";
@@ -13,7 +13,6 @@ const FONT = "Calibri";
 
 // Content width for US-Letter with 1" margins ≈ 6.5in → 624px @96dpi.
 const CONTENT_W = 624;
-const bannerH = Math.round((CONTENT_W * BANNER_WH.h) / BANNER_WH.w);
 const WORDMARK_W = 150;
 const wordmarkH = Math.round((WORDMARK_W * WORDMARK_WH.h) / WORDMARK_WH.w);
 
@@ -63,8 +62,7 @@ export interface BrandedDocOpts {
 /** Build a Blue Turtle–branded Document: turtle cover banner + title block, then body. */
 export function brandedDoc(opts: BrandedDocOpts): Document {
   const cover: FileChild[] = [
-    new Paragraph({ spacing: { after: 160 }, children: [img(BANNER_PNG, CONTENT_W, bannerH)] }),
-    new Paragraph({ heading: HeadingLevel.TITLE, spacing: { after: 40 }, children: [new TextRun(opts.docTitle)] }),
+    new Paragraph({ heading: HeadingLevel.TITLE, spacing: { before: 120, after: 40 }, children: [new TextRun(opts.docTitle)] }),
     new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: `${opts.code}${opts.subtitle ? "  ·  " + opts.subtitle : ""}`, bold: true, size: 26, color: INK, font: FONT })] }),
     ...(opts.metaLine ? [new Paragraph({ spacing: { after: 200 }, children: [new TextRun({ text: opts.metaLine, color: MUTED, size: 20, font: FONT })] })] : []),
   ];
