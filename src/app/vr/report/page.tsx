@@ -156,7 +156,7 @@ export default async function VrStatusReportPage() {
                         <td className="px-4 py-3">
                           <Link href={`/vr/${t.id}`} className="font-medium text-ink-900 hover:text-vr-600 hover:underline">{t.title}</Link>
                           <div className="mt-0.5 text-xs text-ink-400">
-                            {t.code} · {t.study ? <span className="text-ve-600">from {t.study.code}</span> : <span className="text-vr-600">standalone</span>} · {t.industry.name}
+                            {t.code} · {t.study ? <span className="text-ve-600">from {t.study.code}</span> : <span className="text-vr-600">standalone</span>} · {t.industry.name} · <Link href={`/vr/${t.id}/report`} className="text-vr-600 hover:underline">status report ↓</Link>
                           </div>
                         </td>
                         <td className="px-3 py-3"><HealthPill health={t.health} /></td>

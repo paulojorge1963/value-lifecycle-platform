@@ -116,8 +116,9 @@ export default async function TrackPage({
           </div>
         </div>
         <div className="flex gap-2">
+          <Link href={`/vr/${track.id}/report`} className="btn-ghost">Status report</Link>
           {track.study && (
-            <Link href={`/ve/${track.studyId}/report`} className="btn-ghost">Status report</Link>
+            <Link href={`/ve/${track.studyId}/report`} className="btn-ghost">VE study report</Link>
           )}
           <a href={`/api/export/vrp/${track.id}`} className="btn-vr">Export VRP / QBR ↓</a>
           {canEdit && (
