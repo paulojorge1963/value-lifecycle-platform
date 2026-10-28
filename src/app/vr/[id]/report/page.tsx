@@ -6,6 +6,7 @@ import { StatusBadge, HealthPill, ProgressBar } from "@/components/ui";
 import { PrintButton } from "@/components/PrintButton";
 import { VR_PHASES } from "@/lib/domain/phases";
 import { fmtMoney, fmtPct } from "@/lib/finance";
+import type { ReactNode } from "react";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "VR Track — Status Report" };
@@ -13,6 +14,25 @@ export const metadata = { title: "VR Track — Status Report" };
 function fmtDate(d: Date | null | undefined) {
   if (!d) return "—";
   return new Intl.DateTimeFormat("en-ZA", { day: "numeric", month: "long", year: "numeric" }).format(d);
+}
+
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="card p-4">
+      <div className="text-xs font-medium uppercase tracking-wide text-ink-400">{label}</div>
+      <div className="mt-1 text-2xl font-semibold text-ink-900">{value}</div>
+      {sub ? <div className="mt-0.5 text-xs text-ink-400">{sub}</div> : null}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="card p-5">
+      <div className="mb-3 text-sm font-semibold text-ink-900">{title}</div>
+      {children}
+    </div>
+  );
 }
 
 type Qbr = { executiveStory?: string; nextBestActions?: string[] | string; expansion?: string } | undefined;
@@ -56,20 +76,6 @@ export default async function VrTrackReportPage({ params }: { params: Promise<{ 
 
   const qbr = track.reports[0]?.content as Qbr;
   const nextActions: string[] = Array.isArray(qbr?.nextBestActions) ? qbr!.nextBestActions as string[] : (qbr?.nextBestActions ? [qbr.nextBestActions as string] : []);
-
-  const Stat = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
-    <div className="card p-4">
-      <div className="text-xs font-medium uppercase tracking-wide text-ink-400">{label}</div>
-      <div className="mt-1 text-2xl font-semibold text-ink-900">{value}</div>
-      {sub ? <div className="mt-0.5 text-xs text-ink-400">{sub}</div> : null}
-    </div>
-  );
-  const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="card p-5">
-      <div className="mb-3 text-sm font-semibold text-ink-900">{title}</div>
-      {children}
-    </div>
-  );
 
   return (
     <div className="space-y-6">

@@ -16,6 +16,16 @@ function fmtDate(d: Date | null | undefined) {
   return new Intl.DateTimeFormat("en-ZA", { day: "numeric", month: "long", year: "numeric" }).format(d);
 }
 
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="card p-4">
+      <div className="text-xs font-medium uppercase tracking-wide text-ink-400">{label}</div>
+      <div className="mt-1 text-2xl font-semibold text-ink-900">{value}</div>
+      {sub ? <div className="mt-0.5 text-xs text-ink-400">{sub}</div> : null}
+    </div>
+  );
+}
+
 // The current / next milestone for a track: the in-progress phase, else the
 // first phase not yet complete, else the last one.
 function milestone(track: { status: string; phases: { phase: string; order: number; status: string }[] }) {
@@ -61,14 +71,6 @@ export default async function VrStatusReportPage() {
   const atRisk = (health.AMBER ?? 0) + (health.RED ?? 0);
   const inFlight = byStatus.IN_FLIGHT ?? 0;
   const currencies = [...byCur.entries()];
-
-  const Stat = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
-    <div className="card p-4">
-      <div className="text-xs font-medium uppercase tracking-wide text-ink-400">{label}</div>
-      <div className="mt-1 text-2xl font-semibold text-ink-900">{value}</div>
-      {sub ? <div className="mt-0.5 text-xs text-ink-400">{sub}</div> : null}
-    </div>
-  );
 
   return (
     <div className="space-y-6">
