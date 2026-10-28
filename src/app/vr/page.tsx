@@ -26,12 +26,15 @@ export default async function VrWorkspace() {
         title="Value Realisation workspace"
         desc="Implement approved recommendations, drive adoption, and prove realised value against the business case."
         action={
-          can(user.role, "track.create") ? (
-            <div className="flex items-center gap-2">
-              <ImportWorkbook label="Import workbook" variant="btn-ghost" />
-              <NewTrackForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
-            </div>
-          ) : null
+          <div className="flex items-center gap-2">
+            <Link href="/vr/report" className="btn-ghost">Status report ↓</Link>
+            {can(user.role, "track.create") ? (
+              <>
+                <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+                <NewTrackForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+              </>
+            ) : null}
+          </div>
         }
       />
 
