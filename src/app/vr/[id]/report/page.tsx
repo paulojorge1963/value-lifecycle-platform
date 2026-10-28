@@ -87,6 +87,7 @@ export default async function VrTrackReportPage({ params }: { params: Promise<{ 
         </div>
         <div className="flex items-center gap-2">
           <PrintButton className="btn-ghost" />
+          <a href={`/api/export/vr-status/${track.id}/pptx`} className="btn-ghost">PPTX ↓</a>
           <a href={`/api/export/vr-status/${track.id}`} className="btn-vr">Download (Word) ↓</a>
         </div>
       </div>

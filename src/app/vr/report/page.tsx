@@ -82,6 +82,7 @@ export default async function VrStatusReportPage() {
         </div>
         <div className="flex items-center gap-2">
           <PrintButton className="btn-ghost" />
+          <a href="/api/export/vr-status/pptx" className="btn-ghost">PPTX ↓</a>
           <a href="/api/export/vr-status" className="btn-vr">Download (Word) ↓</a>
         </div>
       </div>
