@@ -8,12 +8,13 @@ const FILENAME: Record<TemplateKind, string> = {
   VE: "VE-Discovery-Template.xlsx",
   VR: "VR-Intake-Template.xlsx",
   CS: "CS-Intake-Template.xlsx",
+  VRA: "VRA-Intake-Template.xlsx",
 };
 
 export async function GET(_req: Request, { params }: { params: Promise<{ kind: string }> }) {
   const { kind } = await params;
   const upper = kind.toUpperCase();
-  const k: TemplateKind = upper === "VR" ? "VR" : upper === "CS" ? "CS" : "VE";
+  const k: TemplateKind = upper === "VR" ? "VR" : upper === "VRA" ? "VRA" : upper === "CS" ? "CS" : "VE";
   const wb = buildTemplate(k);
   const buf = await wb.xlsx.writeBuffer();
   return new NextResponse(new Uint8Array(buf as ArrayBuffer), {

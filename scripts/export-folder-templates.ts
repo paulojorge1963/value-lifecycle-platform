@@ -12,6 +12,7 @@ const OUT: Record<TemplateKind, string> = {
   VE: `${DIR}/BlueTurtle-VE-Discovery-Workbook.xlsx`,
   VR: `${DIR}/BlueTurtle-VR-Intake-Workbook.xlsx`,
   CS: `${DIR}/BlueTurtle-CS-Intake-Workbook.xlsx`,
+  VRA: `${DIR}/BlueTurtle-VRA-Intake-Workbook.xlsx`,
 };
 
 async function main() {
