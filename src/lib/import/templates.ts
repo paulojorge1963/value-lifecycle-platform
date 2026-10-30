@@ -15,7 +15,7 @@ import { CS_STAGES } from "../domain/cs-stages";
 import { HEALTH_FACTORS } from "../domain/cs-health";
 import { CURRENCIES } from "../finance";
 
-export type TemplateKind = "VE" | "VR" | "CS";
+export type TemplateKind = "VE" | "VR" | "CS" | "VRA";
 
 // ── palette (ARGB) ────────────────────────────────────────────────────────
 const HDR = "FF1E40AF";   // table header fill (blue)
@@ -169,6 +169,18 @@ function buildProductInventory(wb: ExcelJS.Workbook) {
   dvRange(ws, "B", 5, 25, "Deployed"); dvRange(ws, "F", 5, 25, "Adoption");
 }
 
+// VRA-only: capability/module maturity scorecard (1–5, today vs target).
+function buildMaturity(wb: ExcelJS.Workbook) {
+  const ws = wb.addWorksheet("Capability maturity"); widths(ws, 34, 12, 18, 18, 38, 38, 12);
+  ws.getCell("A1").value = "Capability / module maturity";
+  ws.getCell("A1").font = { name: FONT, bold: true, size: 15, color: { argb: TITLE } };
+  ws.getCell("A2").value = "Score each capability 1–5 today vs target (1 Initial · 2 Repeatable · 3 Defined · 4 Measured · 5 Optimised). Today = baseline heatmap; the gap to target is the realisation roadmap; re-score each QBR.";
+  ws.getCell("A2").font = { name: FONT, italic: true, size: 10, color: { argb: HINT } };
+  headerRow(ws, 4, ["Capability / module", "In use?", "Maturity today (1–5)", "Target maturity (1–5)", "How it's used today", "Key gap to next level", "Priority"]);
+  exampleRow(ws, 5, ["Incident management", "Yes", "3", "4", "Core process, standardised", "Add automation / self-service", "High"]);
+  dvRange(ws, "B", 5, 25, "Deployed"); dvRange(ws, "C", 5, 25, "Scale"); dvRange(ws, "D", 5, 25, "Scale"); dvRange(ws, "G", 5, 25, "Adoption");
+}
+
 function buildVE(wb: ExcelJS.Workbook) {
   buildReadme(wb, "Blue Turtle · VE Discovery Workbook — Read me",
     "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.", README_ROWS,
@@ -315,13 +327,22 @@ function buildVE(wb: ExcelJS.Workbook) {
 }
 
 // ── VR ───────────────────────────────────────────────────────────────────────
-function buildVR(wb: ExcelJS.Workbook) {
-  buildReadme(wb, "Blue Turtle · VR Intake Workbook — Read me",
-    "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.", README_ROWS,
-    [["1. Track", "Realisation track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"], ["Product inventory", "Vendor products the customer runs (e.g. BMC AMI) — function, usage, value & gaps"],
-     ["3. Work packages", "Work packages"], ["4. Adoption plan", "Adoption plan activities"], ["5. KPI tracker", "KPI targets + actuals by period"],
-     ["6. Benefits", "Benefits — planned vs realised"], ["7. Risks & issues", "Track risk/issue register"], ["8. QBR notes", "Quarterly value review notes"],
-     ["9. Lessons", "Lessons learned"], ["Reference", "KPI catalogue + per-profile drivers & levers"]]);
+// Builds the VR Intake workbook. opts.vra = the installed-base VRA variant
+// (STANDALONE by default + a capability-maturity tab + VRA framing). Both import
+// as a VR track (the importer keys on the "1. Track" sheet; VRA = standalone).
+function buildVR(wb: ExcelJS.Workbook, opts: { vra?: boolean } = {}) {
+  const vra = opts.vra === true;
+  const tabMap: [string, string][] = [["1. Track", "Realisation track header (origin, objectives, planned value)"], ["2. Baselines", "Validate/establish KPI baselines"], ["Product inventory", "Vendor products the customer runs (e.g. BMC AMI) — function, usage, value & gaps"],
+    ["3. Work packages", "Work packages"], ["4. Adoption plan", "Adoption plan activities"], ["5. KPI tracker", "KPI targets + actuals by period"],
+    ["6. Benefits", "Benefits — planned vs realised"], ["7. Risks & issues", "Track risk/issue register"], ["8. QBR notes", "Quarterly value review notes"],
+    ["9. Lessons", "Lessons learned"], ["Reference", "KPI catalogue + per-profile drivers & levers"]];
+  if (vra) tabMap.splice(3, 0, ["Capability maturity", "Score each capability/module 1–5, today vs target — the gap is the roadmap"]);
+  buildReadme(wb,
+    vra ? "Blue Turtle · VRA Intake Workbook — Read me" : "Blue Turtle · VR Intake Workbook — Read me",
+    vra
+      ? "A Value Realisation Assessment of software the customer already runs: establish the current-state baseline, inventory what's deployed vs the gap, score capability maturity, and build a prioritised realisation plan. Imports as a STANDALONE realisation track."
+      : "How to use this workbook, and how each tab maps to the Value Lifecycle Platform.",
+    README_ROWS, tabMap);
   buildReferenceVEVR(wb);
   buildLists(wb, [
     ["SolutionProfiles", PROFILES], ["StudyTypes", STUDY_TYPES],
@@ -348,6 +369,7 @@ function buildVR(wb: ExcelJS.Workbook) {
     ["Source study code (if handover)"], ["Solution profile", "SolutionProfiles"], ["VRM (owner)"], ["Objectives"],
     ["Success criteria"], ["Planned value"], ["Currency", "Currencies"], ["Start date"], ["Target date"]];
   tk.forEach(([lab, dv], i) => { const r = 4 + i; label(ws, r, lab as string); input(ws, `B${r}`, { dv: dv as string | undefined }); });
+  if (vra) ws.getCell("B6").value = "STANDALONE (existing software)"; // Origin defaults to standalone for a VRA
 
   // 2. Baselines
   ws = wb.addWorksheet("2. Baselines"); widths(ws, 30, 22, 14, 12, 22, 14, 16, 22);
@@ -361,6 +383,7 @@ function buildVR(wb: ExcelJS.Workbook) {
   dvRange(ws, "A", 5, 16, "KpiNames"); dvRange(ws, "H", 5, 16, "YesNo");
 
   buildProductInventory(wb);
+  if (vra) buildMaturity(wb);
 
   // 3. Work packages
   ws = wb.addWorksheet("3. Work packages"); widths(ws, 34, 34, 18, 12, 12, 16);
@@ -509,6 +532,7 @@ export function buildTemplate(kind: TemplateKind): ExcelJS.Workbook {
   wb.created = new Date();
   if (kind === "VE") buildVE(wb);
   else if (kind === "VR") buildVR(wb);
+  else if (kind === "VRA") buildVR(wb, { vra: true });
   else buildCS(wb);
   return wb;
 }

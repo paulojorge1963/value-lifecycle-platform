@@ -25,6 +25,7 @@ export default async function TemplatesPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <CaptureCard href="/api/import/template/VE" accent="ve" title="VE Discovery" desc="Engagement, functions, alternatives, business case, handover pack." />
           <CaptureCard href="/api/import/template/VR" accent="vr" title="VR Intake" desc="Track, baselines, work packages, KPI tracker, benefits, QBR." />
+          <CaptureCard href="/api/import/template/VRA" accent="vr" title="VRA Intake" desc="Installed-base assessment: baseline, product inventory, capability maturity, work packages, benefits. Imports as a standalone VR track." />
           <CaptureCard href="/api/import/template/CS" accent="cs" title="CS Intake" desc="Account, success plan, lifecycle, health, renewal & growth." />
         </div>
       </div>
