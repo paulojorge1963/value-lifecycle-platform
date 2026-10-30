@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 
-const ROLES = ["VALUE_ENGINEER", "VALUE_REALIZATION_MANAGER", "REVIEWER", "VIEWER", "ADMIN"] as const;
+const ROLES = ["VALUE_ENGINEER", "VALUE_REALIZATION_MANAGER", "CUSTOMER_SUCCESS_MANAGER", "REVIEWER", "VIEWER", "ADMIN"] as const;
 type RoleName = (typeof ROLES)[number];
 
 /**
