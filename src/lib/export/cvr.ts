@@ -6,6 +6,7 @@
 // =============================================================================
 import pptxgen from "pptxgenjs";
 import { BG_CONTENT, BG_CONTENT_NOLOGO, LOGO, HERO } from "./cvr-assets";
+import { fmtMoneyShort } from "@/lib/finance";
 
 // Brand palette (Blue Turtle).
 const DEEP = "0053B4", BLUE = "0284DD", TEAL = "0091A8", GREEN = "159E7A", AMBER = "E07C24";
@@ -56,7 +57,8 @@ export interface CvrData {
   npv?: string;
   financialRows: CvrFinRow[];
   finYears: string[]; // column headers for the financial-detail table (e.g. ["Now","Yr 1",…])
-  cashflow?: { years: string[]; cumBenefit: number[]; cumInvestment: number[] }; // for the cash-flow chart
+  // Numeric cash-flow series for the financial-detail table & payback curve.
+  cashflow?: { years: string[]; cumBenefit: number[]; cumInvestment: number[]; benefit?: number[]; cost?: number[]; net?: number[]; cumNet?: number[] };
   results: { label: string; value: string }[];
   nextSteps: CvrNextStep[];
 }
@@ -171,6 +173,11 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       s.addText(col[0] as string, { x: x + 0.3, y: y + 0.18, w: cw - 0.6, h: 0.35, margin: 0, fontFace: HF, fontSize: 14, bold: true, color: col[1] as string });
       bullets(s, (col[2] as string[]).slice(0, 6), { x: x + 0.35, y: y + 0.65, w: cw - 0.7, h: 2.3, size: 12, gap: 7, color: INK });
     });
+    s.addNotes(
+      "THE NUMBERS ON THIS SLIDE (the four stat tiles) are engagement EFFORT, not calculations — they are captured in the study (value-story 'collaboration stats'), not computed by the app. Typically: total hours, technical workshops, interviews, and analysis/documentation days.\n\n" +
+      "What they mean: they evidence the depth of the joint discovery behind everything that follows — the more time invested together, the more defensible the baseline and the business case. Frame them as 'here is how much work we did jointly to reach these conclusions.'\n\n" +
+      "If a tile still reads 'XX', that figure has not been captured in the study yet. The two lists below are the people who took part (Blue Turtle delivery team and the customer participants), drawn from the engagement stakeholders."
+    );
   }
 
   /* 5 · CASE FOR CHANGE */
@@ -190,6 +197,11 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       s.addText(c.description || "", { x: x + 0.25, y: y + 2.05, w: cw - 0.5, h: 1.1, align: "center", margin: 0, fontFace: BF, fontSize: 11, color: MUTED, lineSpacingMultiple: 1.03 });
     });
     s.addText("*Source — as captured in the study baseline (with source & period).", { x: MX, y: 5.6, w: 12.0, h: 0.3, margin: 0, fontFace: BF, fontSize: 10.5, italic: true, color: MUTED });
+    s.addNotes(
+      "THE BIG FIGURES ON THIS SLIDE are current-state PROOF POINTS — measured baseline numbers captured during discovery, not estimates or projections. In the app they come from the study baseline items (the cost / performance / constraint metrics).\n\n" +
+      "For each card: the large figure is the headline metric (e.g. 68.8% utilisation, a rand cost, a volume or a count), the heading is what it measures, and the small caption is its SOURCE. Each should trace to a source and a measurement period (see the footnote).\n\n" +
+      "What they mean: together they quantify the size of today's problem — the evidence for 'why change'. The business case later shows the value of closing these gaps. Be ready to cite the source and the window for every figure; an 'XX' means the baseline item is not captured yet."
+    );
   }
 
   /* 6 · PRIORITIES */
@@ -334,46 +346,106 @@ export async function buildCvr(d: CvrData): Promise<Buffer> {
       s.addText(st[1], { x: x + 0.2, y: y + 1.1, w: cw - 0.4, h: 0.9, align: "center", valign: "middle", margin: 0, fontFace: HF, fontSize: 26, bold: true, color: INK });
     });
     s.addText(d.realized ? "Realised value, from the linked Value Realisation track." : "Planned value at VE stage; becomes realised value through Value Realisation (VR).", { x: MX, y: 5.1, w: 12.0, h: 0.4, margin: 0, fontFace: BF, fontSize: 12.5, italic: true, color: MUTED });
+    s.addNotes(
+      "THREE HEADLINE RESULTS from the finance engine, all derived from the business-case cash-flow lines over the chosen horizon (default 5 years). Building blocks: up-front INVESTMENT = capex + one-off costs in year 0; ANNUAL NET BENEFIT = recurring benefit inflows minus recurring opex.\n\n" +
+      "• PAYBACK (months) = investment ÷ annual net benefit × 12 — how long until accumulated benefit repays the up-front spend. Shorter is better.\n" +
+      "• ROI % = (annual net benefit × horizon − investment) ÷ investment × 100 — the net return across the whole horizon as a percentage of what was invested.\n" +
+      "• NPV = each year's net cash flow discounted back to today and summed (year 0 = −investment), using the discount rate (default 10%). A positive NPV means the benefits beat the costs in today's money.\n\n" +
+      "These are PLANNED values at VE stage; they become REALISED as the VR track delivers (the footnote states which you are showing). The next slide shows the full year-by-year cash flow these three figures come from."
+    );
   }
 
-  /* 14 · FINANCIAL DETAIL */
+  /* 14 · FINANCIAL DETAIL — cash-flow table (years as rows) + payback curve */
   {
-    const s = content("The Business Case", `Cash flow & financial detail (${d.finYears.length - 1}-year horizon)`);
-    const head = ["Benefit / Investment", ...d.finYears, "Total"];
-    const nY = d.finYears.length;
-    const TW = 8.3, labW = 2.2, totW = 0.95, yrW = (TW - labW - totW) / nY;
-    const colW = [labW, ...Array(nY).fill(yrW), totW];
-    const fs = nY > 5 ? 8.5 : 10;
-    const rows: pptxgen.TableRow[] = [head.map((t, i) => ({ text: t, options: { bold: true, color: WHITE, fill: { color: DEEP }, fontSize: nY > 5 ? 9 : 10.5, valign: "middle", align: i === 0 ? "left" : "right" } }))];
-    d.financialRows.forEach((r, i) => {
-      const band = r.emph ? "E7EEF7" : (i % 2 ? "F4F9FD" : WHITE);
+    const cf = d.cashflow;
+    const years = cf?.years ?? d.finYears;
+    const s = content("The Business Case", `Cash flow & the payback curve (${years.length - 1}-year horizon)`);
+    const cur = d.currency;
+    const money = (v: number, signed = false) => { if (Math.abs(v) < 1) return "—"; const t = fmtMoneyShort(v, cur); return signed && v > 0 ? "+" + t : t; };
+
+    // ---- Left: years-as-rows cash-flow statement ----------------------------
+    const ben = cf?.benefit ?? [], cost = cf?.cost ?? [], net = cf?.net ?? [], cumNet = cf?.cumNet ?? [];
+    const nR = years.length;
+    const TW = 6.5, colW = [1.15, 1.3, 1.3, 1.25, 1.5]; // Period · Benefit · Cost · Net · Cum net
+    const rowH = Math.min(0.58, 4.75 / (nR + 2));
+    const fs = nR > 7 ? 9 : 10.5;
+    const NEG_BG = "FBE9E9", NEG_TX = "B3261E", POS_BG = "E7F4EC", POS_TX = "1E7A46";
+    const head = ["Period", "Benefit in", "Cost out", "Net", "Cumulative net"];
+    const rows: pptxgen.TableRow[] = [head.map((t, i) => ({ text: t, options: { bold: true, color: WHITE, fill: { color: DEEP }, fontSize: nR > 7 ? 9 : 10, valign: "middle", align: i === 0 ? "left" : "right" } }))];
+    years.forEach((yl, i) => {
+      const band = i % 2 ? "F4F9FD" : WHITE;
+      const nv = net[i] ?? 0, cn = cumNet[i] ?? 0, cnPos = cn >= 0;
       rows.push([
-        { text: r.label, options: { bold: !!r.emph, color: INK, fill: { color: band }, fontSize: fs, valign: "middle", align: "left" } },
-        ...[...r.cells, r.total].map((v) => ({ text: v ?? "—", options: { color: MUTED, fill: { color: band }, fontSize: fs, valign: "middle" as const, align: "right" as const } })),
+        { text: yl, options: { color: INK, fill: { color: band }, fontSize: fs, valign: "middle", align: "left" } },
+        { text: money(ben[i] ?? 0), options: { color: MUTED, fill: { color: band }, fontSize: fs, valign: "middle", align: "right" } },
+        { text: money(cost[i] ?? 0), options: { color: MUTED, fill: { color: band }, fontSize: fs, valign: "middle", align: "right" } },
+        { text: money(nv, true), options: { color: nv < 0 ? NEG_TX : POS_TX, fill: { color: band }, fontSize: fs, valign: "middle", align: "right" } },
+        { text: money(cn, true) + (cnPos ? "  ▲" : "  ▼"), options: { bold: true, color: cnPos ? POS_TX : NEG_TX, fill: { color: cnPos ? POS_BG : NEG_BG }, fontSize: fs, valign: "middle", align: "right" } },
       ]);
     });
-    s.addTable(rows, { x: MX, y: 1.55, w: TW, colW, rowH: 0.3, border: { type: "solid", color: "E6EEF5", pt: 1 }, fontFace: BF, autoPage: false, margin: [2, 4, 2, 4] });
-    card(s, 9.15, 1.55, 3.58, 2.35, MIST);
-    s.addText("RESULTS", { x: 9.4, y: 1.7, w: 3.1, h: 0.3, margin: 0, fontFace: HF, fontSize: 12, bold: true, color: DEEP, charSpacing: 1 });
+    const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
+    rows.push([
+      { text: "Total", options: { bold: true, color: INK, fill: { color: "E7EEF7" }, fontSize: fs, valign: "middle", align: "left" } },
+      { text: money(sum(ben)), options: { bold: true, color: INK, fill: { color: "E7EEF7" }, fontSize: fs, valign: "middle", align: "right" } },
+      { text: money(sum(cost)), options: { bold: true, color: INK, fill: { color: "E7EEF7" }, fontSize: fs, valign: "middle", align: "right" } },
+      { text: money(sum(net), true), options: { bold: true, color: INK, fill: { color: "E7EEF7" }, fontSize: fs, valign: "middle", align: "right" } },
+      { text: "—", options: { color: MUTED, fill: { color: "E7EEF7" }, fontSize: fs, valign: "middle", align: "right" } },
+    ]);
+    s.addTable(rows, { x: MX, y: 1.55, w: TW, colW, rowH, border: { type: "solid", color: "E6EEF5", pt: 1 }, fontFace: BF, autoPage: false, margin: [2, 5, 2, 5] });
+
+    // ---- Right-top: RESULTS -------------------------------------------------
+    const RX = 7.5, RW = W - MX - RX;
+    card(s, RX, 1.55, RW, 1.9, MIST);
+    s.addText("RESULTS", { x: RX + 0.25, y: 1.68, w: RW - 0.5, h: 0.3, margin: 0, fontFace: HF, fontSize: 12, bold: true, color: DEEP, charSpacing: 1 });
     d.results.slice(0, 4).forEach((r, i) => {
-      const y = 2.05 + i * 0.42;
-      s.addText(r.label, { x: 9.4, y, w: 2.1, h: 0.3, margin: 0, fontFace: BF, fontSize: 11, color: INK });
-      s.addText(r.value, { x: 11.4, y, w: 1.2, h: 0.3, align: "right", margin: 0, fontFace: HF, fontSize: 11, bold: true, color: DEEP });
+      const y = 2.02 + i * 0.35;
+      s.addText(r.label, { x: RX + 0.25, y, w: RW - 1.75, h: 0.3, margin: 0, fontFace: BF, fontSize: 11, color: INK });
+      s.addText(r.value, { x: RX + RW - 1.75, y, w: 1.5, h: 0.3, align: "right", margin: 0, fontFace: HF, fontSize: 11.5, bold: true, color: DEEP });
     });
-    s.addShape(p.ShapeType.roundRect, { x: 9.15, y: 4.0, w: 3.58, h: 2.15, rectRadius: 0.09, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
-    s.addText("CASH FLOW — CUMULATIVE", { x: 9.3, y: 4.08, w: 3.3, h: 0.24, margin: 0, fontFace: HF, fontSize: 9, bold: true, color: MUTED, charSpacing: 1 });
-    if (d.cashflow && d.cashflow.cumBenefit.some((v) => v)) {
-      s.addChart(p.ChartType.line, [
-        { name: "Cumulative benefit", labels: d.cashflow.years, values: d.cashflow.cumBenefit },
-        { name: "Cumulative investment", labels: d.cashflow.years, values: d.cashflow.cumInvestment },
-      ], {
-        x: 9.2, y: 4.28, w: 3.48, h: 1.82, chartColors: [GREEN, AMBER], showLegend: true, legendPos: "b", legendFontSize: 7,
-        showTitle: false, lineSize: 2, lineSmooth: true, showValue: false,
-        catAxisLabelFontSize: 7, valAxisLabelFontSize: 7, valAxisLabelFormatCode: "$#,##0,\"k\"", valGridLine: { style: "none" },
+
+    // ---- Right-bottom: payback curve (single cumulative-net line) -----------
+    const CY = 3.6, CH = 2.6;
+    s.addShape(p.ShapeType.roundRect, { x: RX, y: CY, w: RW, h: CH, rectRadius: 0.09, fill: { color: WHITE }, line: { color: LINE, width: 1 } });
+    s.addText("PAYBACK CURVE — CUMULATIVE NET POSITION", { x: RX + 0.2, y: CY + 0.1, w: RW - 0.4, h: 0.24, margin: 0, fontFace: HF, fontSize: 9, bold: true, color: MUTED, charSpacing: 1 });
+    if (cf && (cumNet.some((v) => v) || net.some((v) => v))) {
+      const lo = Math.min(...cumNet, 0), hi = Math.max(...cumNet, 0);
+      const niceStep = (x: number) => { const pw = Math.pow(10, Math.floor(Math.log10(x || 1))); const f = (x || 1) / pw; const n = f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10; return n * pw; };
+      const unit = niceStep((hi - lo) / 4 || 1);
+      const minV = Math.floor(lo / unit) * unit, maxV = Math.ceil(hi / unit) * unit;
+      const maxAbs = Math.max(Math.abs(minV), Math.abs(maxV));
+      const fmtCode = maxAbs >= 1e6 ? '#,##0,,"M";-#,##0,,"M"' : maxAbs >= 1e3 ? '#,##0,"k";-#,##0,"k"' : "#,##0";
+      s.addChart(p.ChartType.line, [{ name: "Cumulative net", labels: years, values: cumNet }], {
+        x: RX + 0.12, y: CY + 0.34, w: RW - 0.24, h: CH - 0.92, chartColors: [BLUE], showLegend: false, showTitle: false,
+        lineSize: 2.5, lineSmooth: true, showValue: false,
+        catAxisLabelFontSize: 8, valAxisLabelFontSize: 8, valAxisLabelFormatCode: fmtCode,
+        valAxisMinVal: minV, valAxisMaxVal: maxV, valAxisMajorUnit: unit,
+        valGridLine: { style: "solid", size: 1, color: "E6EEF5" }, catGridLine: { style: "none" },
       });
+      const beIdx = cumNet.findIndex((v) => v >= 0);
+      const beLabel = (d.paybackMonths && d.paybackMonths !== "—") ? d.paybackMonths : (beIdx > 0 ? years[beIdx] : "—");
+      const finalNet = cumNet.length ? money(cumNet[cumNet.length - 1], true) : "—";
+      s.addText([
+        { text: "● ", options: { color: GREEN } }, { text: `Break-even: ${beLabel}`, options: { color: INK } },
+        { text: "      ● ", options: { color: BLUE } }, { text: `Net by ${years[years.length - 1]}: ${finalNet}`, options: { color: INK, bold: true } },
+      ], { x: RX + 0.2, y: CY + CH - 0.52, w: RW - 0.4, h: 0.22, margin: 0, fontFace: BF, fontSize: 9.5, valign: "middle" });
+      s.addText("Below 0 = still paying back  ·  above 0 = in profit", { x: RX + 0.2, y: CY + CH - 0.3, w: RW - 0.4, h: 0.2, margin: 0, fontFace: BF, fontSize: 8.5, italic: true, color: MUTED });
     } else {
-      s.addText("[ Cash-flow chart ]", { x: 9.15, y: 4.3, w: 3.58, h: 1.6, align: "center", valign: "middle", margin: 0, fontFace: BF, fontSize: 11, italic: true, color: "8AA6BC" });
+      s.addText("[ Payback curve ]", { x: RX, y: CY + 0.5, w: RW, h: 1.4, align: "center", valign: "middle", margin: 0, fontFace: BF, fontSize: 11, italic: true, color: "8AA6BC" });
     }
+
+    s.addText(d.realized ? "Figures in compact units; realised value from the linked Value Realisation track." : "Figures in compact units; planned value at VE stage — becomes realised through Value Realisation (VR).", { x: MX, y: 6.52, w: 12.0, h: 0.35, margin: 0, fontFace: BF, fontSize: 11, italic: true, color: MUTED });
+
+    s.addNotes(
+      "THE CASH-FLOW TABLE (left) reads down the years — 'Now' (year 0, the up-front investment) then each year of the horizon, with a Total row.\n" +
+      "Columns: Benefit in = benefit inflows that year; Cost out = all costs that year (up-front capex & one-off land in 'Now', recurring opex thereafter); Net = benefit − cost; Cumulative net = the running total of Net.\n" +
+      "The Cumulative net column is shaded RED while negative (still paying back) and GREEN once positive (in profit) — the row where it turns green is the payback point.\n\n" +
+      "Figures are shown in compact units (e.g. R2.4M = R2 400 000) to keep the grid readable. Two reconciliation rows are kept here in the notes rather than on the slide: CUMULATIVE BENEFIT = the running total of Benefit in; DISCOUNTED CASH FLOW = each year's Net discounted to today at the discount rate — that discounted series SUMS to the NPV shown in the RESULTS box.\n\n" +
+      "THE PAYBACK CURVE (right) plots the Cumulative net column as a single line:\n" +
+      "• It starts below zero at minus the up-front investment, climbs as net benefit accrues, and crosses the zero line at the PAYBACK POINT (the green marker / the payback months in RESULTS).\n" +
+      "• Below the zero line = still recovering the investment; above = net gain. The line's height at the final year is the net lifetime gain — the basis of the positive NPV and ROI.\n" +
+      "• The value axis is in compact units (M = millions, k = thousands) of the study currency.\n\n" +
+      "Talking point: 'costs land early, benefits compound — here's the month we're paid back, and here's the net gain by year " + (years.length - 1) + ".'"
+    );
   }
 
   /* 15 · NEXT STEPS */
