@@ -238,7 +238,7 @@ export default async function EngagementPage({
           />
           <StakeholderPanel engagementId={e.id} stakeholders={stakeholders} canEdit={canEdit} />
           <RenewalPlanForm engagementId={e.id} plan={renewal} canEdit={canEdit} />
-          <GrowthPlanForm engagementId={e.id} plan={growth} canEdit={canEdit} />
+          <GrowthPlanForm engagementId={e.id} plan={growth} canEdit={canEdit} currency={e.currency} />
           <SuccessPlanForm engagementId={e.id} objectives={e.objectives} successPlan={successPlan} canEdit={canEdit} />
           <div className="card card-pad">
             <div className="label">About this engagement</div>

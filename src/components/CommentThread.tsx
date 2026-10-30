@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { addComment, deleteComment } from "@/lib/actions";
+import { fmtDate } from "@/lib/finance";
 
 interface CommentDTO {
   id: string;
@@ -20,7 +21,7 @@ function when(iso: string): string {
   if (m < 60) return `${m}m ago`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h ago`;
-  return d.toLocaleDateString();
+  return fmtDate(d);
 }
 
 function initials(name: string): string {

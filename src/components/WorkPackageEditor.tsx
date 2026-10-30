@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { addWorkPackage, updateWorkPackage, deleteWorkPackage, setWorkPackageStatus } from "@/lib/actions";
 import { StatusBadge } from "@/components/ui";
+import { fmtDate } from "@/lib/finance";
 
 export interface WpItem {
   id: string;
@@ -105,7 +106,7 @@ export function WorkPackageEditor({ trackId, items, canEdit }: { trackId: string
                   {w.description && <span className="block text-xs font-normal text-ink-400">{w.description}</span>}
                 </td>
                 <td className="td align-top text-xs text-ink-400">{w.recTitle ?? "—"}</td>
-                <td className="td align-top text-xs">{w.dueDate ? new Date(w.dueDate).toLocaleDateString() : "—"}</td>
+                <td className="td align-top text-xs">{w.dueDate ? fmtDate(w.dueDate) : "—"}</td>
                 <td className="td align-top"><StatusBadge status={w.status} /></td>
                 <td className="td align-top whitespace-nowrap text-right">
                   {canEdit && NEXT[w.status] && (

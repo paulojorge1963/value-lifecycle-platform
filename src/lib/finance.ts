@@ -173,3 +173,13 @@ export function fmtDate(d: Date | string | null | undefined): string {
   if (isNaN(+x)) return "—";
   return `${x.getUTCDate()} ${MONTHS[x.getUTCMonth()]} ${x.getUTCFullYear()}`;
 }
+
+// Deterministic date+time (UTC parts) — same on server and client, so it never
+// triggers a hydration mismatch the way toLocaleString() can.
+export function fmtDateTime(d: Date | string | null | undefined): string {
+  if (!d) return "—";
+  const x = new Date(d);
+  if (isNaN(+x)) return "—";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${x.getUTCDate()} ${MONTHS[x.getUTCMonth()]} ${x.getUTCFullYear()} ${p(x.getUTCHours())}:${p(x.getUTCMinutes())} UTC`;
+}

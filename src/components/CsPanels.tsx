@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { HEALTH_FACTORS } from "@/lib/domain/cs-health";
-import { fmtDate } from "@/lib/finance";
+import { fmtDate, fmtMoney } from "@/lib/finance";
 import {
   addStakeholder, deleteStakeholder, addAction, setActionStatus,
   recordHealthScore, saveRenewalPlan, saveGrowthPlan, saveSuccessPlan,
@@ -273,8 +273,8 @@ export function RenewalPlanForm({ engagementId, plan, canEdit }: { engagementId:
   );
 }
 
-export function GrowthPlanForm({ engagementId, plan, canEdit }: { engagementId: string; plan: { triggers: string | null; narrative: string | null; targetValue: number | null } | null; canEdit: boolean }) {
-  const summary = plan ? [plan.triggers ? `Triggers: ${plan.triggers}` : "", plan.targetValue ? `Target value: ${plan.targetValue.toLocaleString()}` : "", plan.narrative].filter(Boolean).join("\n") : "";
+export function GrowthPlanForm({ engagementId, plan, canEdit, currency }: { engagementId: string; plan: { triggers: string | null; narrative: string | null; targetValue: number | null } | null; canEdit: boolean; currency: string }) {
+  const summary = plan ? [plan.triggers ? `Triggers: ${plan.triggers}` : "", plan.targetValue ? `Target value: ${fmtMoney(plan.targetValue, currency)}` : "", plan.narrative].filter(Boolean).join("\n") : "";
   return (
     <CollapsibleForm title="Growth Plan" summary={summary} canEdit={canEdit} onSubmit={(fd) => saveGrowthPlan(engagementId, fd)}>
       <textarea name="triggers" rows={2} placeholder="Expansion triggers & opportunities" defaultValue={plan?.triggers ?? ""} className="input text-sm" />

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { addAdoptionActivity, updateAdoptionActivity, deleteAdoptionActivity } from "@/lib/actions";
 import { StatusBadge } from "@/components/ui";
+import { fmtDate } from "@/lib/finance";
 
 export interface AdoptionRow { id: string; label: string; audience: string | null; dueDate: string | null; status: string }
 type Draft = { label: string; audience: string; dueDate: string; status: string };
@@ -47,7 +48,7 @@ export function AdoptionEditor({ trackId, items, canEdit }: { trackId: string; i
           </li>
         ) : (
           <li key={a.id} className="flex items-center justify-between gap-2">
-            <span className="text-ink-700">{a.label}{a.audience && <span className="text-ink-400"> · {a.audience}</span>}{a.dueDate && <span className="text-ink-400"> · due {new Date(a.dueDate).toLocaleDateString()}</span>}</span>
+            <span className="text-ink-700">{a.label}{a.audience && <span className="text-ink-400"> · {a.audience}</span>}{a.dueDate && <span className="text-ink-400"> · due {fmtDate(a.dueDate)}</span>}</span>
             <span className="flex items-center gap-1.5">
               <StatusBadge status={a.status} />
               {canEdit && <button className="btn border border-ink-200 px-2 py-0.5 text-xs text-ink-600 hover:bg-ink-100" onClick={() => begin(a)}>Edit</button>}

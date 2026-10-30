@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { saveBusinessCaseVersion, restoreBusinessCaseVersion } from "@/lib/actions";
-import { fmtMoney, fmtPct } from "@/lib/finance";
+import { fmtMoney, fmtPct, fmtDateTime } from "@/lib/finance";
 
 interface Snapshot {
   executiveSummary?: string | null;
@@ -84,7 +84,7 @@ export function VersionHistory({
                 <div className="flex items-center gap-2">
                   <span className="badge bg-ink-900 text-white">v{v.version}</span>
                   <span className="text-sm text-ink-700">{v.authorName}</span>
-                  <span className="text-xs text-ink-400">{new Date(v.createdAt).toLocaleString()}</span>
+                  <span className="text-xs text-ink-400">{fmtDateTime(v.createdAt)}</span>
                 </div>
                 <span className="text-xs text-ink-400">{open ? "▲" : "▼"}</span>
               </button>
