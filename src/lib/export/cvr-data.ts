@@ -48,6 +48,7 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
   const dcfBy = YR.map((t) => netBy[t] / Math.pow(1 + dr / 100, t));
   const cum: number[] = []; benefitBy.reduce((a, b, i) => (cum[i] = a + b), 0);
   const cumInvest: number[] = []; costBy.reduce((a, b, i) => (cumInvest[i] = a + b), 0);
+  const cumNet: number[] = []; netBy.reduce((a, b, i) => (cumNet[i] = a + b), 0);
   const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
   const moneyN = (arr: number[]) => arr.map((v) => fmtMoney(v, cur));
   const finYears = YR.map((t) => (t === 0 ? "Now" : `Yr ${t}`));
@@ -149,7 +150,7 @@ export function assembleCvrData(study: StudyWithCvr): CvrData {
     npv: fmtMoney(fin.npv, cur),
     financialRows,
     finYears,
-    cashflow: { years: finYears, cumBenefit: cum, cumInvestment: cumInvest },
+    cashflow: { years: finYears, cumBenefit: cum, cumInvestment: cumInvest, benefit: benefitBy, cost: costBy, net: netBy, cumNet },
     results: [
       { label: "Return on Investment", value: fmtPct(fin.roiPct) },
       { label: "Net Present Value", value: fmtMoney(fin.npv, cur) },

@@ -159,6 +159,18 @@ export function fmtMoney(n: number | null | undefined, currency = DEFAULT_CURREN
   }).format(n);
 }
 
+// Compact money for dense tables/charts (e.g. R2 400 000 → "R2.4M").
+export function fmtMoneyShort(n: number | null | undefined, currency = DEFAULT_CURRENCY): string {
+  if (n == null) return "—";
+  const locale = CURRENCY_LOCALE[currency] ?? "en-ZA";
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(n);
+}
+
 export function fmtPct(n: number | null | undefined): string {
   if (n == null) return "—";
   return `${n.toFixed(1)}%`;
