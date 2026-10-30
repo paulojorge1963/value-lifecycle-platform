@@ -48,7 +48,11 @@ export async function POST(req: NextRequest) {
     if (replace && forceCode && !dryRun) {
       await deleteByCode(forceCode, user.organizationId, prisma);
     }
-    const result = await importWorkbook(buffer, { orgId: user.organizationId, forceCode, dryRun }, prisma);
+    // The signed-in importer owns what they import — consistent with manual
+    // New study / track / engagement creation. (Without this, resolveOwner falls
+    // back to the first role-holder in the org, which picks an arbitrary CSM/VRM
+    // when more than one exists.)
+    const result = await importWorkbook(buffer, { orgId: user.organizationId, ownerEmail: user.email, forceCode, dryRun }, prisma);
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 400 });
