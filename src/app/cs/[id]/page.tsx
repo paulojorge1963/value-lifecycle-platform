@@ -11,6 +11,7 @@ import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
 import { exitCriteriaFor } from "@/lib/gates";
 import { StarterTextPanel } from "@/components/StarterTextPanel";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { OwnerControl } from "@/components/OwnerControl";
 import { computeSignals } from "@/lib/cs-signals";
 import { isAiEnabled } from "@/lib/ai";
 import { fmtMoney, fmtPct, fmtDate } from "@/lib/finance";
@@ -50,6 +51,14 @@ export default async function EngagementPage({
   if (!e) notFound();
 
   const canEdit = can(user.role, "cs.edit");
+
+  // Eligible CSM owners in this workspace (plus the current owner, in case their role changed).
+  const ownerMembers = await prisma.membership.findMany({
+    where: { organizationId: user.organizationId, role: "CUSTOMER_SUCCESS_MANAGER" },
+    include: { user: { select: { id: true, name: true } } },
+  });
+  let ownerOptions = ownerMembers.map((m) => ({ id: m.user.id, name: m.user.name })).sort((a, b) => a.name.localeCompare(b.name));
+  if (!ownerOptions.some((o) => o.id === e.ownerId)) ownerOptions = [{ id: e.owner.id, name: e.owner.name }, ...ownerOptions];
 
   const events = await prisma.auditEvent.findMany({
     where: { entityType: "CustomerSuccessEngagement", entityId: e.id },
@@ -106,7 +115,7 @@ export default async function EngagementPage({
             <StatusBadge status={e.status} />
             <HealthPill health={e.healthOverall} />
             <span className="badge bg-vr-50 text-vr-700">{e.industry.name}</span>
-            <span>· CSM {e.owner.name}</span>
+            <OwnerControl kind="engagement" entityId={e.id} currentOwnerId={e.ownerId} options={ownerOptions} canEdit={canEdit} />
             {e.renewalDate && <span className={rd !== null && rd < 90 ? "text-amber-700" : ""}>· Renewal {fmtDate(e.renewalDate)}</span>}
           </div>
         </div>

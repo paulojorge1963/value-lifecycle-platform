@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, Money, PhaseStepper } from "@/components/ui";
+import { OwnerControl } from "@/components/OwnerControl";
 import { PhaseStatusControl, HandoverButton } from "@/components/StudyControls";
 import { StudyActions } from "@/components/StudyActions";
 import { CvrSnapshots } from "@/components/CvrSnapshots";
@@ -104,6 +105,14 @@ export default async function StudyPage({
   const aiEnabled = isAiEnabled();
   const canHandover = can(user.role, "track.create");
 
+  // Eligible VE owners in this workspace (plus the current owner).
+  const ownerMembers = await prisma.membership.findMany({
+    where: { organizationId: user.organizationId, role: "VALUE_ENGINEER" },
+    include: { user: { select: { id: true, name: true } } },
+  });
+  let ownerOptions = ownerMembers.map((m) => ({ id: m.user.id, name: m.user.name })).sort((a, b) => a.name.localeCompare(b.name));
+  if (!ownerOptions.some((o) => o.id === study.ownerId)) ownerOptions = [{ id: study.owner.id, name: study.owner.name }, ...ownerOptions];
+
   // Workspace shell: which sections are relevant to each phase (drives the phase
   // view, the jump index and the next-action banner).
   const activeUnmet = activePhase ? unmetCriteria(exitCriteriaFor("VE", activePhase.phase), activePhase.checklist) : [];
@@ -150,7 +159,7 @@ export default async function StudyPage({
             <StatusBadge status={study.status} />
             <span className="badge bg-ve-50 text-ve-700">{study.industry.name}</span>
             {study.studyType && <span className="badge bg-ink-100 text-ink-600">{study.studyType}</span>}
-            <span>· Owner {study.owner.name}</span>
+            <OwnerControl kind="study" entityId={study.id} currentOwnerId={study.ownerId} options={ownerOptions} canEdit={canEdit} />
             {study.engagement && (
               <span>· Referenced by{" "}
                 <Link href={`/cs/${study.engagement.id}`} className="font-medium text-ink-700 hover:underline" title={study.engagement.accountName}>{study.engagement.code}</Link>
