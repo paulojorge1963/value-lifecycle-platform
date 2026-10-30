@@ -34,6 +34,37 @@ async function audit(action: string, entityType: string, entityId: string, extra
   });
 }
 
+// ---- Reassign owner (VE study / VR track) ----------------------------------
+// The new owner must be a member of the same workspace; the caller must hold
+// the discipline's edit capability (study.edit / track.edit).
+export async function reassignStudyOwner(studyId: string, ownerId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  const study = await prisma.study.findFirst({ where: { id: studyId, organizationId: user.organizationId }, select: { id: true, ownerId: true } });
+  if (!study) throw new Error("Study not found");
+  const member = await prisma.membership.findFirst({ where: { userId: ownerId, organizationId: user.organizationId }, select: { userId: true } });
+  if (!member) throw new Error("New owner must be a member of this workspace");
+  if (study.ownerId === ownerId) return;
+  await prisma.study.update({ where: { id: studyId }, data: { ownerId } });
+  await audit("study.owner_reassigned", "Study", studyId, { studyId, metadata: { ownerId } });
+  revalidatePath("/ve");
+  revalidatePath(`/ve/${studyId}`);
+}
+
+export async function reassignTrackOwner(trackId: string, ownerId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  const track = await prisma.realizationTrack.findFirst({ where: { id: trackId, organizationId: user.organizationId }, select: { id: true, ownerId: true } });
+  if (!track) throw new Error("Track not found");
+  const member = await prisma.membership.findFirst({ where: { userId: ownerId, organizationId: user.organizationId }, select: { userId: true } });
+  if (!member) throw new Error("New owner must be a member of this workspace");
+  if (track.ownerId === ownerId) return;
+  await prisma.realizationTrack.update({ where: { id: trackId }, data: { ownerId } });
+  await audit("track.owner_reassigned", "RealizationTrack", trackId, { trackId, metadata: { ownerId } });
+  revalidatePath("/vr");
+  revalidatePath(`/vr/${trackId}`);
+}
+
 // ---- Create a new VE study -------------------------------------------------
 export async function createStudy(formData: FormData) {
   const user = await getCurrentUser();

@@ -36,6 +36,22 @@ async function nextCode(): Promise<string> {
   return `${prefixYear}${String(n).padStart(3, "0")}`;
 }
 
+// Reassign the CSM owner of an engagement. New owner must be a workspace
+// member; caller must hold cs.edit.
+export async function reassignEngagementOwner(engagementId: string, ownerId: string) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "cs.edit")) throw new Error("Not permitted");
+  const eng = await prisma.customerSuccessEngagement.findFirst({ where: { id: engagementId, organizationId: user.organizationId }, select: { id: true, ownerId: true } });
+  if (!eng) throw new Error("Engagement not found");
+  const member = await prisma.membership.findFirst({ where: { userId: ownerId, organizationId: user.organizationId }, select: { userId: true } });
+  if (!member) throw new Error("New owner must be a member of this workspace");
+  if (eng.ownerId === ownerId) return;
+  await prisma.customerSuccessEngagement.update({ where: { id: engagementId }, data: { ownerId } });
+  await audit("engagement.owner_reassigned", engagementId, { ownerId });
+  revalidatePath(`/cs/${engagementId}`);
+  revalidatePath("/cs");
+}
+
 export async function createEngagement(formData: FormData) {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "cs.create")) throw new Error("Not permitted");

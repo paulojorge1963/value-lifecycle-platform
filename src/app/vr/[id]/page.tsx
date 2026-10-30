@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
+import { OwnerControl } from "@/components/OwnerControl";
 import { TrackPhaseControl } from "@/components/TrackControls";
 import { WorkPackageEditor } from "@/components/WorkPackageEditor";
 import { KpiTargetEditor } from "@/components/KpiTargetEditor";
@@ -79,6 +80,14 @@ export default async function TrackPage({
   const canDelete = can(user.role, "track.delete");
   const canKpi = can(user.role, "kpi.record");
 
+  // Eligible VRM owners in this workspace (plus the current owner).
+  const ownerMembers = await prisma.membership.findMany({
+    where: { organizationId: user.organizationId, role: "VALUE_REALIZATION_MANAGER" },
+    include: { user: { select: { id: true, name: true } } },
+  });
+  let ownerOptions = ownerMembers.map((m) => ({ id: m.user.id, name: m.user.name })).sort((a, b) => a.name.localeCompare(b.name));
+  if (!ownerOptions.some((o) => o.id === track.ownerId)) ownerOptions = [{ id: track.owner.id, name: track.owner.name }, ...ownerOptions];
+
   const planned = track.plannedValue ?? 0;
   const realized = track.realizedValue ?? 0;
   const variance = planned > 0 ? ((realized - planned) / planned) * 100 : null;
@@ -100,7 +109,7 @@ export default async function TrackPage({
             <StatusBadge status={track.status} />
             <HealthPill health={track.health} />
             <span className="badge bg-vr-50 text-vr-700">{track.industry.name}</span>
-            <span>· Owner {track.owner.name}</span>
+            <OwnerControl kind="track" entityId={track.id} currentOwnerId={track.ownerId} options={ownerOptions} canEdit={canEdit} />
             {track.study ? (
               <span>· Source study{" "}
                 <Link href={`/ve/${track.studyId}`} className="text-ve-600 hover:underline">{track.study.code}</Link>
