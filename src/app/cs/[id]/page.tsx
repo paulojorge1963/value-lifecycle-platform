@@ -5,7 +5,7 @@ import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
 import { CsStageControl, CsHealthControl, LinkPicker, UnlinkButton, DeleteEngagementButton } from "@/components/CsControls";
 import { HealthScorecard, ActionLog, StakeholderPanel, RenewalPlanForm, GrowthPlanForm, SuccessPlanForm, ReportsPanel } from "@/components/CsPanels";
-import { CS_STAGES, CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
+import { CS_STAGES, csStageView, csStageTitle } from "@/lib/domain/cs-stages";
 import { PlaybookBar } from "@/components/PlaybookBar";
 import { ExitCriteriaChecklist } from "@/components/ExitCriteriaChecklist";
 import { exitCriteriaFor } from "@/lib/gates";
@@ -98,7 +98,9 @@ export default async function EngagementPage({
     e.stages.sort((a, b) => a.order - b.order).find((s) => s.status !== "COMPLETE")?.stage ||
     e.stages[0]?.stage;
   const activeInst = e.stages.find((s) => s.stage === activeKey);
-  const activeDef = activeKey ? STAGE_BY_KEY[activeKey] : null;
+  // Direct-entry = no upstream VE/VR handover; the first stage reads as "Account Intake".
+  const directEntry = e.studies.length === 0 && e.tracks.length === 0;
+  const activeDef = activeKey ? csStageView(STAGE_BY_KEY[activeKey], { directEntry }) : null;
 
   return (
     <div className="space-y-6">
@@ -147,7 +149,7 @@ export default async function EngagementPage({
       {/* Stage playbook */}
       <PlaybookBar
         title="Customer Success lifecycle"
-        phases={e.stages.map((s) => ({ key: s.stage, name: CS_STAGE_TITLE[s.stage], order: s.order, status: s.status }))}
+        phases={e.stages.map((s) => ({ key: s.stage, name: csStageTitle(s.stage, { directEntry }), order: s.order, status: s.status }))}
         activeKey={activeKey ?? ""}
         basePath={`/cs/${e.id}`}
         param="stage"

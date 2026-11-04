@@ -135,3 +135,37 @@ export const CS_STAGES: CsStageDef[] = [
 ];
 
 export const CS_STAGE_TITLE: Record<string, string> = Object.fromEntries(CS_STAGES.map((s) => [s.key, s.title]));
+
+// -----------------------------------------------------------------------------
+//  Direct-entry (straight-to-CS) relabel for the first stage.
+//  When an engagement has NO linked VE study or VR track, there is no upstream
+//  handover to receive — the customer is coming straight into Customer Success.
+//  The stage then reads as an "Account Intake" that establishes the baseline the
+//  VE/VR handover would otherwise provide. Exit criteria are unchanged (they are
+//  already generic: objectives captured, stakeholders identified, success plan
+//  created), so gate validation is untouched — this is purely a display relabel.
+// -----------------------------------------------------------------------------
+const CS_HANDOVER_DIRECT: Pick<CsStageDef, "title" | "objective" | "keyActivities"> = {
+  title: "Account Intake",
+  objective:
+    "Bring an existing customer straight into Customer Success and establish a light baseline, since there is no upstream Value Engineering or Value Realisation handover.",
+  keyActivities: [
+    "Capture account fundamentals: products owned, contract / renewal date, ARR, support tier",
+    "Capture customer objectives & 2–4 success measures (a light value baseline)",
+    "Identify stakeholders & the executive sponsor",
+    "Capture current health inputs (adoption, support posture, sentiment, risks)",
+    "Create the Customer Success Plan",
+  ],
+};
+
+/** The effective stage definition, adapted for a direct-entry (no VE/VR) engagement. */
+export function csStageView(def: CsStageDef, opts?: { directEntry?: boolean }): CsStageDef {
+  if (opts?.directEntry && def.key === "HANDOVER") return { ...def, ...CS_HANDOVER_DIRECT };
+  return def;
+}
+
+/** The effective stage title, adapted for a direct-entry (no VE/VR) engagement. */
+export function csStageTitle(key: string, opts?: { directEntry?: boolean }): string {
+  if (opts?.directEntry && key === "HANDOVER") return CS_HANDOVER_DIRECT.title;
+  return CS_STAGE_TITLE[key] ?? key;
+}
