@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Packer, Paragraph, HeadingLevel, Table, TableRow, TableCell, WidthType, TextRun } from "docx";
 import { prisma } from "@/lib/db";
 import { fmtMoney, fmtPct } from "@/lib/finance";
-import { CS_STAGE_TITLE } from "@/lib/domain/cs-stages";
+import { csStageTitle } from "@/lib/domain/cs-stages";
 import { brandedDoc } from "@/lib/export/doc-template";
 
 // CS deliverable export: Account Success Review (health, value, renewal, growth).
@@ -33,6 +33,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const planned = e.tracks.reduce((s, t) => s + (t.plannedValue ?? 0), 0);
   const realized = e.tracks.reduce((s, t) => s + (t.realizedValue ?? 0), 0);
+  // Direct-entry = no upstream VE/VR handover; the first stage reads as "Account Intake".
+  const directEntry = e.studies.length === 0 && e.tracks.length === 0;
   // Current stage = where the engagement is now (mirrors the CS detail page):
   // first IN_PROGRESS stage, else the first not-yet-complete stage, else stage 1.
   const stagesByOrder = [...e.stages].sort((a, b) => a.order - b.order);
@@ -99,7 +101,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         ] : [p("—")]),
 
         h("Lifecycle status"),
-        ...e.stages.sort((a, b) => a.order - b.order).map((s) => bullet(`${s.order}. ${CS_STAGE_TITLE[s.stage]} — ${s.status.toLowerCase()}`)),
+        ...e.stages.sort((a, b) => a.order - b.order).map((s) => bullet(`${s.order}. ${csStageTitle(s.stage, { directEntry })} — ${s.status.toLowerCase()}`)),
     ],
   });
 
