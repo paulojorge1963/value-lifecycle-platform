@@ -76,7 +76,7 @@ const ROLE_CAPS: Record<Role, Capability[]> = {
   ],
   VALUE_ENGINEER: ["study.create", "study.edit", "track.create", "view"],
   VALUE_REALIZATION_MANAGER: ["track.create", "track.edit", "kpi.record", "report.publish", "view"],
-  CUSTOMER_SUCCESS_MANAGER: ["cs.create", "cs.edit", "track.create", "kpi.record", "report.publish", "view"],
+  CUSTOMER_SUCCESS_MANAGER: ["cs.create", "cs.edit", "kpi.record", "report.publish", "view"],
   REVIEWER: ["study.approve", "recommendation.accept", "view"],
   VIEWER: ["view"],
 };
