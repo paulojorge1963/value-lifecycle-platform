@@ -29,15 +29,18 @@ export default async function VeWorkspace() {
         title="Value Engineering workspace"
         desc="Run structured VE studies through the 8-phase Job Plan and build the business case."
         action={
-          can(user.role, "study.create") ? (
-            <div className="flex items-center gap-2">
-              <ImportWorkbook label="Import workbook" variant="btn-ghost" />
-              <NewStudyForm
-                industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))}
-                studyTypesByIndustry={studyTypesByIndustry}
-              />
-            </div>
-          ) : null
+          <div className="flex items-center gap-2">
+            <Link href="/ve/report" className="btn-ghost">Status report ↓</Link>
+            {can(user.role, "study.create") ? (
+              <>
+                <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+                <NewStudyForm
+                  industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))}
+                  studyTypesByIndustry={studyTypesByIndustry}
+                />
+              </>
+            ) : null}
+          </div>
         }
       />
 
