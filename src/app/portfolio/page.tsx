@@ -81,9 +81,12 @@ export default async function PortfolioPage() {
         title="Value Portfolio"
         desc="Combined view for leaders — planned value from VE studies, realised value from VR tracks."
         action={
-          can(user.role, "study.create") || can(user.role, "track.create") || can(user.role, "cs.create") ? (
-            <ImportWorkbook label="Import workbook" variant="btn-ghost" />
-          ) : null
+          <div className="flex items-center gap-2">
+            <Link href="/portfolio/report" className="btn-ghost">Lifecycle status report ↓</Link>
+            {can(user.role, "study.create") || can(user.role, "track.create") || can(user.role, "cs.create") ? (
+              <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+            ) : null}
+          </div>
         }
       />
 

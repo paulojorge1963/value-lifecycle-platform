@@ -34,12 +34,17 @@ export default async function CsWorkspace() {
       <SectionHeader
         title="Customer Success workspace"
         desc="Run the continuous, whole-relationship lifecycle — onboarding through renewal and expansion — linking each account's studies and tracks."
-        action={can(user.role, "cs.create") ? (
+        action={
           <div className="flex items-center gap-2">
-            <ImportWorkbook label="Import workbook" variant="btn-ghost" />
-            <NewEngagementForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+            <Link href="/cs/report" className="btn-ghost">Status report ↓</Link>
+            {can(user.role, "cs.create") ? (
+              <>
+                <ImportWorkbook label="Import workbook" variant="btn-ghost" />
+                <NewEngagementForm industries={INDUSTRY_PROFILES.map((p) => ({ key: p.key, name: p.name }))} />
+              </>
+            ) : null}
           </div>
-        ) : null}
+        }
       />
 
       <div className="grid gap-4 md:grid-cols-2">
