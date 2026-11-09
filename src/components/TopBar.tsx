@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { signOut } from "@/lib/auth";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -19,6 +20,7 @@ export function TopBar({ user }: { user: { name: string; role: string } }) {
       <span className="grid h-8 w-8 place-items-center rounded-full bg-ink-100 text-xs font-semibold text-ink-600 ring-1 ring-ink-200">
         {user.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
       </span>
+      <Link href="/account/password" className="btn-ghost">Change password</Link>
       <form
         action={async () => {
           "use server";

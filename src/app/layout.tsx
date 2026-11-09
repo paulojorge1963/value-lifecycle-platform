@@ -5,6 +5,7 @@ import { getCurrentUser, can } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { LeftRail } from "@/components/LeftRail";
 import { TopBar } from "@/components/TopBar";
+import { ForcedPasswordChange } from "@/components/ForcedPasswordChange";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -26,7 +27,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en-GB" className={inter.variable}>
       <body className="font-sans">
-        {user ? (
+        {user && user.mustChangePassword ? (
+          // Admin-set temporary password: block the whole app until they set
+          // their own. getCurrentUser reads the DB each render, so clearing the
+          // flag lifts this on the next load.
+          <ForcedPasswordChange name={user.name} />
+        ) : user ? (
           <div className="flex h-screen overflow-hidden">
             <LeftRail isAdmin={isAdmin} orgName={org?.name} />
             <div className="flex min-w-0 flex-1 flex-col">
