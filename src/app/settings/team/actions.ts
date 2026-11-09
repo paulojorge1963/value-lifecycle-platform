@@ -77,7 +77,8 @@ export async function addTeamMember(_prev: AddResult | undefined, formData: Form
 
   const passwordHash = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { name, email, title, organizationId: admin.organizationId, passwordHash },
+    // The admin-set password is temporary — the member sets their own on first sign-in.
+    data: { name, email, title, organizationId: admin.organizationId, passwordHash, mustChangePassword: true },
   });
   await prisma.membership.create({
     data: { userId: user.id, organizationId: admin.organizationId, role: role as never },
@@ -165,7 +166,8 @@ export async function resetMemberPassword(_prev: string | undefined, formData: F
   if (password.length < 8) return "New password must be at least 8 characters.";
   const membership = await prisma.membership.findFirst({ where: { userId, organizationId: admin.organizationId } });
   if (!membership) return "Member not found in this workspace.";
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash: await bcrypt.hash(password, 10) } });
+  // A reset password is temporary too — the member must set their own next sign-in.
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash: await bcrypt.hash(password, 10), mustChangePassword: true } });
   await prisma.auditEvent.create({
     data: { actorId: admin.id, action: "team.password_reset", entityType: "User", entityId: userId },
   });

@@ -232,6 +232,10 @@ model User {
   name           String
   title          String?
   passwordHash   String? // bcrypt hash for Credentials sign-in
+  // When true, the user must set a new password before using the app. Set when
+  // an admin creates or resets an account (the initial password is temporary);
+  // cleared the moment the user changes it themselves.
+  mustChangePassword Boolean @default(false)
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())

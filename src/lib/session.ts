@@ -24,6 +24,8 @@ export interface SessionUser {
   title: string | null;
   organizationId: string;
   role: Role;
+  /** True until the user changes an admin-set initial password. */
+  mustChangePassword: boolean;
 }
 
 /** Resolve the current user from the Auth.js session. */
@@ -46,6 +48,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     title: user.title,
     organizationId: user.organizationId,
     role: (membership?.role as Role) ?? "VIEWER",
+    mustChangePassword: user.mustChangePassword,
   };
 }
 
