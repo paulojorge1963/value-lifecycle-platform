@@ -19,30 +19,41 @@ const TRACK_STATUS_OPTIONS: { value: SettableTrackStatus; label: string }[] = [
 export function TrackStatusControl({ trackId, status, canEdit }: { trackId: string; status: string; canEdit: boolean }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [blocked, setBlocked] = useState<string[] | null>(null);
   if (!canEdit || !TRACK_STATUS_OPTIONS.some((o) => o.value === status)) return null;
   return (
-    <label className="inline-flex items-center gap-1.5 text-xs text-ink-500">
-      <span className="sr-only">Track status</span>
-      <select
-        aria-label="Track status"
-        className="rounded-md border border-ink-300 bg-white px-2 py-1 text-xs text-ink-700 disabled:opacity-50"
-        value={status}
-        disabled={pending}
-        onChange={(e) => {
-          const next = e.target.value as SettableTrackStatus;
-          if (next === status) return;
-          start(async () => {
-            await setTrackStatus(trackId, next);
-            router.refresh();
-          });
-        }}
-      >
-        {TRACK_STATUS_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
-        ))}
-      </select>
-      {pending && <span className="text-ink-400">…</span>}
-    </label>
+    <div className="inline-flex flex-col items-start gap-1">
+      <label className="inline-flex items-center gap-1.5 text-xs text-ink-500">
+        <span className="sr-only">Track status</span>
+        <select
+          aria-label="Track status"
+          className="rounded-md border border-ink-300 bg-white px-2 py-1 text-xs text-ink-700 disabled:opacity-50"
+          value={status}
+          disabled={pending}
+          onChange={(e) => {
+            const next = e.target.value as SettableTrackStatus;
+            if (next === status) return;
+            setBlocked(null);
+            start(async () => {
+              const r = await setTrackStatus(trackId, next);
+              if (r && !r.ok) setBlocked(r.unmet);
+              else router.refresh();
+            });
+          }}
+        >
+          {TRACK_STATUS_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        {pending && <span className="text-ink-400">…</span>}
+      </label>
+      {blocked && blocked.length > 0 && (
+        <div className="max-w-xs rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-left text-[11px] text-amber-800">
+          <b>Can’t mark realised yet</b>
+          <ul className="mt-1 list-disc pl-4">{blocked.map((c) => <li key={c}>{c}</li>)}</ul>
+        </div>
+      )}
+    </div>
   );
 }
 
