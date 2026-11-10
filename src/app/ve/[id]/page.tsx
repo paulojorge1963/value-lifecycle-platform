@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, Money, PhaseStepper } from "@/components/ui";
 import { OwnerControl } from "@/components/OwnerControl";
-import { PhaseStatusControl, HandoverButton } from "@/components/StudyControls";
+import { PhaseStatusControl, HandoverButton, StudyStatusControl } from "@/components/StudyControls";
 import { StudyActions } from "@/components/StudyActions";
 import { CvrSnapshots } from "@/components/CvrSnapshots";
 import { FunctionEditor } from "@/components/FunctionEditor";
@@ -157,6 +157,7 @@ export default async function StudyPage({
           <h1 className="mt-1 text-2xl font-bold text-ink-900">{study.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-500">
             <StatusBadge status={study.status} />
+            <StudyStatusControl studyId={study.id} status={study.status} canEdit={canEdit} />
             <span className="badge bg-ve-50 text-ve-700">{study.industry.name}</span>
             {study.studyType && <span className="badge bg-ink-100 text-ink-600">{study.studyType}</span>}
             <OwnerControl kind="study" entityId={study.id} currentOwnerId={study.ownerId} options={ownerOptions} canEdit={canEdit} />

@@ -123,6 +123,24 @@ export async function unarchiveStudy(studyId: string) {
   revalidatePath(`/ve/${studyId}`);
 }
 
+// Statuses an editor may set directly from the study page. HANDED_OVER is driven
+// only by the handover flow (it creates a track), and ARCHIVED by archive/unarchive.
+const STUDY_STATUSES = ["DRAFT", "ACTIVE", "IN_REVIEW", "APPROVED", "REJECTED"] as const;
+export type SettableStudyStatus = (typeof STUDY_STATUSES)[number];
+
+export async function setStudyStatus(studyId: string, status: SettableStudyStatus) {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "study.edit")) throw new Error("Not permitted");
+  if (!STUDY_STATUSES.includes(status)) {
+    throw new Error("Hand over or archive the study instead; that status can't be set here.");
+  }
+  await prisma.study.update({ where: { id: studyId }, data: { status } });
+  await audit("study.status_changed", "Study", studyId, { studyId, metadata: { status } });
+  revalidatePath("/ve");
+  revalidatePath(`/ve/${studyId}`);
+  revalidatePath("/portfolio");
+}
+
 export async function deleteStudy(studyId: string) {
   const user = await getCurrentUser();
   if (!user || !can(user.role, "study.delete")) throw new Error("Only an admin can delete a study");
@@ -647,6 +665,44 @@ export async function unarchiveTrack(trackId: string) {
   await audit("track.unarchived", "RealizationTrack", trackId, { trackId });
   revalidatePath("/vr");
   revalidatePath(`/vr/${trackId}`);
+}
+
+// Statuses an editor may set directly from the track page. ARCHIVED is left to
+// the archive/unarchive flow (archiveTrack/unarchiveTrack) so the two don't conflict.
+const TRACK_STATUSES = ["PLANNING", "IN_FLIGHT", "ON_HOLD", "REALIZED", "CLOSED", "CANCELLED"] as const;
+export type SettableTrackStatus = (typeof TRACK_STATUSES)[number];
+
+export async function setTrackStatus(trackId: string, status: SettableTrackStatus): Promise<GateResult> {
+  const user = await getCurrentUser();
+  if (!user || !can(user.role, "track.edit")) throw new Error("Not permitted");
+  if (!TRACK_STATUSES.includes(status)) {
+    throw new Error("Use Archive to retire a track; that status can't be set here.");
+  }
+  // Gate REALIZED on the benefits ledger: a track is only "realised" once there
+  // is a real benefits plan and the recorded realised value has reached it.
+  if (status === "REALIZED") {
+    const [track, agg] = await Promise.all([
+      prisma.realizationTrack.findUnique({ where: { id: trackId }, select: { currency: true } }),
+      prisma.benefit.aggregate({ where: { trackId }, _count: true, _sum: { plannedValue: true, realizedValue: true } }),
+    ]);
+    const planned = agg._sum.plannedValue ?? 0;
+    const realized = agg._sum.realizedValue ?? 0;
+    const unmet: string[] = [];
+    if (agg._count === 0 || planned <= 0) {
+      unmet.push("Add at least one planned benefit before marking the track realised.");
+    } else if (realized < planned) {
+      const cur = track?.currency ?? "USD";
+      const pct = Math.round((realized / planned) * 100);
+      unmet.push(`Benefits are ${pct}% realised (${cur} ${realized.toLocaleString()} of ${cur} ${planned.toLocaleString()}). Record the remaining benefit realisation before marking the track realised.`);
+    }
+    if (unmet.length) return { ok: false, unmet };
+  }
+  await prisma.realizationTrack.update({ where: { id: trackId }, data: { status } });
+  await audit("track.status_changed", "RealizationTrack", trackId, { trackId, metadata: { status } });
+  revalidatePath("/vr");
+  revalidatePath(`/vr/${trackId}`);
+  revalidatePath("/portfolio");
+  return { ok: true };
 }
 
 export async function deleteTrack(trackId: string) {

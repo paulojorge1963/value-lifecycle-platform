@@ -1,7 +1,61 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { setTrackPhaseStatus, setWorkPackageStatus, recordKpiActual, updateBenefitRealized } from "@/lib/actions";
+import { setTrackPhaseStatus, setWorkPackageStatus, recordKpiActual, updateBenefitRealized, setTrackStatus, type SettableTrackStatus } from "@/lib/actions";
+
+// Track statuses an editor can set inline. ARCHIVED is handled by the Archive button.
+const TRACK_STATUS_OPTIONS: { value: SettableTrackStatus; label: string }[] = [
+  { value: "PLANNING", label: "Planning" },
+  { value: "IN_FLIGHT", label: "In flight" },
+  { value: "ON_HOLD", label: "On hold" },
+  { value: "REALIZED", label: "Realized" },
+  { value: "CLOSED", label: "Closed" },
+  { value: "CANCELLED", label: "Cancelled" },
+];
+
+// Inline status selector beside the StatusBadge. Hidden for ARCHIVED tracks —
+// those are governed by the Archive/Unarchive flow instead.
+export function TrackStatusControl({ trackId, status, canEdit }: { trackId: string; status: string; canEdit: boolean }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [blocked, setBlocked] = useState<string[] | null>(null);
+  if (!canEdit || !TRACK_STATUS_OPTIONS.some((o) => o.value === status)) return null;
+  return (
+    <div className="inline-flex flex-col items-start gap-1">
+      <label className="inline-flex items-center gap-1.5 text-xs text-ink-500">
+        <span className="sr-only">Track status</span>
+        <select
+          aria-label="Track status"
+          className="rounded-md border border-ink-300 bg-white px-2 py-1 text-xs text-ink-700 disabled:opacity-50"
+          value={status}
+          disabled={pending}
+          onChange={(e) => {
+            const next = e.target.value as SettableTrackStatus;
+            if (next === status) return;
+            setBlocked(null);
+            start(async () => {
+              const r = await setTrackStatus(trackId, next);
+              if (r && !r.ok) setBlocked(r.unmet);
+              else router.refresh();
+            });
+          }}
+        >
+          {TRACK_STATUS_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        {pending && <span className="text-ink-400">…</span>}
+      </label>
+      {blocked && blocked.length > 0 && (
+        <div className="max-w-xs rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-left text-[11px] text-amber-800">
+          <b>Can’t mark realised yet</b>
+          <ul className="mt-1 list-disc pl-4">{blocked.map((c) => <li key={c}>{c}</li>)}</ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const WP_NEXT: Record<string, { label: string; value: string }> = {
   NOT_STARTED: { label: "Start", value: "IN_PROGRESS" },
