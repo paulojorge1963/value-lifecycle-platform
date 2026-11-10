@@ -134,7 +134,10 @@ export async function setStudyStatus(studyId: string, status: SettableStudyStatu
   if (!STUDY_STATUSES.includes(status)) {
     throw new Error("Hand over or archive the study instead; that status can't be set here.");
   }
-  await prisma.study.update({ where: { id: studyId }, data: { status } });
+  // Org-scope: never change the status of another organization's study.
+  const study = await prisma.study.findFirst({ where: { id: studyId, organizationId: user.organizationId }, select: { id: true } });
+  if (!study) throw new Error("Study not found");
+  await prisma.study.update({ where: { id: study.id }, data: { status } });
   await audit("study.status_changed", "Study", studyId, { studyId, metadata: { status } });
   revalidatePath("/ve");
   revalidatePath(`/ve/${studyId}`);
@@ -678,6 +681,9 @@ export async function setTrackStatus(trackId: string, status: SettableTrackStatu
   if (!TRACK_STATUSES.includes(status)) {
     throw new Error("Use Archive to retire a track; that status can't be set here.");
   }
+  // Org-scope: never change the status of another organization's track.
+  const owned = await prisma.realizationTrack.findFirst({ where: { id: trackId, organizationId: user.organizationId }, select: { id: true } });
+  if (!owned) throw new Error("Track not found");
   // Gate REALIZED on the benefits ledger: a track is only "realised" once there
   // is a real benefits plan and recorded realised value has reached 80% of it.
   if (status === "REALIZED") {
