@@ -679,8 +679,9 @@ export async function setTrackStatus(trackId: string, status: SettableTrackStatu
     throw new Error("Use Archive to retire a track; that status can't be set here.");
   }
   // Gate REALIZED on the benefits ledger: a track is only "realised" once there
-  // is a real benefits plan and the recorded realised value has reached it.
+  // is a real benefits plan and recorded realised value has reached 80% of it.
   if (status === "REALIZED") {
+    const REALIZED_THRESHOLD = 0.8;
     const [track, agg] = await Promise.all([
       prisma.realizationTrack.findUnique({ where: { id: trackId }, select: { currency: true } }),
       prisma.benefit.aggregate({ where: { trackId }, _count: true, _sum: { plannedValue: true, realizedValue: true } }),
@@ -690,10 +691,10 @@ export async function setTrackStatus(trackId: string, status: SettableTrackStatu
     const unmet: string[] = [];
     if (agg._count === 0 || planned <= 0) {
       unmet.push("Add at least one planned benefit before marking the track realised.");
-    } else if (realized < planned) {
+    } else if (realized < planned * REALIZED_THRESHOLD) {
       const cur = track?.currency ?? "USD";
       const pct = Math.round((realized / planned) * 100);
-      unmet.push(`Benefits are ${pct}% realised (${cur} ${realized.toLocaleString()} of ${cur} ${planned.toLocaleString()}). Record the remaining benefit realisation before marking the track realised.`);
+      unmet.push(`Benefits are ${pct}% realised (${cur} ${realized.toLocaleString()} of ${cur} ${planned.toLocaleString()}) — at least ${Math.round(REALIZED_THRESHOLD * 100)}% is required. Record more benefit realisation before marking the track realised.`);
     }
     if (unmet.length) return { ok: false, unmet };
   }
