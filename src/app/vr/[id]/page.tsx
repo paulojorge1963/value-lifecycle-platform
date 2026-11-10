@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser, can } from "@/lib/session";
 import { StatusBadge, HealthPill, StatTile } from "@/components/ui";
 import { OwnerControl } from "@/components/OwnerControl";
-import { TrackPhaseControl } from "@/components/TrackControls";
+import { TrackPhaseControl, TrackStatusControl } from "@/components/TrackControls";
 import { WorkPackageEditor } from "@/components/WorkPackageEditor";
 import { KpiTargetEditor } from "@/components/KpiTargetEditor";
 import { AdoptionEditor } from "@/components/AdoptionEditor";
@@ -107,6 +107,7 @@ export default async function TrackPage({
           <h1 className="mt-1 text-2xl font-bold text-ink-900">{track.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-ink-500">
             <StatusBadge status={track.status} />
+            <TrackStatusControl trackId={track.id} status={track.status} canEdit={canEdit} />
             <HealthPill health={track.health} />
             <span className="badge bg-vr-50 text-vr-700">{track.industry.name}</span>
             <OwnerControl kind="track" entityId={track.id} currentOwnerId={track.ownerId} options={ownerOptions} canEdit={canEdit} />
