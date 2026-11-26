@@ -68,6 +68,12 @@ export const INDUSTRY_PROFILES: IndustryProfileDef[] = [
       defaultKpiKeys: [
         "job_success_rate",
         "sla_attainment",
+        "failed_jobs",
+        "legacy_schedulers_live",
+        "jobs_as_code_adoption",
+        "mft_file_transfers",
+        "files_transferred",
+        "integrations_count",
         "cost_savings",
         "roi_pct",
         "payback_period",
